@@ -10,5 +10,5 @@ description = 'API Automatic Documentation Maker - YASG/SPECTACULAR wrapper'
 setup(
     name=name,
     version='1.0.0',
-    packages=find_packages('audoma')
+    packages=find_packages('')
 )
