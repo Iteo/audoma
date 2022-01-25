@@ -1,7 +1,6 @@
 from django_filters import rest_framework as df_filters
 from drf_yasg import openapi
 
-
 class DocumentedTypedChoiceFilter(df_filters.TypedChoiceFilter):
     """Extended TypedChoiceFilter to generate documentation automatically"""
 

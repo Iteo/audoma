@@ -1,11 +1,13 @@
-# import inspect
-
-import random
-import uuid
-
-from django.utils.functional import lazy
 from rest_framework import serializers
-
+# from rest_framework.serializers import *
+from django.db import models
+from audoma.drf.fields import (
+    BooleanField, CharField, ChoiceField, DateField, DateTimeField, DecimalField,
+    DictField, DurationField, EmailField, Field, FileField, FilePathField, FloatField,
+    HiddenField, HStoreField, IPAddressField, ImageField, IntegerField, JSONField,
+    ListField, ModelField, MultipleChoiceField, NullBooleanField, ReadOnlyField,
+    RegexField, SerializerMethodField, SlugField, TimeField, URLField, UUIDField,
+)
 embeded_serializer_classes = {}
 
 
@@ -42,7 +44,32 @@ class ResultSerializerClassMixin:
 
 
 class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
-    pass
+    serializer_field_mapping = {
+        models.AutoField: IntegerField,
+        models.BigIntegerField: IntegerField,
+        models.BooleanField: BooleanField,
+        models.CharField: CharField,
+        models.CommaSeparatedIntegerField: CharField,
+        models.DateField: DateField,
+        models.DateTimeField: DateTimeField,
+        models.DecimalField: DecimalField,
+        models.EmailField: EmailField,
+        models.Field: ModelField,
+        models.FileField: FileField,
+        models.FloatField: FloatField,
+        models.ImageField: ImageField,
+        models.IntegerField: IntegerField,
+        models.NullBooleanField: NullBooleanField,
+        models.PositiveIntegerField: IntegerField,
+        models.PositiveSmallIntegerField: IntegerField,
+        models.SlugField: SlugField,
+        models.SmallIntegerField: IntegerField,
+        models.TextField: CharField,
+        models.TimeField: TimeField,
+        models.URLField: URLField,
+        models.GenericIPAddressField: IPAddressField,
+        models.FilePathField: FilePathField,
+    }
 
 
 class Serializer(ResultSerializerClassMixin, serializers.Serializer):
@@ -65,31 +92,3 @@ class DisplayNameWritableField(serializers.ChoiceField):
             return self.choices_inverted_dict[data.title()]
         except KeyError:
             raise serializers.ValidationError('"%s" is not valid choice.' % data)
-
-
-class DecimalField(serializers.DecimalField):
-    class Meta:
-        swagger_schema_fields = {
-            "example": lazy(lambda: "%.2f" % (random.random() * random.randint(1, 1000)), str)()
-        }
-
-
-class UUIDField(serializers.UUIDField):
-    class Meta:
-        swagger_schema_fields = {
-            "example": lazy(lambda: str(uuid.uuid4()), str)()
-        }
-
-
-class IntegerField(serializers.IntegerField):
-    class Meta:
-        swagger_schema_fields = {
-            "example": lazy(lambda: random.randint(1, 1000), int)()
-        }
-
-
-class FloatField(serializers.FloatField):
-    class Meta:
-        swagger_schema_fields = {
-            "example": lazy(lambda: (random.random() * random.randint(1, 1000)), float)()
-        }
