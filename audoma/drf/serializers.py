@@ -1,13 +1,15 @@
 from rest_framework import serializers
-# from rest_framework.serializers import *
+from rest_framework.serializers import *
 from django.db import models
-from audoma.drf.fields import (
+from audoma.drf.fields import (  # NOQA # isort:skip
     BooleanField, CharField, ChoiceField, DateField, DateTimeField, DecimalField,
     DictField, DurationField, EmailField, Field, FileField, FilePathField, FloatField,
     HiddenField, HStoreField, IPAddressField, ImageField, IntegerField, JSONField,
     ListField, ModelField, MultipleChoiceField, NullBooleanField, ReadOnlyField,
-    RegexField, SerializerMethodField, SlugField, TimeField, URLField, UUIDField,
+    RegexField, SerializerMethodField, SlugField, TimeField, URLField, UUIDField, MACAddressField
 )
+from audoma import settings
+
 embeded_serializer_classes = {}
 
 
@@ -37,10 +39,13 @@ def result_serializer_class(SerializerClass):
 
 
 class ResultSerializerClassMixin:
-
+    _wrap_result_serializer = settings.WRAP_RESULT_SERIALIZER
+    
     @classmethod
     def get_result_serializer_class(cls):
-        return result_serializer_class(cls)
+        if cls._wrap_result_serializer:
+            return result_serializer_class(cls)
+        return cls
 
 
 class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):

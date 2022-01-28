@@ -87,3 +87,17 @@ class DestroyModelMixin(mixins.DestroyModelMixin):
         except ValidationError as e:
             raise serializers.ValidationError({"detail": e.message})
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ExampleMixin:
+    def __init__(self, *args, **kwargs):
+        example = kwargs.pop('example', None)
+        super().__init__(*args, **kwargs)
+        if example:
+            class Meta:
+                pass
+            
+            self.Meta = getattr(self, 'Meta', Meta)
+            self.Meta.swagger_schema_fields = getattr(self.Meta, 'swagger_schema_fields', {})
+            self.Meta.swagger_schema_fields['example'] = example
+        

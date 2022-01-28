@@ -112,5 +112,5 @@ class DjangoFilterDescriptionInspector(CoreAPICompatInspector):
         return NotHandled
 
 
-class V2SwaggerAutoSchema(MultiSerializersMixin, PermissionDescriptionMixin, SwaggerAutoSchema):
+class AudomaSwaggerAutoSchema(MultiSerializersMixin, PermissionDescriptionMixin, SwaggerAutoSchema):
     pass

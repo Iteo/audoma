@@ -1,10 +1,14 @@
 from rest_framework import viewsets
-from split.helpers import V2Pagination
-from v2_api.generics import GenericAPIView
+from audoma.drf.generics import GenericAPIView
+from rest_framework.pagination import PageNumberPagination
 
+
+class AudomaPagination(PageNumberPagination):
+    page_size = 25
+    max_page_size = 2000
 
 class GenericViewSet(viewsets.ViewSetMixin, GenericAPIView):
-    pagination_class = V2Pagination
+    pagination_class = AudomaPagination
 
     def handle_exception(self, exc):
         response = super().handle_exception(exc)

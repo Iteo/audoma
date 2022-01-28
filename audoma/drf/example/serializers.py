@@ -1,5 +1,5 @@
-from rest_framework import serializers
-
+from audoma.drf import serializers
+from datetime import date
 
 class NestedExampleSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -12,17 +12,18 @@ class ExampleSerializer(serializers.Serializer):
     url = serializers.URLField()
     boolean = serializers.BooleanField()
     nullboolean = serializers.NullBooleanField()
-    regex_mac_address = serializers.RegexField(regex="^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$")
+    mac_address = serializers.MACAddressField()
+    regex_mac_address = serializers.RegexField(regex="^([0-9A-F]{2}:){5}([0-9A-F]{2})|([0-9A-F]{2}-){5}([0-9A-F]{2})$")
     slug = serializers.SlugField()
-    uuid = serializers.UUIDField()
+    uuid = serializers.UUIDField(format='hex')
     # file_path = serializers.FilePathField()
     ip_address = serializers.IPAddressField()
     integer = serializers.IntegerField()
     float = serializers.FloatField()
     decimal = serializers.DecimalField(max_digits=10, decimal_places=2)
     datetime = serializers.DateTimeField()
-    date = serializers.DateField()
-    time = serializers.TimeField()
+    date = serializers.DateField(example=str(date.today()))
+    time = serializers.TimeField(example="12:34:56.000000")
     duration = serializers.DurationField()
     choice = serializers.ChoiceField({1: "One", 2: "Two", 3: "Three"})
     multiple_choice = serializers.MultipleChoiceField({1: "One", 2: "Two", 3: "Three"})

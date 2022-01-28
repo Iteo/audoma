@@ -1,7 +1,5 @@
 from rest_framework import generics
 
-# from v2_api.serializers import result_serializer_class
-
 
 class GenericAPIView(generics.GenericAPIView):
 
@@ -11,7 +9,7 @@ class GenericAPIView(generics.GenericAPIView):
         kwargs['context'] = self.get_serializer_context()
         return serializer_class(*args, **kwargs)
 
-    # needed by V2SwaggerAutoSchema
+    # needed by AudomaSwaggerAutoSchema
     def get_result_serializer(self, *args, **kwargs):
         return self.get_serializer(*args, serializer_type='result', **kwargs)
 
