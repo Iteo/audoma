@@ -1,13 +1,18 @@
 from rest_framework import serializers
 from rest_framework.serializers import *
 from django.db import models
+import jsonfield
 from audoma.drf.fields import (  # NOQA # isort:skip
     BooleanField, CharField, ChoiceField, DateField, DateTimeField, DecimalField,
     DictField, DurationField, EmailField, Field, FileField, FilePathField, FloatField,
     HiddenField, HStoreField, IPAddressField, ImageField, IntegerField, JSONField,
     ListField, ModelField, MultipleChoiceField, NullBooleanField, ReadOnlyField,
-    RegexField, SerializerMethodField, SlugField, TimeField, URLField, UUIDField, MACAddressField
+    RegexField, SerializerMethodField, SlugField, TimeField, URLField, UUIDField,
+     MACAddressField, PhoneNumberField
 )
+
+from audoma import django_modelfields
+
 from audoma import settings
 
 embeded_serializer_classes = {}
@@ -74,6 +79,10 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
         models.URLField: URLField,
         models.GenericIPAddressField: IPAddressField,
         models.FilePathField: FilePathField,
+        models.UUIDField: UUIDField,
+        django_modelfields.PhoneNumberField: PhoneNumberField,
+        django_modelfields.MACAddressField: MACAddressField,
+        jsonfield.JSONField: JSONField
     }
 
 

@@ -3,7 +3,8 @@ from django.core import validators
 from rest_framework import fields
 from django.utils.functional import lazy
 from audoma.drf.mixins import ExampleMixin
-import exrex 
+import exrex
+from phonenumber_field import serializerfields
 
 import random
 import uuid
@@ -68,4 +69,12 @@ class IPAddressField(ExampleMixin, fields.IPAddressField):
     class Meta:
         swagger_schema_fields = {
             "example": lazy(lambda: str(exrex.getone("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")), str)()
+        }
+
+
+class PhoneNumberField(ExampleMixin, serializerfields.PhoneNumberField):
+    
+    class Meta:
+        swagger_schema_fields = {
+            "example": lazy(lambda: str("+1 8888888822"), str)()
         }

@@ -1,0 +1,2 @@
+from macaddress.fields import MACAddressField
+from phonenumber_field.modelfields import PhoneNumberField
