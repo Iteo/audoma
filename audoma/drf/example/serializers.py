@@ -1,6 +1,7 @@
 from audoma.drf import serializers
 from datetime import date
 
+
 class NestedExampleSerializer(serializers.Serializer):
     email = serializers.EmailField()
 

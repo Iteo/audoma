@@ -14,12 +14,16 @@ class GenericAPIView(generics.GenericAPIView):
         return self.get_serializer(*args, serializer_type='result', **kwargs)
 
     def get_serializer_class(self, type='collect'):
+        assert self.action not in ['post', 'put', 'delete', 'patch', 'options', 'get', 'head']
+        method = self.request.method.lower()
         if self.action == 'metadata':
             action = self.action_map.get('post', 'list')
         else:
             action = self.action
         attr_names = [
+            '%s_%s_%s_serializer_class' % (method, action, type),
             '%s_%s_serializer_class' % (action, type),
+            '%s_%s_serializer_class' % (method, action),
             '%s_serializer_class' % (action),
             'common_%s_serializer_class' % (type),
             'serializer_class',
