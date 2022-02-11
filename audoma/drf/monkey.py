@@ -1,11 +1,8 @@
+
 from audoma.drf import serializers
 from drf_yasg.inspectors.field import FieldInspector
 from drf_yasg.inspectors.field import SerializerInspector
-from drf_yasg.inspectors.field import model_field_to_basic_type
-from drf_yasg import openapi
-from drf_yasg.inspectors.field import serializer_field_to_basic_type
-from audoma.django_modelfields import PhoneNumberField
-from drf_yasg.inspectors.field import basic_type_info
+
 
 def add_manual_fields(self, serializer_or_field, schema):
     meta = getattr(serializer_or_field, 'Meta', None)
@@ -21,7 +18,3 @@ def add_manual_fields(self, serializer_or_field, schema):
 
 FieldInspector.add_manual_fields = add_manual_fields
 # SerializerInspector.add_manual_fields = add_manual_fields
-
-basic_type_info += [
-    (serializers.PhoneNumberField, (openapi.TYPE_STRING, "tel"))
-]
