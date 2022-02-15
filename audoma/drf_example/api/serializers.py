@@ -37,10 +37,10 @@ class ExampleSerializer(serializers.Serializer):
     json = serializers.JSONField()
     readonly = serializers.ReadOnlyField()
     nested = NestedExampleSerializer()
-    
-    
+
+
 class ExampleModelSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = ExampleModel
         fields = '__all__'

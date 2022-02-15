@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'api',
     'drf_yasg',
+    'drf_spectacular',
     'django_filters',
     'django_extensions',
     'django.contrib.admin',
@@ -125,3 +126,16 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    # YOUR SETTINGS
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'audoma API',
+    'DESCRIPTION': 'API Automatic Documentation Maker - YASG/SPECTACULAR wrapper',
+    'VERSION': '1.0.0',
+    # OTHER SETTINGS
+}

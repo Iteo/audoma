@@ -16,7 +16,9 @@ from audoma.drf.filters import DocumentedTypedChoiceFilter
 from django_filters import rest_framework as df_filters
 from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
-
+from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.types import OpenApiTypes
 
 
 class ExampleViewSet(
@@ -41,7 +43,8 @@ class ExampleViewSet(
     @action(detail=False, methods=['post'])
     def non_detail_action(self, request):
         return Response({})  # wrong
-    
+
+
 example_choice = DocumentedTypedChoiceFilter(
     ExampleModel.EXAMPLE_CHOICES,
     'choice',
@@ -52,7 +55,7 @@ example_choice = DocumentedTypedChoiceFilter(
 
 class ExampleChoiceFilter(df_filters.FilterSet):
     choice = example_choice
-    
+
     class Meta:
         model = ExampleModel
         fields = ['choice', ]
@@ -78,4 +81,3 @@ class ExampleModelViewSet(
     @action(detail=False, methods=['post'])
     def non_detail_action(self, request):
         return Response({})  # wron
-

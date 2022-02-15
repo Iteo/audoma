@@ -45,7 +45,7 @@ def result_serializer_class(SerializerClass):
 
 class ResultSerializerClassMixin:
     _wrap_result_serializer = settings.WRAP_RESULT_SERIALIZER
-    
+
     @classmethod
     def get_result_serializer_class(cls):
         if cls._wrap_result_serializer:

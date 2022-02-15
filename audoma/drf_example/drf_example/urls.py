@@ -22,6 +22,7 @@ from django.urls import re_path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 router = routers.DefaultRouter()
 
@@ -34,11 +35,8 @@ schema_view = get_schema_view(
     openapi.Info(
         title="audoma API",
         default_version='2.1',
-        description="short description",
+        description="API Automatic Documentation Maker - YASG/SPECTACULAR wrapper",
         validators=['ssv'],
-        # terms_of_service="https://www.google.com/policies/terms/",
-        # contact=openapi.Contact(email="contact@snippets.local"),
-        # license=openapi.License(name="Proprietary")
     ),
     patterns=urlpatterns,
     public=True,
@@ -46,6 +44,8 @@ schema_view = get_schema_view(
 )
 
 
-urlpatterns = [
-  re_path(r'^docs/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+urlpatterns += [
+    re_path(r'^docs/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    re_path(r'^api/schema/$', SpectacularAPIView.as_view(), name='schema'),
+    re_path(r'^redoc/$', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
