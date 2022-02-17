@@ -16,9 +16,6 @@ from audoma.drf.filters import DocumentedTypedChoiceFilter
 from django_filters import rest_framework as df_filters
 from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
-from drf_spectacular.utils import extend_schema
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
-from drf_spectacular.types import OpenApiTypes
 
 
 class ExampleViewSet(

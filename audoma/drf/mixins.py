@@ -1,7 +1,9 @@
+from dataclasses import field
 from rest_framework import mixins
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
+from drf_spectacular.drainage import set_override
 
 
 class ActionModelMixin:
@@ -91,13 +93,8 @@ class DestroyModelMixin(mixins.DestroyModelMixin):
 
 class ExampleMixin:
     def __init__(self, *args, **kwargs):
+
         example = kwargs.pop('example', None)
         super().__init__(*args, **kwargs)
         if example:
-            class Meta:
-                pass
-            
-            self.Meta = getattr(self, 'Meta', Meta)
-            self.Meta.swagger_schema_fields = getattr(self.Meta, 'swagger_schema_fields', {})
-            self.Meta.swagger_schema_fields['example'] = example
-        
+            set_override(self, "field", {"example": example})
