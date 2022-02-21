@@ -1,0 +1,2 @@
+include:
+  - local: 'audoma/drf_example/.gitlab-ci.yml'
