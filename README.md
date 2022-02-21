@@ -1,6 +1,6 @@
 ### audoma - API Automatic Documentation Maker
 
-Aim of this project is to make Django Rest Framework documentation easier and more automatic.
+The main goal of this project is to make Django Rest Framework documentation easier and more automatic.
 It supports drf-spectacular documentation and extends some of its functionalities. 
 
 Installation
@@ -50,7 +50,7 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
         float_field = serializers.FloatField(example=23.45)
     ```
 
-        Example abow will result in documentation
+    Example abow will result in documentation
 
     ```json
     {
