@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'api',
     'drf_yasg',
     'drf_spectacular',
+    'rest_framework',
     'django_filters',
     'django_extensions',
     'django.contrib.admin',

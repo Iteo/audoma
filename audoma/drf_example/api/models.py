@@ -8,14 +8,14 @@ from jsonfield import JSONField
 
 # Create your models here.
 class ExampleModel(models.Model):
-    
+
     EXAMPLE_CHOICES = make_choices(
         'CHOICES', (
             (1, 'EX_1', 'example 1'),
             (2, 'EX_2', 'example 2'),
-            (3, 'EX_3', 'example 3'),   
+            (3, 'EX_3', 'example 3'),
         ))
-    # char_field = models.CharField()
+    char_field = models.CharField(max_length=255)
     phone_number = PhoneNumberField()
     email = models.EmailField()
     url = models.URLField()

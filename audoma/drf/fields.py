@@ -1,3 +1,4 @@
+from doctest import Example
 from rest_framework.fields import *
 from django.core import validators
 from rest_framework import fields
@@ -11,9 +12,7 @@ from drf_spectacular.types import OpenApiTypes
 
 @extend_schema_field(OpenApiTypes.DECIMAL)
 class DecimalField(ExampleMixin, fields.DecimalField):
-
-    def to_representation(self, value):
-        return 123.234
+    pass
 
 
 @extend_schema_field(OpenApiTypes.UUID)
