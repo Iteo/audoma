@@ -1,16 +1,18 @@
-stages:
-  - test
-
 default:
   image: ubuntu:20.04
+  cache:
+    paths:
+      - ~/.cache/pip/
   before_script:
+    - chmod +x /var
     - apt -y update
     - apt -y install apt-utils
     - apt -y install net-tools python3.8 python3-pip mysql-client libmysqlclient-dev
     - apt -y upgrade
-    - pip install -e ../.././ 
+    - pip3 install git+https://gitlab+deploy-token-94:${AUDOMA_DEPLOYMENT_TOKEN}@gitlab.iteo.com.pl/python/audoma.git@drf-spectacular
+
 
 django-tests:
   stage: test
   script:
-    python manage.py test
+    - python3 manage.py test
