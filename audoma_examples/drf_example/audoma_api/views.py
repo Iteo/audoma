@@ -4,14 +4,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from audoma.drf import mixins
 from audoma.drf import viewsets
-from api.permissions import AlternatePermission2
-from api.permissions import DetailPermission
-from api.permissions import AlternatePermission1
-from api.permissions import ViewAndDetailPermission
-from api.permissions import ViewPermission
-from api.serializers import ExampleSerializer
-from api.serializers import ExampleModelSerializer
-from api.models import ExampleModel
+from audoma_api.permissions import AlternatePermission2
+from audoma_api.permissions import DetailPermission
+from audoma_api.permissions import AlternatePermission1
+from audoma_api.permissions import ViewAndDetailPermission
+from audoma_api.permissions import ViewPermission
+from audoma_api.serializers import ExampleSerializer
+from audoma_api.serializers import ExampleModelSerializer
+from audoma_api.models import ExampleModel
 from audoma.drf.filters import DocumentedTypedChoiceFilter
 from django_filters import rest_framework as df_filters
 from django.utils.decorators import method_decorator

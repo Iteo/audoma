@@ -1,7 +1,7 @@
 from dataclasses import field
 from audoma.drf import serializers
 from datetime import date
-from api.models import ExampleModel
+from audoma_api.models import ExampleModel
 
 
 class NestedExampleSerializer(serializers.Serializer):

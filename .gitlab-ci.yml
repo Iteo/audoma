@@ -1,2 +1,11 @@
-include:
-  - local: 'audoma/drf_example/.gitlab-ci.yml'
+image: python:latest
+
+cache:
+  paths:
+  - ~/.cache/pip/
+
+test:
+  script:
+    - pip install ./
+    - cd audoma_examples/drf_example
+    - python manage.py test
