@@ -1,5 +1,8 @@
 ### audoma - API Automatic Documentation Maker
 
+
+[![pipeline status](https://gitlab.iteo.com.pl/python/audoma/badges/main/pipeline.svg)](https://gitlab.iteo.com.pl/python/audoma/-/commits/main)
+
 The main goal of this project is to make Django Rest Framework documentation easier and more automatic.
 It supports drf-spectacular documentation and extends some of its functionalities. 
 

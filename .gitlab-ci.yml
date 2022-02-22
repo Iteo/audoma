@@ -1,11 +1,20 @@
-image: python:latest
+image: python
 
-cache:
-  paths:
-  - ~/.cache/pip/
+stages:
+  - build
+  - test
 
-test:
+
+audoma-build:
+  stage: build
   script:
+    - python3 --version
+    - echo "hello world"
     - pip install ./
+
+
+audoma-test:
+  stage: test
+  script:
     - cd audoma_examples/drf_example
-    - python manage.py test
+    - python3 manage.py test
