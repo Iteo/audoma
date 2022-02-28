@@ -45,12 +45,12 @@ from drf_spectacular.settings import spectacular_settings
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse
 from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
+from audoma.drf.docs.inspectors import PermissionDescriptionMixin, MultiSerializersMixin
 
 
-class AudomaAutoSchema(AutoSchema):
+class AudomaAutoSchema(MultiSerializersMixin, PermissionDescriptionMixin, AutoSchema):
 
-    # przyjmowac parametr - domyslenie collect
-    def _get_serializer(self, serializer_type=None):
+    def _get_serializer(self, serializer_type='collect'):
         view = self.view
         try:
             if isinstance(view, AudomaGenericAPIView):

@@ -7,6 +7,9 @@ class AudomaPagination(PageNumberPagination):
     page_size = 25
     max_page_size = 2000
 
+    def get_paginated_response_schema(self, schema):
+        return schema
+
 
 class GenericViewSet(viewsets.ViewSetMixin, GenericAPIView):
     pagination_class = AudomaPagination
