@@ -1,7 +1,9 @@
+import jsonfield
+from audoma import django_modelfields, settings
+from django.db import models
 from rest_framework import serializers
 from rest_framework.serializers import *
-from django.db import models
-import jsonfield
+
 from audoma.drf.fields import (  # NOQA # isort:skip
     BooleanField, CharField, ChoiceField, DateField, DateTimeField, DecimalField,
     DictField, DurationField, EmailField, Field, FileField, FilePathField, FloatField,
@@ -11,9 +13,6 @@ from audoma.drf.fields import (  # NOQA # isort:skip
      MACAddressField, PhoneNumberField
 )
 
-from audoma import django_modelfields
-
-from audoma import settings
 
 embeded_serializer_classes = {}
 

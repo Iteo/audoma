@@ -1,6 +1,5 @@
 
 
-
 def make_choices(name, choices_tuple):
     from collections import namedtuple
     """Factory function for quickly making a namedtuple suitable for use in a
@@ -43,11 +42,11 @@ def make_choices(name, choices_tuple):
 
         def get_choices(self):
             return list(zip(tuple(self), self._choices))
-        
+
         def get_api_choices(self):
             return list(zip(tuple(self._asdict()), tuple(self._choices)))
-        
+
         def get_value_by_name(self, name):
-            return getattr(self, name)          
+            return getattr(self, name)
 
     return Choices._make([val for val, name_, desc in choices_tuple])

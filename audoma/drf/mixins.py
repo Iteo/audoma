@@ -1,9 +1,7 @@
-from dataclasses import field
-from rest_framework import mixins
-from rest_framework import status
+from drf_spectacular.drainage import set_override
+from rest_framework import mixins, status
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
-from drf_spectacular.drainage import set_override
 
 
 class ActionModelMixin:
@@ -81,8 +79,8 @@ class UpdateModelMixin(mixins.UpdateModelMixin):
 
 class DestroyModelMixin(mixins.DestroyModelMixin):
     def destroy(self, request, *args, **kwargs):
-        from rest_framework import serializers
         from django.core.exceptions import ValidationError
+        from rest_framework import serializers
         instance = self.get_object()
         try:
             self.perform_destroy(instance)

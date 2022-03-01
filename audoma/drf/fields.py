@@ -1,13 +1,12 @@
-from doctest import Example
-from rest_framework.fields import *
-from django.core import validators
-from rest_framework import fields
-from django.utils.functional import lazy
-from audoma.drf.mixins import ExampleMixin
 import exrex
-from phonenumber_field import serializerfields
-from drf_spectacular.utils import extend_schema_field
+from audoma.drf.mixins import ExampleMixin
+from django.core import validators
+from django.utils.functional import lazy
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
+from phonenumber_field import serializerfields
+from rest_framework import fields
+from rest_framework.fields import *
 
 
 @extend_schema_field(OpenApiTypes.DECIMAL)

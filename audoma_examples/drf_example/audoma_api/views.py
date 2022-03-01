@@ -1,7 +1,14 @@
 from cgitb import lookup
+
+from audoma.drf.filters import DocumentedTypedChoiceFilter
+from django.utils.decorators import method_decorator
+from django_filters import rest_framework as df_filters
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
+from audoma_api.models import ExampleModel
 from audoma.drf import mixins
 from audoma.drf import viewsets
 from audoma_api.permissions import AlternatePermission2
@@ -11,11 +18,6 @@ from audoma_api.permissions import ViewAndDetailPermission
 from audoma_api.permissions import ViewPermission
 from audoma_api.serializers import ExampleSerializer
 from audoma_api.serializers import ExampleModelSerializer
-from audoma_api.models import ExampleModel
-from audoma.drf.filters import DocumentedTypedChoiceFilter
-from django_filters import rest_framework as df_filters
-from django.utils.decorators import method_decorator
-from drf_yasg.utils import swagger_auto_schema
 
 
 class ExampleViewSet(

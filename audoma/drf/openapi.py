@@ -1,51 +1,15 @@
 from __future__ import annotations
-from drf_spectacular.openapi import AutoSchema
-from rest_framework.generics import CreateAPIView, GenericAPIView, ListCreateAPIView
-from rest_framework.views import APIView
+
 import typing
 
-from drf_spectacular.plumbing import error, build_parameter_type
-import copy
-import re
-import typing
-from collections import defaultdict
-
-import uritemplate
-from django.core import exceptions as django_exceptions
-from django.core import validators
-from django.db import models
-from django.utils.translation import gettext_lazy as _
-from rest_framework import permissions, renderers, serializers
-from rest_framework.fields import _UnvalidatedField, empty
-from rest_framework.generics import CreateAPIView, GenericAPIView, ListCreateAPIView
-from rest_framework.mixins import ListModelMixin
-from rest_framework.schemas.inspectors import ViewInspector
-from rest_framework.schemas.utils import get_pk_description  # type: ignore
-from rest_framework.settings import api_settings
-from rest_framework.utils.model_meta import get_field_info
-from rest_framework.views import APIView
-
-from drf_spectacular.authentication import OpenApiAuthenticationExtension
-from drf_spectacular.contrib import *  # noqa: F403, F401
-from drf_spectacular.drainage import add_trace_message, get_override, has_override
-from drf_spectacular.extensions import (
-    OpenApiFilterExtension, OpenApiSerializerExtension, OpenApiSerializerFieldExtension,
-)
-from drf_spectacular.plumbing import (
-    ComponentRegistry, ResolvedComponent, UnableToProceedError, append_meta,
-    assert_basic_serializer, build_array_type, build_basic_type, build_choice_field,
-    build_examples_list, build_generic_type, build_media_type_object, build_object_type,
-    build_parameter_type, error, follow_field_source, follow_model_field_lookup, force_instance,
-    get_doc, get_type_hints, get_view_model, is_basic_serializer, is_basic_type, is_field,
-    is_list_serializer, is_patched_serializer, is_serializer, is_trivial_string_variation,
-    modify_media_types_for_versioning, resolve_django_path_parameter, resolve_regex_path_parameter,
-    resolve_type_hint, safe_ref, sanitize_specification_extensions, warn, whitelisted,
-)
-from drf_spectacular.settings import spectacular_settings
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiParameter, OpenApiResponse
+from audoma.drf.docs.inspectors import (MultiSerializersMixin,
+                                        PermissionDescriptionMixin)
 from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
-from audoma.drf.docs.inspectors import PermissionDescriptionMixin, MultiSerializersMixin
+from django.utils.translation import gettext_lazy as _
+from drf_spectacular.openapi import AutoSchema
+from drf_spectacular.plumbing import error
+from rest_framework.generics import GenericAPIView
+from rest_framework.views import APIView
 
 
 class AudomaAutoSchema(MultiSerializersMixin, PermissionDescriptionMixin, AutoSchema):

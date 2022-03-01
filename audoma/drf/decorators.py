@@ -1,6 +1,8 @@
+from functools import wraps
+
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
-from functools import wraps
+
 
 def document_and_format(serializer_or_field):
     def decorator(func):

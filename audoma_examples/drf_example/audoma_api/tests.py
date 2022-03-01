@@ -1,8 +1,8 @@
-from time import time
-from django.test import SimpleTestCase
-from drf_spectacular.generators import SchemaGenerator
-from drf_example.urls import router
 from datetime import date
+
+from django.test import SimpleTestCase
+from drf_example.urls import router
+from drf_spectacular.generators import SchemaGenerator
 
 
 class AudomaTests(SimpleTestCase):

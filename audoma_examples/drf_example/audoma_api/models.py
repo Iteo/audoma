@@ -1,8 +1,6 @@
-from ipaddress import ip_address
-from django.db import models
-from audoma.django_modelfields import PhoneNumberField
-from audoma.django_modelfields import MACAddressField
+from audoma.django_modelfields import MACAddressField, PhoneNumberField
 from audoma.drf.choices import make_choices
+from django.db import models
 from jsonfield import JSONField
 
 

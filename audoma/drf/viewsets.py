@@ -1,5 +1,5 @@
-from rest_framework import viewsets
 from audoma.drf.generics import GenericAPIView
+from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 
 
