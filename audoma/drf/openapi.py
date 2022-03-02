@@ -2,17 +2,17 @@ from __future__ import annotations
 
 import typing
 
-from audoma.drf.docs.inspectors import (MultiSerializersMixin,
-                                        PermissionDescriptionMixin)
-from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import error
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 
+from audoma.drf.docs.inspectors import MultiSerializersMixin
+from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
 
-class AudomaAutoSchema(MultiSerializersMixin, PermissionDescriptionMixin, AutoSchema):
+
+class AudomaAutoSchema(MultiSerializersMixin, AutoSchema):
 
     def _get_serializer(self, serializer_type='collect'):
         view = self.view
