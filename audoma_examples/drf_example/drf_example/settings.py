@@ -131,6 +131,5 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'audoma API',
     'DESCRIPTION': 'API Automatic Documentation Maker - YASG/SPECTACULAR wrapper',
     'VERSION': '1.0.0',
-    "PREPROCESSING_HOOKS": ["audoma.hooks.preprocessing_filter_spec", ],
     # OTHER SETTINGS
 }
