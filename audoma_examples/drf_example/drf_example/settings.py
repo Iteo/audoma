@@ -123,13 +123,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     # YOUR SETTINGS
-    'DEFAULT_SCHEMA_CLASS': 'audoma.openapi.AudomaAutoSchema',
+    'DEFAULT_SCHEMA_CLASS': 'audoma.drf.openapi.AudomaAutoSchema',
 }
 
+# Use it if you want to create schema only based on paths that starts with specific keyword
+# and then add "PREPROCESSING_HOOKS" to SPECTACULAR_SETTINGS as commented below
+# SCHEMA_PATTERN_PREFIX = 'api'
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'audoma API',
     'DESCRIPTION': 'API Automatic Documentation Maker - YASG/SPECTACULAR wrapper',
     'VERSION': '1.0.0',
+    # 'PREPROCESSING_HOOKS': ['audoma.hooks.preprocess_include_path_format'],
     # OTHER SETTINGS
 }

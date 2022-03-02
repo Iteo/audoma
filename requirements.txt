@@ -1,4 +1,4 @@
-Django>=2.2.15
+Django>=2.2.15,<=3.2.12
 djangorestframework>=3.10
 exrex>=0.10.5
 django-phonenumber-field>=6.0.0
