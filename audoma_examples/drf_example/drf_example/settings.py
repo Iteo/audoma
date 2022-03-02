@@ -123,7 +123,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     # YOUR SETTINGS
-    'DEFAULT_SCHEMA_CLASS': 'audoma.drf.openapi.AudomaAutoSchema',
+    'DEFAULT_SCHEMA_CLASS': 'audoma.openapi.AudomaAutoSchema',
 }
 
 # Use it if you want to create schema only based on paths that starts with specific keyword
