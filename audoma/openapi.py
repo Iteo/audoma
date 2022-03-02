@@ -9,10 +9,11 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 
 from audoma.drf.docs.inspectors import MultiSerializersMixin
+from audoma.drf.docs.inspectors import PermissionDescriptionMixin
 from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
 
 
-class AudomaAutoSchema(MultiSerializersMixin, AutoSchema):
+class AudomaAutoSchema(MultiSerializersMixin, PermissionDescriptionMixin, AutoSchema):
 
     def _get_serializer(self, serializer_type='collect'):
         view = self.view

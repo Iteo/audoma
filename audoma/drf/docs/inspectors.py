@@ -18,13 +18,15 @@ from rest_framework.permissions import SingleOperandHolder
 class PermissionDescriptionMixin:
     """View inspector with some project-specific logic."""
 
-    def get_summary_and_description(self):
-        """Return summary and description extended with permission docs."""
-        summary, description = super().get_summary_and_description()
-        permissions_description = self._get_permissions_description()
-        if permissions_description:
-            description += permissions_description
-        return summary, description
+    def get_operation(self, *args, **kwargs):
+        operation = super().get_operation(*args, **kwargs)
+        
+        if(operation.get('description', None)):
+            operation['description'] += self._get_permissions_description()
+        else:
+            operation['description'] = self._get_permissions_description()
+
+        return operation
 
     def _handle_permission(self, permission_class, operations, current_operation=AND):
         permissions = {}
@@ -75,7 +77,6 @@ class PermissionDescriptionMixin:
 
     def _get_permissions_description(self):
         permissions, operations = self._gather_permissions()
-
         if permissions:
             return '\n\n**Permissions:**\n' + " ".join(operations) + '\n' + '\n'.join(
                 self._render_permission_item(name, doc_str) for name, doc_str in permissions.items()
