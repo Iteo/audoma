@@ -123,7 +123,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     # YOUR SETTINGS
-    'DEFAULT_SCHEMA_CLASS': 'audoma.drf.openapi.AudomaAutoSchema',
+    'DEFAULT_SCHEMA_CLASS': 'audoma.openapi.AudomaAutoSchema',
 }
 
 
@@ -131,5 +131,6 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'audoma API',
     'DESCRIPTION': 'API Automatic Documentation Maker - YASG/SPECTACULAR wrapper',
     'VERSION': '1.0.0',
+    "PREPROCESSING_HOOKS": ["audoma.hooks.preprocessing_filter_spec", ],
     # OTHER SETTINGS
 }
