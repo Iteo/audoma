@@ -32,7 +32,6 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'audoma_api',
-    'drf_yasg',
     'drf_spectacular',
     'rest_framework',
     'django_filters',
@@ -126,10 +125,14 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'audoma.openapi.AudomaAutoSchema',
 }
 
+# Use it if you want to create schema only based on paths that starts with specific keyword
+# and then add "PREPROCESSING_HOOKS" to SPECTACULAR_SETTINGS as commented below
+# SCHEMA_PATTERN_PREFIX = 'api'
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'audoma API',
     'DESCRIPTION': 'API Automatic Documentation Maker - YASG/SPECTACULAR wrapper',
     'VERSION': '1.0.0',
+    # 'PREPROCESSING_HOOKS': ['audoma.hooks.preprocess_include_path_format'],
     # OTHER SETTINGS
 }

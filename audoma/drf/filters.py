@@ -1,5 +1,5 @@
 from django_filters import rest_framework as df_filters
-from drf_yasg import openapi
+from drf_spectacular.utils import OpenApiParameter
 
 
 class DocumentedTypedChoiceFilter(df_filters.TypedChoiceFilter):
@@ -19,9 +19,9 @@ class DocumentedTypedChoiceFilter(df_filters.TypedChoiceFilter):
         description = "Filter by {}\n".format(self.parameter_name)
         for key, val in choices:
             description += f" * `{key}` - {val}\n"
-        return openapi.Parameter(
-            self.parameter_name, openapi.IN_QUERY,
+
+        return OpenApiParameter(
+            name=self.parameter_name,
             description=description,
-            type=openapi.TYPE_STRING,
             enum=self.full_choices._fields
         )
