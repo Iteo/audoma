@@ -3,6 +3,7 @@ from datetime import date
 from django.test import SimpleTestCase
 from drf_example.urls import router
 from drf_spectacular.generators import SchemaGenerator
+from .views import example_choice
 
 
 class AudomaTests(SimpleTestCase):
@@ -41,3 +42,11 @@ class AudomaTests(SimpleTestCase):
     def test_model_mapping_all_field_serializer(self):
         example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
         self.assertEqual(20, len(example_model_properties))
+
+    def test_create_openapi_description(self):
+        example_model_params = self.schema["paths"]["/model_examples/"]["get"]["parameters"][0]
+        schema = example_model_params["schema"]
+        description = example_model_params["description"]
+        self.assertEqual(example_choice.create_openapi_description().name, example_model_params['name'])
+        self.assertEqual(example_choice.create_openapi_description().enum, tuple(schema['enum']))
+        self.assertEqual(example_choice.create_openapi_description().description, description)
