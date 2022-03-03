@@ -8,12 +8,17 @@ from drf_spectacular.plumbing import error
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 
-from audoma.drf.docs.inspectors import MultiSerializersMixin
-from audoma.drf.docs.inspectors import PermissionDescriptionMixin
+from audoma.utils import PermissionsDescriptionCreator
 from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
 
 
 class AudomaAutoSchema(AutoSchema):
+
+    def get_description(self):
+        description = super().get_description() or ""
+        permission_extendor = PermissionsDescriptionCreator(self.view)
+        description += permission_extendor.get_permissions_description()
+        return description
 
     def _get_serializer(self, serializer_type='collect'):
         view = self.view
