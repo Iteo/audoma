@@ -1,5 +1,5 @@
 from audoma.django_modelfields import MACAddressField, PhoneNumberField
-from audoma.drf.choices import make_choices
+from audoma.choices import make_choices
 from django.db import models
 from jsonfield import JSONField
 

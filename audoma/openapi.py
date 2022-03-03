@@ -8,7 +8,6 @@ from drf_spectacular.plumbing import error
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 
-from audoma.drf.docs.inspectors import MultiSerializersMixin
 from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
 
 

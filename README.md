@@ -24,6 +24,20 @@ REST_FRAMEWORK = {
 }
 ```
 
+Audoma allows you to add path prefixes that should be included in schema exclusively. All you need to do is declare a variable 
+`SCHEMA_PATTERN_PREFIX` in your `settings.py` file and add preprocessing function `preprocess_include_path_format` as preprocessing 
+hook in `SPECTACULAR_SETTINGS` dictionary as in the example below.
+
+```python
+SCHEMA_PATTERN_PREFIX = 'api'
+
+SPECTACULAR_SETTINGS = {
+    ...
+    'PREPROCESSING_HOOKS': ['audoma.hooks.preprocess_include_path_format'],
+    # OTHER SETTINGS
+}
+```
+
 Usage
 ------------
 Audoma works with DRF and drf-spectacular, and here are some functionalities added:
@@ -60,3 +74,52 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
     "float_field": 23.45
     }
     ```
+
+* `DocumentedTypedChoiceFilter` is a wrapper to `df.filters.TypedChoiceFilter` that makes creating documentation easier. It goes out of the box with
+    our `make_choices` function for quickly making a namedtuple suitable for use in a django model as a choices attribute on a field that will preserve order.
+    Below you can see an example of usage. 
+
+    `models.py`
+    ```python
+    from audoma.choices import make_choices
+    #define a model with use of make_choices 
+    class MyModel(models.Model):
+            COLORS = make_choices('COLORS', (
+                (0, 'BLACK', 'Black'),
+                (1, 'WHITE', 'White'),
+            ))
+            colors = models.PositiveIntegerField(choices=COLORS)
+            ...
+    
+    ```
+    `views.py`
+    ```python
+    #In views define DocumentedTypedChoiceFilter
+    example_choice = DocumentedTypedChoiceFilter(
+    MyModel.EXAMPLE_CHOICES,
+    'color',
+    lookup_expr='exact',
+    field_name='colors'
+    )
+
+
+    class ExampleChoiceFilter(df_filters.FilterSet):
+        choice = example_choice
+
+        class Meta:
+            model = ExampleModel
+            fields = ['color', ]
+
+    #then, use example_choice to create automatic description with extend_schema
+    @extend_schema(parameters=[example_choice.create_openapi_description()])
+    class ExampleModelViewSet():
+        ...
+    ```
+
+
+Testing and example application
+------------
+You can test audoma functionalities with our example applicaiton. From root folder,
+go to `audoma_examples/drf_examples` and create virtualenv there. Then, install audoma
+and run django application. You can easily explore possibilities of audoma documentation maker
+as it shows all functionalities. To run tests simply run `python manage.py test` command.
