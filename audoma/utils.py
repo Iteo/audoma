@@ -1,16 +1,15 @@
 from rest_framework.permissions import AND
-from rest_framework.permissions import NOT
 from rest_framework.permissions import OR
 from rest_framework.permissions import OperandHolder
 from rest_framework.permissions import SingleOperandHolder
 
 
-class PermissionsDescriptionExtendor:
+class PermissionsDescriptionCreator:
     
     def __init__(self, view) -> None:
         self.view = view
 
-    def get_permission_description(self) -> str:
+    def get_permissions_description(self) -> str:
         permissions, operations = self._gather_permissions()
         if permissions:
             return '\n\n**Permissions:**\n' + " ".join(operations) + '\n' + '\n'.join(
