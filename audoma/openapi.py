@@ -12,7 +12,7 @@ from audoma.drf.docs.inspectors import MultiSerializersMixin
 from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
 
 
-class AudomaAutoSchema(MultiSerializersMixin, AutoSchema):
+class AudomaAutoSchema(AutoSchema):
 
     def _get_serializer(self, serializer_type='collect'):
         view = self.view
@@ -50,10 +50,6 @@ class AudomaAutoSchema(MultiSerializersMixin, AutoSchema):
                 f'Is get_serializer_class() returning None or is get_queryset() not working without '
                 f'a request? Ignoring the view for now. (Exception: {exc})'
             )
-
-    def get_request_serializer(self) -> typing.Any:
-        """ override this for custom behaviour """
-        return self._get_serializer()
 
     def get_response_serializers(self) -> typing.Any:
         """ override this for custom behaviour """

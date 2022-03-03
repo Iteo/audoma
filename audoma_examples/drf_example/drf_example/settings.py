@@ -32,7 +32,6 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'audoma_api',
-    'drf_yasg',
     'drf_spectacular',
     'rest_framework',
     'django_filters',

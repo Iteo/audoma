@@ -5,7 +5,7 @@ from setuptools import find_packages, setup
 here = pathlib.Path(__file__).parent.resolve()
 
 name = 'audoma'
-description = 'API Automatic Documentation Maker - YASG/SPECTACULAR wrapper'
+description = 'API Automatic Documentation Maker - DRF-SPECTACULAR wrapper'
 
 
 with open('requirements.txt') as f:

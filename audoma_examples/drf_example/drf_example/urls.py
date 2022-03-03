@@ -13,16 +13,11 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path, include
-from rest_framework import routers
-from audoma_api.views import ExampleViewSet
-from audoma_api.views import ExampleModelViewSet
+from audoma_api.views import ExampleModelViewSet, ExampleViewSet
 from django.urls import re_path
-from drf_yasg import openapi
-from drf_yasg.views import get_schema_view
-from rest_framework import permissions
-from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from drf_spectacular.views import (SpectacularAPIView, SpectacularRedocView,
+                                   SpectacularSwaggerView)
+from rest_framework import routers
 
 router = routers.DefaultRouter()
 
@@ -31,21 +26,8 @@ router.register(r'model_examples', ExampleModelViewSet, basename='model-examples
 
 urlpatterns = router.urls
 
-schema_view = get_schema_view(
-    openapi.Info(
-        title="audoma API",
-        default_version='2.1',
-        description="API Automatic Documentation Maker - YASG/SPECTACULAR wrapper",
-        validators=['ssv'],
-    ),
-    patterns=urlpatterns,
-    public=True,
-    permission_classes=(permissions.AllowAny,),
-)
-
-
 urlpatterns += [
-    re_path(r'^docs/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     re_path(r'^api/schema/$', SpectacularAPIView.as_view(), name='schema'),
+    re_path(r'^swagger-ui/$', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     re_path(r'^redoc/$', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
