@@ -4,6 +4,8 @@ from django.test import SimpleTestCase
 from drf_example.urls import router
 from drf_spectacular.generators import SchemaGenerator
 
+from audoma_api.models import ExampleModel
+
 
 class AudomaTests(SimpleTestCase):
 
@@ -41,3 +43,9 @@ class AudomaTests(SimpleTestCase):
     def test_model_mapping_all_field_serializer(self):
         example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
         self.assertEqual(20, len(example_model_properties))
+
+    def test_filter_params_description_model_viewset(self):
+        example_choices = ExampleModel.EXAMPLE_CHOICES.get_choices()
+        docs_description = self.schema['paths']['/model_examples/']['get']['parameters'][0]['description']
+        for choice in example_choices:
+            self.assertIn(choice[1], docs_description)

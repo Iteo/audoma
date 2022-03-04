@@ -42,7 +42,7 @@ example_choice = DocumentedTypedChoiceFilter(
     ExampleModel.EXAMPLE_CHOICES,
     'choice',
     lookup_expr='exact',
-    field_name='choices'
+    field_name='choices',
 )
 
 
@@ -54,8 +54,6 @@ class ExampleChoiceFilter(df_filters.FilterSet):
         fields = ['choice', ]
 
 
-@method_decorator(name='list', decorator=extend_schema(
-    parameters=[example_choice.create_openapi_description()]))
 class ExampleModelViewSet(
         mixins.ActionModelMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         mixins.DestroyModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -64,6 +62,8 @@ class ExampleModelViewSet(
         AlternatePermission1 | AlternatePermission2
     ]
 
+    filterset_fields = ["slug"]
+    filterset_class = ExampleChoiceFilter
     serializer_class = ExampleModelSerializer
     queryset = ExampleModel.objects.all()
 
