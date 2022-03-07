@@ -55,4 +55,4 @@ class AudomaTests(SimpleTestCase):
         example_model_properties = self.redoc_schemas['ExampleModel']['properties']
         phone_number = example_model_properties['phone_number']
         self.assertEqual('tel', phone_number['format'])
-        self.assertEqual(phone_number['example'], '+1 8888888822')
+        self.assertEqual('+1 8888888822', phone_number['example'])

@@ -3,7 +3,6 @@ from audoma.drf import serializers
 from datetime import date
 from audoma_api.models import ExampleModel
 from audoma.drf.decorators import document_and_format
-from drf_spectacular.utils import extend_schema_field
 
 
 class NestedExampleSerializer(serializers.Serializer):
@@ -48,6 +47,6 @@ class ExampleModelSerializer(serializers.ModelSerializer):
         model = ExampleModel
         fields = '__all__'
 
-    @document_and_format(serializers.PhoneNumberField())
+    @document_and_format(serializers.PhoneNumberField)
     def get_phone_number(self):
         return self.phone_number
