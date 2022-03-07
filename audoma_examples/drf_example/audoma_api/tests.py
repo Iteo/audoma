@@ -50,3 +50,9 @@ class AudomaTests(SimpleTestCase):
         self.assertEqual(example_choice.create_openapi_description().name, example_model_params['name'])
         self.assertEqual(example_choice.create_openapi_description().enum, tuple(schema['enum']))
         self.assertEqual(example_choice.create_openapi_description().description, description)
+
+    def test_document_and_format_example_model_phone_number(self):
+        example_model_properties = self.redoc_schemas['ExampleModel']['properties']
+        phone_number = example_model_properties['phone_number']
+        self.assertEqual('tel', phone_number['format'])
+        self.assertEqual(phone_number['example'], '+1 8888888822')

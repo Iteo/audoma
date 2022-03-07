@@ -51,10 +51,14 @@ class AudomaAutoSchema(AutoSchema):
             )
 
     def get_response_serializers(self) -> typing.Any:
-        """ override this for custom behaviour """
+        """ overrides this for custom behaviour """
         return self._get_serializer(serializer_type='result')
 
     def _map_serializer_field(self, field, direction, bypass_extensions=False):
+        """
+        Allows to use @extend_schema_field with `field` dict so that
+        it gets updated instead of being overriden 
+        """
         has_annotation = hasattr(
             field, '_spectacular_annotation') and 'field' in field._spectacular_annotation and isinstance(field._spectacular_annotation['field'], dict)
         if has_annotation:
