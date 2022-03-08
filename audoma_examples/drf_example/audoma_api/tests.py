@@ -7,7 +7,9 @@ from audoma_api.views import (
 from drf_example.urls import router
 from drf_spectacular.generators import SchemaGenerator
 from rest_framework.permissions import BasePermission
+from rest_framework.test import APIClient
 
+from django.shortcuts import reverse
 from django.test import SimpleTestCase
 
 from audoma.drf.viewsets import AudomaPagination
@@ -104,3 +106,58 @@ class AudomaTests(SimpleTestCase):
         ]["content"]
         self.assertEqual(len(example_schema.keys()), 1)
         self.assertEqual(list(example_schema.keys())[0], "multipart/form-data")
+        example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
+        phone_number = example_model_properties["phone_number"]
+        self.assertEqual("tel", phone_number["format"])
+        self.assertEqual("+1 8888888822", phone_number["example"])
+
+
+class AudomaViewsTestCase(SimpleTestCase):
+    def setUp(self):
+        super().setUp()
+        self.data = {
+            "char_field": "TESTChar",
+            "phone_number": "",
+            "email": "test@iteo.com",
+            "url": "",
+            "boolean": False,
+            "nullboolean": None,
+            "mac_adress": "",
+            "slug": "",
+            "uuid": "",
+            "ip_address": "",
+            "integer": "",
+            "_float": "",
+            "decimal": "",
+            "datetime": "",
+            "date": "",
+            "time": "",
+            "duration": "",
+            "choices": "",
+            "json": "",
+        }
+        self.client = APIClient()
+
+    def test_detail_action_get(self):
+        response = self.client.get(
+            reverse("model-examples-detail-action", kwargs={"pk": 0})
+        )
+        self.assertEqual(response.status_code, 405)
+        self.assertEqual(response.content, "GET method is not allowed")
+
+    def test_detail_action_post(self):
+
+        response = self.client.post(
+            reverse("model-examples-detail-action", kwargs={"pk": 0}), json=self.data
+        )
+        self.assertEqual(response.status_code, 201)
+        # TODO - assert proper content values
+        # self.assertEqual(response.content, "GET method is not allowed")
+
+    def test_detail_action_put(self):
+        response = self.client.put(
+            reverse("model-examples-detail-action", kwargs={"pk": 0}), json=self.data
+        )
+        self.assertEqual(response.status_code, 201)
+        # TODO - assert proper content values
+        # self.assertEqual(response.content, "GET method is not allowed")

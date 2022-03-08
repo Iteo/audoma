@@ -11,6 +11,7 @@ from audoma_api.permissions import (
 )
 from audoma_api.serializers import (
     ExampleFileModelSerializer,
+    ExampleModelCreateSerializer,
     ExampleModelSerializer,
     ExampleSerializer,
 )

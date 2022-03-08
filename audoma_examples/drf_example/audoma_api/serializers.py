@@ -62,3 +62,12 @@ class ExampleFileModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExampleFileModel
         fields = "__all__"
+
+
+class ExampleModelCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExampleModel
+        fields = "__all__"
+
+    def save(self, **kwargs):
+        return ExampleModel(self.data)
