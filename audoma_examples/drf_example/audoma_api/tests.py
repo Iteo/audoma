@@ -1,8 +1,12 @@
 from datetime import date
+from pydoc import describe
 
 from django.test import SimpleTestCase
-from drf_example.urls import router
 from drf_spectacular.generators import SchemaGenerator
+from rest_framework.permissions import BasePermission
+from drf_example.urls import router
+from audoma_api.views import ExampleModelViewSet, ExampleViewSet
+
 from .views import example_choice
 
 
@@ -42,6 +46,24 @@ class AudomaTests(SimpleTestCase):
     def test_model_mapping_all_field_serializer(self):
         example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
         self.assertEqual(20, len(example_model_properties))
+
+    def test_permission_description_extension_model_viewset(self):
+        expected_permissions = ExampleModelViewSet.permission_classes
+        description = self.schema['paths']['/model_examples/']['get']['description']
+        for permission in expected_permissions:
+            # skip operations
+            if not isinstance(permission, BasePermission):
+                continue
+            self.assertIn(str(permission.__name__), description)
+
+    def test_permission_description_extension_standard_viewset(self):
+        expected_permissions = ExampleViewSet.permission_classes
+        description = self.schema['paths']['/examples/']['get']['description']
+        for permission in expected_permissions:
+            # skip operations
+            if not isinstance(permission, BasePermission):
+                continue
+            self.assertIn(str(permission.__name__), description)
 
     def test_create_openapi_description(self):
         example_model_params = self.schema["paths"]["/model_examples/"]["get"]["parameters"][0]
