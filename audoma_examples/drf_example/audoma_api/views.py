@@ -100,7 +100,7 @@ class ExampleModelViewSet(
     def detail_action(self, request, pk=None):
         return Response({})  # wrong
 
-    @action(detail=False, methods=["post"])
+    @action(detail=False, methods=['post'])
     def non_detail_action(self, request):
         return Response({})  # wron
 
@@ -114,25 +114,27 @@ class ExampleFileUploadViewSet(
     queryset = ExampleFileModel.objects.all()
 
     parser_classes = [MultiPartParser]
+
+
 class ExampleModelPermissionLessViewSet(
     mixins.ActionModelMixin, viewsets.GenericViewSet
 ):
     serializer_class = ExampleModelSerializer
     queryset = ExampleModel.objects.all()
 
-    @audoma_action(detail=True, methods=['post'], responses={
-            'post': {201: ExampleModelCreateSerializer}
-        }
+    @audoma_action(detail=True, methods=['post', "get"], collectors={
+            'post': ExampleModelCreateSerializer
+        }, response=ExampleModelSerializer
     )
-    def detail_action(self, request, pk=None):
-        return ExampleModel(**request.data), 201
+    def detail_action(self, request, collect_serializer, pk=None):
+        return collect_serializer.save(), 201
 
     @audoma_action(detail=False, methods=['get'], response="This is a test view")
-    def non_detail_action(self, request):
+    def non_detail_action(self, request, collect_serializer):
         return None, 200
 
     @audoma_action(detail=True, methods=['post'], response={201: "Rate has been added"})
-    def rate_create_action(self, request, pk=None):
+    def rate_create_action(self, request, collect_serializer, pk=None):
         if not request.data.get('rate'):
             return "Rate has not been passed", 400
         return None, 201

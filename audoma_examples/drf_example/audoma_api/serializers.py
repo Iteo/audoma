@@ -54,8 +54,8 @@ class ExampleModelSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     @document_and_format(serializers.PhoneNumberField)
-    def get_phone_number(self):
-        return self.phone_number
+    def get_phone_number(self, obj):
+        return obj.phone_number
 
 
 class ExampleFileModelSerializer(serializers.ModelSerializer):
@@ -70,4 +70,4 @@ class ExampleModelCreateSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def save(self, **kwargs):
-        return ExampleModel(self.data)
+        return ExampleModel(**self.validated_data)
