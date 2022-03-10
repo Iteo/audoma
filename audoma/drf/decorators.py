@@ -47,10 +47,19 @@ def audoma_action(
     )
     collect_behaviour_factory = CollectBehaviourFactory()
     response_behaviour_factory = ResponsesBehaviourFactory()
-
     def decorator(func):
         # apllying drf action decorator on function
+        # TODO - make this more readable and cleaner
         func = framework_decorator(func)
+        if collectors:
+            setattr(func, 'collectors', collectors)
+        elif collector:
+            setattr(func, 'collectors', collector)
+        
+        if responses:
+            setattr(func, 'responses', responses)
+        elif response:
+            setattr(func, 'responses', response)
 
         @wraps(func)
         def wrapper(view, request, *args, **kwargs):
@@ -66,7 +75,6 @@ def audoma_action(
             return apply_behaviours(
                 collect_behaviour, response_behaviour, instance, code, request, view
             )
-
-        return func
+        return wrapper
 
     return decorator

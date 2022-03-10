@@ -8,25 +8,24 @@ from rest_framework.response import Response
 
 
 class BaseBehaviourFactory:
-    def create_behaviour(self, operation, operations):
-        operation = operation or self._extract_collector(operations)
+    def create_behaviour(self, operation, operations, request, code):
+        operation = operation or self._extract_proper_operation(operations, request, code)
 
         if not operation:
             return None
-
-        behaviour_kwargs = self._build_behaviour_kwargs
+        
+        behaviour_kwargs = self._build_behaviour_kwargs(operation, code)
         return Behaviour(**behaviour_kwargs)
 
     def _extract_proper_operation(self, operations, request, code=None):
         ...
 
-    # TODO - this should only return serializer_class, response specific class,
-    # should be allowed to return error
-    def _build_behaviour_kwargs(self, operation):
+    def _build_behaviour_kwargs(self, operation, code):
+        if not isinstance(operation, type):
+            return {}
+
         if issubclass(operation, serializers.BaseSerializer):
-            return {"serializer_class": operation}
-        elif isinstance(operation, str):
-            return {"error": operation}
+            return {'serializer_class': operation}
         return {}
 
 
@@ -41,19 +40,30 @@ class CollectBehaviourFactory(BaseBehaviourFactory):
 
 
 class ResponsesBehaviourFactory(BaseBehaviourFactory):
+    
+    def _build_behaviour_kwargs(self, operation, code):
+        kwargs = super()._build_behaviour_kwargs(operation, code)
+        if isinstance(operation, str):
+            kwargs.update({'error_message': operation})
+        elif isinstance(operation, dict):
+            kwargs.update({'error_message': operation.get(code, None)})
+
+        return kwargs
+
     def _extract_proper_operation(self, responses, request, code=None):
         assert isinstance(responses, dict)
         if not responses:
             return
 
-        if isinstance(responses.keys()[0], str) and request:
+        if isinstance(list(responses.keys())[0], str) and request:
             method = request.method.lower()
-            responses = responses.get(method)
-            if self.code:
+            response = responses.get(method)
+            if code and isinstance(response, dict):
                 response = responses.get(code)
+
             return response
 
-        elif isinstance(responses.keys[0], int) and code:
+        elif isinstance(list(responses.keys())[0], int) and code:
             response = responses.get(code)
             return response
 
@@ -62,8 +72,8 @@ class ResponsesBehaviourFactory(BaseBehaviourFactory):
 
 @dataclass
 class Behaviour:
-    serializer_class: serializers.BaseSerializer
-    error: str
+    serializer_class: serializers.BaseSerializer = None
+    error_message: str = None
 
 
 def __apply_collect_behaviour(behaviour, request, instance):
@@ -76,24 +86,19 @@ def __apply_collect_behaviour(behaviour, request, instance):
         serializer = behaviour.serializer_class(data=request.data)
     serializer.is_valid()
     # TODO - This should me modified
+    # NOTE - there should be possibility to pass param which defined serializer execution method
     serializer.save()
     return serializer
 
+def __apply_response_behaviour(behaviour, request, code, view, instance):
 
-def __apply_response_behaviour(behaviour, instance, code, view, collect_serializer):
-    if behaviour.error:
-        error = instance if isinstance(instance, str) else behaviour.error
-        return Response(error, status_code=code)
+    if behaviour.error_message:
+        return Response(behaviour.error_message, status=code) 
 
     serializer_class = behaviour.serializer_class
 
-    if collect_serializer:
-        instance = collect_serializer.instance
-        return_serializer = (
-            serializer_class(instance)
-            if serializer_class
-            else view.get_result_serializer(instance)
-        )
+    if instance:
+        return_serializer = serializer_class(instance) if serializer_class else view.get_result_serializer(instance)
     else:
         return_serializer = (
             serializer_class() if serializer_class else view.get_result_serializer()
@@ -101,7 +106,7 @@ def __apply_response_behaviour(behaviour, instance, code, view, collect_serializ
 
     headers = view.get_success_headers(return_serializer.data)
 
-    return Response(return_serializer.data, status=status.HTTP_200_OK, headers=headers)
+    return Response(return_serializer.data, status=code, headers=headers)
 
 
 def apply_behaviours(
@@ -109,9 +114,14 @@ def apply_behaviours(
 ):
     # TODO add possibility to assign status code
     if not collect_behaviour and not response_behaviour:
-        return view.perform_action(request, instance=instance)
+        return view.perform_action(request, instance=instance, status=code)
 
     collect_serializer = __apply_collect_behaviour(collect_behaviour, request, instance)
-    return __apply_response_behaviour(
-        response_behaviour, instance, code, view, collect_serializer
-    )
+
+    # TODO - clean this code
+    instance = collect_serializer.instance if collect_serializer else instance
+
+    # if other error message defined, set behaviour error message to this message
+    response_behaviour.error_message = instance if isinstance(instance, str) else response_behaviour.error_message
+
+    return __apply_response_behaviour(response_behaviour, request, code, view, instance)

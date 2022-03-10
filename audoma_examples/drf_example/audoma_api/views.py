@@ -25,6 +25,7 @@ from audoma.drf import (
     mixins,
     viewsets,
 )
+from audoma.drf.decorators import audoma_action
 from audoma.drf.filters import DocumentedTypedChoiceFilter
 
 
@@ -113,3 +114,25 @@ class ExampleFileUploadViewSet(
     queryset = ExampleFileModel.objects.all()
 
     parser_classes = [MultiPartParser]
+class ExampleModelPermissionLessViewSet(
+    mixins.ActionModelMixin, viewsets.GenericViewSet
+):
+    serializer_class = ExampleModelSerializer
+    queryset = ExampleModel.objects.all()
+
+    @audoma_action(detail=True, methods=['post'], responses={
+            'post': {201: ExampleModelCreateSerializer}
+        }
+    )
+    def detail_action(self, request, pk=None):
+        return ExampleModel(**request.data), 201
+
+    @audoma_action(detail=False, methods=['get'], response="This is a test view")
+    def non_detail_action(self, request):
+        return None, 200
+
+    @audoma_action(detail=True, methods=['post'], response={201: "Rate has been added"})
+    def rate_create_action(self, request, pk=None):
+        if not request.data.get('rate'):
+            return "Rate has not been passed", 400
+        return None, 201

@@ -1,13 +1,15 @@
+import json
 from datetime import date
 
-from audoma_api.views import (
-    ExampleModelViewSet,
-    ExampleViewSet,
-)
+from django.shortcuts import reverse
+from django.test import SimpleTestCase
 from drf_example.urls import router
 from drf_spectacular.generators import SchemaGenerator
 from rest_framework.permissions import BasePermission
 from rest_framework.test import APIClient
+
+from audoma_api.views import ExampleModelViewSet
+from audoma_api.views import ExampleViewSet
 
 from django.shortcuts import reverse
 from django.test import SimpleTestCase
@@ -116,6 +118,7 @@ class AudomaViewsTestCase(SimpleTestCase):
     def setUp(self):
         super().setUp()
         self.data = {
+<<<<<<< HEAD
             "char_field": "TESTChar",
             "phone_number": "",
             "email": "test@iteo.com",
@@ -135,10 +138,32 @@ class AudomaViewsTestCase(SimpleTestCase):
             "duration": "",
             "choices": "",
             "json": "",
+=======
+            'char_field': "TESTChar",
+            'phone_number': "(213) 444-1212",
+            'email': "test@iteo.com",
+            'url': "http://localhost:8000/redoc/",
+            'boolean': False,
+            'nullboolean': None,
+            'mac_adress': "96:82:2E:6B:F5:49",
+            'slug': "tst",
+            'uuid': "14aefe15-7c96-49b6-9637-7019c58c25d2",
+            'ip_address': "192.168.10.1",
+            'integer': 16,
+            '_float': 12.2,
+            'decimal': "13.23",
+            'datetime': datetime.now(),# "2009-11-13T10:39:35Z",
+            'date': date.today(), #"2009-11-13",
+            'time': datetime.now().time(),#"10:39:35Z",
+            'duration': timedelta(days=1),
+            'choices': 1,
+            'json': "",
+>>>>>>> PINT-19: added proper auto documentation of custom action decorator
         }
         self.client = APIClient()
 
     def test_detail_action_get(self):
+<<<<<<< HEAD
         response = self.client.get(
             reverse("model-examples-detail-action", kwargs={"pk": 0})
         )
@@ -150,14 +175,47 @@ class AudomaViewsTestCase(SimpleTestCase):
         response = self.client.post(
             reverse("model-examples-detail-action", kwargs={"pk": 0}), json=self.data
         )
+=======
+        response = self.client.get(reverse('permissionless-model-examples-detail-action', kwargs={'pk': 0}))
+        self.assertEqual(response.status_code, 405)
+    
+    def test_detail_action_post(self):
+        response = self.client.post(
+            reverse('permissionless-model-examples-detail-action', kwargs={'pk': 0}), self.data,
+            format='json'
+        )
+        print(response.content)
+>>>>>>> PINT-19: added proper auto documentation of custom action decorator
         self.assertEqual(response.status_code, 201)
-        # TODO - assert proper content values
-        # self.assertEqual(response.content, "GET method is not allowed")
+        response_content = json.loads(response.content)
+        for key, item in self.data.items():
+            self.assertEqual(item, response_content[key])
 
     def test_detail_action_put(self):
         response = self.client.put(
+<<<<<<< HEAD
             reverse("model-examples-detail-action", kwargs={"pk": 0}), json=self.data
+=======
+            reverse('permissionless-model-examples-detail-action', kwargs={'pk': 0}), self.data,
+            format='json'
+        )
+        self.assertEqual(response.status_code, 405)
+
+    def test_non_detail_action_get(self):
+        response = self.client.get(reverse('permissionless-model-examples-non-detail-action'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'"This is a test view"')
+
+    def test_rate_create_action_post_success(self):
+        response = self.client.post(
+            reverse('permissionless-model-examples-rate-create-action', kwargs={'pk': 10}), {'rate': 215},
+            format='json'
+>>>>>>> PINT-19: added proper auto documentation of custom action decorator
         )
         self.assertEqual(response.status_code, 201)
-        # TODO - assert proper content values
-        # self.assertEqual(response.content, "GET method is not allowed")
+        self.assertEqual(response.content, b'"Rate has been added"')
+
+    def test_rate_create_action_post_failure(self):
+        response = self.client.post(reverse('permissionless-model-examples-rate-create-action', kwargs={'pk': 10}))
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content, b'"Rate has not been passed"')

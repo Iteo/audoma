@@ -4,6 +4,7 @@ from rest_framework.permissions import (
     OperandHolder,
     SingleOperandHolder,
 )
+from drf_spectacular.utils import OpenApiResponse
 
 
 def get_permissions_description(view):  # noqa: C901
@@ -87,3 +88,42 @@ def get_permissions_description(view):  # noqa: C901
         )
     else:
         return ""
+
+
+def __extract_action(view):
+    action = getattr(view, "action", None)
+    if not action:
+        return
+
+    return getattr(view, action, None)
+
+def __parse_action_serializers(action_serializers):
+    if not action_serializers:
+        return action_serializers
+
+    if isinstance(action_serializers, str):
+        return OpenApiResponse(description=action_serializers)
+
+    parsed_action_serializers = action_serializers.copy()
+    
+    for method, method_serializers in action_serializers.items():
+        if isinstance(method_serializers, str):
+            parsed_action_serializers[method] = OpenApiResponse(description=method_serializers)
+        elif isinstance(method_serializers, dict):
+            for code, item in method_serializers.items():
+                if isinstance(item, str):
+                    parsed_action_serializers[method][code] = OpenApiResponse(
+                        description=method_serializers
+                    )    
+    return parsed_action_serializers
+    
+def extract_collectors(view):
+    action_method = __extract_action(view)
+    collectors = getattr(action_method, "collectors", None)
+    return __parse_action_serializers(collectors)
+
+
+def extract_responses(view):
+    action_method = __extract_action(view)
+    responses = getattr(action_method, "responses", None)
+    return __parse_action_serializers(responses)
