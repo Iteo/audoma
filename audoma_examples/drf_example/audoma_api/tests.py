@@ -36,11 +36,8 @@ class AudomaTests(SimpleTestCase):
         self.assertEqual(expected_time_field, time_field)
 
     def test_extend_schema_field_with_openapitype(self):
-        float_field = self.redoc_schemas["Example"]["properties"]["float"]
         uuid_field = self.redoc_schemas["Example"]["properties"]["uuid"]
-        expected_float_field = {'type': 'number', 'format': 'float'}
         expected_uuid_field = {'type': 'string', 'format': 'uuid'}
-        self.assertEqual(expected_float_field, float_field)
         self.assertEqual(expected_uuid_field, uuid_field)
 
     def test_model_mapping_all_field_serializer(self):
