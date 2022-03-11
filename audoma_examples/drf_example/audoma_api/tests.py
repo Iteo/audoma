@@ -10,6 +10,8 @@ from rest_framework.permissions import BasePermission
 
 from django.test import SimpleTestCase
 
+from audoma.drf.viewsets import AudomaPagination
+
 from .views import example_choice
 
 
@@ -98,3 +100,12 @@ class AudomaTests(SimpleTestCase):
         phone_number = example_model_properties["phone_number"]
         self.assertEqual("tel", phone_number["format"])
         self.assertEqual("+1 8888888822", phone_number["example"])
+
+    def test_custom_paginated_response_schema(self):
+        paginated_example = self.redoc_schemas["PaginatedExampleList"]
+        paginator = AudomaPagination()
+        expected_pagination = paginator.get_paginated_response_schema(paginated_example)
+        self.assertEqual(
+            paginated_example["properties"].keys(),
+            expected_pagination["properties"].keys(),
+        )

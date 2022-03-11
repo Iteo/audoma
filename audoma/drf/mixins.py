@@ -71,11 +71,11 @@ class ListModelMixin(mixins.ListModelMixin):
 
     def get_paginated_response(self, data):
         ret = super().get_paginated_response(data)
-        if hasattr(self, 'get_list_message'):
+        if hasattr(self, "get_list_message"):
             assert callable(self.get_list_message)
-            ret.data['message'] = self.get_list_message()
+            ret.data["message"] = self.get_list_message()
         else:
-            ret.data['message'] = None
+            ret.data["message"] = None
         return ret
 
 

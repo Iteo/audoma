@@ -1,3 +1,5 @@
+import random
+
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 
@@ -9,7 +11,29 @@ class AudomaPagination(PageNumberPagination):
     max_page_size = 2000
 
     def get_paginated_response_schema(self, schema):
-        return schema
+        return {
+            "type": "object",
+            "properties": {
+                "count": {"type": "integer", "example": random.randint(1, 100)},
+                "message": {
+                    "type": "string",
+                    "nullable": True,
+                },
+                "next": {
+                    "type": "string",
+                    "nullable": True,
+                    "format": "uri",
+                    "example": "http://api.example.org/accounts/?page=4",
+                },
+                "previous": {
+                    "type": "string",
+                    "nullable": True,
+                    "format": "uri",
+                    "example": "http://api.example.org/accounts/?page=2",
+                },
+                "results": schema,
+            },
+        }
 
 
 class GenericViewSet(viewsets.ViewSetMixin, GenericAPIView):
