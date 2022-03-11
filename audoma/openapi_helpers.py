@@ -104,6 +104,9 @@ def __parse_action_serializers(action_serializers):
     if isinstance(action_serializers, str):
         return OpenApiResponse(description=action_serializers)
 
+    if not isinstance(action_serializers, dict):
+        return action_serializers
+
     parsed_action_serializers = action_serializers.copy()
     
     for method, method_serializers in action_serializers.items():

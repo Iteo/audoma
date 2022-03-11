@@ -32,7 +32,7 @@ def document_and_format(serializer_or_field):
 # TODO - add documentation
 def audoma_action(
         methods=None, detail=None, url_path=None, url_name=None, response=None, collector=None,
-        collectors={}, responses={}, **kwargs
+        collectors={}, responses={}, validate_collector=True,**kwargs
     ):
     framework_decorator = action(methods=methods, detail=detail, url_path=url_path, url_name=url_name, **kwargs)
     def decorator(func):
@@ -60,8 +60,8 @@ def audoma_action(
             
             if collect_serializer_class:
                 collect_serializer = collect_serializer_class(data=request.data)
-                
-                collect_serializer.is_valid(raise_exception=True)
+                if validate_collector:
+                    collect_serializer.is_valid(raise_exception=True)
                 kwargs['collect_serializer'] = collect_serializer
 
             instance, code = func(view, request, *args, **kwargs)

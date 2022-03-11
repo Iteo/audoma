@@ -122,18 +122,21 @@ class ExampleModelPermissionLessViewSet(
     serializer_class = ExampleModelSerializer
     queryset = ExampleModel.objects.all()
 
-    @audoma_action(detail=True, methods=['post', "get"], collectors={
+    @audoma_action(detail=True, methods=['post'], collectors={
             'post': ExampleModelCreateSerializer
         }, response=ExampleModelSerializer
     )
     def detail_action(self, request, collect_serializer, pk=None):
         return collect_serializer.save(), 201
 
-    @audoma_action(detail=False, methods=['get'], response="This is a test view")
+    @audoma_action(detail=False, methods=['get'], response="This is a test view", validate_collector=False)
     def non_detail_action(self, request, collect_serializer):
         return None, 200
 
-    @audoma_action(detail=True, methods=['post'], response={201: "Rate has been added"})
+    # TODO - rethink perform collect
+    @audoma_action(
+        detail=True, methods=['post'], response={201: "Rate has been added"}, validate_collector=False
+    )
     def rate_create_action(self, request, collect_serializer, pk=None):
         if not request.data.get('rate'):
             return "Rate has not been passed", 400
