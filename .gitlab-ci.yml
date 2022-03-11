@@ -11,6 +11,7 @@ audoma-build:
     - python3 --version
     - echo "hello world"
     - pip install ./
+    - pip install -r requirements_dev.txt
 
 
 audoma-test:
@@ -18,3 +19,9 @@ audoma-test:
   script:
     - cd audoma_examples/drf_example
     - python3 manage.py test
+
+
+audoma-static:
+  stage: test
+  script:
+    - ./static_analysis.sh

@@ -1,16 +1,48 @@
 import jsonfield
-from audoma import django_modelfields, settings
-from django.db import models
 from rest_framework import serializers
-from rest_framework.serializers import *
+from rest_framework.serializers import *  # noqa: F403, F401
+
+from django.db import models
+
+from audoma import (
+    django_modelfields,
+    settings,
+)
+
 
 from audoma.drf.fields import (  # NOQA # isort:skip
-    BooleanField, CharField, ChoiceField, DateField, DateTimeField, DecimalField,
-    DictField, DurationField, EmailField, Field, FileField, FilePathField, FloatField,
-    HiddenField, HStoreField, IPAddressField, ImageField, IntegerField, JSONField,
-    ListField, ModelField, MultipleChoiceField, NullBooleanField, ReadOnlyField,
-    RegexField, SerializerMethodField, SlugField, TimeField, URLField, UUIDField,
-     MACAddressField, PhoneNumberField
+    BooleanField,
+    CharField,
+    ChoiceField,
+    DateField,
+    DateTimeField,
+    DecimalField,
+    DictField,
+    DurationField,
+    EmailField,
+    Field,
+    FileField,
+    FilePathField,
+    FloatField,
+    HiddenField,
+    HStoreField,
+    IPAddressField,
+    ImageField,
+    IntegerField,
+    JSONField,
+    ListField,
+    ModelField,
+    MultipleChoiceField,
+    NullBooleanField,
+    ReadOnlyField,
+    RegexField,
+    SerializerMethodField,
+    SlugField,
+    TimeField,
+    URLField,
+    UUIDField,
+    MACAddressField,
+    PhoneNumberField,
 )
 
 
@@ -25,10 +57,10 @@ class Result:
 def result_serializer_class(SerializerClass):
     if SerializerClass not in embeded_serializer_classes:
         class_name = SerializerClass.__name__
-        if class_name.endswith('Serializer'):
-            class_name = class_name[:-10] + 'ResultSerializer'
+        if class_name.endswith("Serializer"):
+            class_name = class_name[:-10] + "ResultSerializer"
         else:
-            class_name += 'Result'
+            class_name += "Result"
 
         class ResultSerializer(serializers.Serializer):
             result = SerializerClass()
@@ -81,7 +113,7 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
         models.UUIDField: UUIDField,
         django_modelfields.PhoneNumberField: PhoneNumberField,
         django_modelfields.MACAddressField: MACAddressField,
-        jsonfield.JSONField: JSONField
+        jsonfield.JSONField: JSONField,
     }
 
 

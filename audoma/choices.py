@@ -1,7 +1,6 @@
-
-
 def make_choices(name, choices_tuple):
     from collections import namedtuple
+
     """Factory function for quickly making a namedtuple suitable for use in a
     Django model as a choices attribute on a field. It will preserve order.
 

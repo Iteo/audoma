@@ -2,9 +2,11 @@
 
 
 [![pipeline status](https://gitlab.iteo.com.pl/python/audoma/badges/main/pipeline.svg)](https://gitlab.iteo.com.pl/python/audoma/-/commits/main)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 
 The main goal of this project is to make Django Rest Framework documentation easier and more automatic.
-It supports drf-spectacular documentation and extends some of its functionalities. 
+It supports drf-spectacular documentation and extends some of its functionalities.
 
 Installation
 ------------
@@ -24,8 +26,8 @@ REST_FRAMEWORK = {
 }
 ```
 
-Audoma allows you to add path prefixes that should be included in schema exclusively. All you need to do is declare a variable 
-`SCHEMA_PATTERN_PREFIX` in your `settings.py` file and add preprocessing function `preprocess_include_path_format` as preprocessing 
+Audoma allows you to add path prefixes that should be included in schema exclusively. All you need to do is declare a variable
+`SCHEMA_PATTERN_PREFIX` in your `settings.py` file and add preprocessing function `preprocess_include_path_format` as preprocessing
 hook in `SPECTACULAR_SETTINGS` dictionary as in the example below.
 
 ```python
@@ -55,7 +57,7 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
         pass
     ```
 
-* `ExampleMixin` allows you to add example documentation value to a serializer field. To use it you just need to inherit 
+* `ExampleMixin` allows you to add example documentation value to a serializer field. To use it you just need to inherit
     from `ExampleMixin`, like below and initialize object with example
 
     ```python
@@ -77,12 +79,12 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
 
 * `DocumentedTypedChoiceFilter` is a wrapper to `df.filters.TypedChoiceFilter` that makes creating documentation easier. It goes out of the box with
     our `make_choices` function for quickly making a namedtuple suitable for use in a django model as a choices attribute on a field that will preserve order.
-    Below you can see an example of usage. 
+    Below you can see an example of usage.
 
     `models.py`
     ```python
     from audoma.choices import make_choices
-    #define a model with use of make_choices 
+    #define a model with use of make_choices
     class MyModel(models.Model):
             COLORS = make_choices('COLORS', (
                 (0, 'BLACK', 'Black'),
@@ -90,7 +92,7 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
             ))
             colors = models.PositiveIntegerField(choices=COLORS)
             ...
-    
+
     ```
     `views.py`
     ```python
@@ -123,3 +125,21 @@ You can test audoma functionalities with our example applicaiton. From root fold
 go to `audoma_examples/drf_examples` and create virtualenv there. Then, install audoma
 and run django application. You can easily explore possibilities of audoma documentation maker
 as it shows all functionalities. To run tests simply run `python manage.py test` command.
+
+
+Development
+------------
+Project has defined code style and pre-commit hooks for effortless code formatting.
+
+To setup pre-commit hooks inside repo run:
+```
+    $ pip install -r requirements_dev.txt
+    $ pre-commit install
+```
+From now on your commits will fail if your changes break code conventions of the project.
+
+To format project and apply all code style conventions run:
+```
+    $ ./autoformat.sh
+```
+This command can be triggered automatically by IDE on file save or on file change.
