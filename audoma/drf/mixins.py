@@ -69,6 +69,15 @@ class ListModelMixin(mixins.ListModelMixin):
         serializer = self.get_result_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    def get_paginated_response(self, data):
+        ret = super().get_paginated_response(data)
+        if hasattr(self, 'get_list_message'):
+            assert callable(self.get_list_message)
+            ret.data['message'] = self.get_list_message()
+        else:
+            ret.data['message'] = None
+        return ret
+
 
 class RetrieveModelMixin(mixins.RetrieveModelMixin):
     def retrieve(self, request, *args, **kwargs):
