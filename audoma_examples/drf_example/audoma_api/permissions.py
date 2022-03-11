@@ -5,6 +5,7 @@ class ViewAndDetailPermission(BasePermission):
     """The ViewAndDetailPermission guard access to all views nad detail views (collections and resources).
     General view permission is determined first then if it's detail view specific object permission is checked.
     """
+
     def has_permission(self, request, view):
         return True
 
@@ -28,12 +29,14 @@ class ViewPermission(BasePermission):
 
 class AlternatePermission1(BasePermission):
     """The AlternatePermission1 is combined through OR operator with AlternatePermission2"""
+
     def has_permission(self, request, view):
         return True
 
 
 class AlternatePermission2(BasePermission):
     """The AlternatePermission2 is combined through OR operator with AlternatePermission1"""
+
     def has_permission(self, request, view):
         return True
 

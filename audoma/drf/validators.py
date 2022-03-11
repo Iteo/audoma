@@ -2,8 +2,8 @@ from rest_framework import serializers
 
 
 class ExclusiveFieldsValidator:
-    message = 'The fields {field_names} are mutually exclusive arguments.'
-    message_required = 'One of the fields {field_names} is required.'
+    message = "The fields {field_names} are mutually exclusive arguments."
+    message_required = "One of the fields {field_names} is required."
     # requires_context = True
 
     def __init__(self, fields, message=None, required=True, message_required=None):
@@ -17,6 +17,10 @@ class ExclusiveFieldsValidator:
     def __call__(self, data):
         in_data = sum(f in data for f in self.fields)
         if in_data > 1:
-            raise serializers.ValidationError(self.message.format(field_names=', '.join(self.fields)))
+            raise serializers.ValidationError(
+                self.message.format(field_names=", ".join(self.fields))
+            )
         if in_data == 0 and self.required:
-            raise serializers.ValidationError(self.message_required.format(field_names=', '.join(self.fields)))
+            raise serializers.ValidationError(
+                self.message_required.format(field_names=", ".join(self.fields))
+            )
