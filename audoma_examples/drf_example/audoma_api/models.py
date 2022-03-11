@@ -1,18 +1,25 @@
-from audoma.django_modelfields import MACAddressField, PhoneNumberField
-from audoma.choices import make_choices
-from django.db import models
 from jsonfield import JSONField
+
+from django.db import models
+
+from audoma.choices import make_choices
+from audoma.django_modelfields import (
+    MACAddressField,
+    PhoneNumberField,
+)
 
 
 # Create your models here.
 class ExampleModel(models.Model):
 
     EXAMPLE_CHOICES = make_choices(
-        'CHOICES', (
-            (1, 'EX_1', 'example 1'),
-            (2, 'EX_2', 'example 2'),
-            (3, 'EX_3', 'example 3'),
-        ))
+        "CHOICES",
+        (
+            (1, "EX_1", "example 1"),
+            (2, "EX_2", "example 2"),
+            (3, "EX_3", "example 3"),
+        ),
+    )
     char_field = models.CharField(max_length=255)
     phone_number = PhoneNumberField()
     email = models.EmailField()
