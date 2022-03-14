@@ -7,6 +7,7 @@ from audoma_api.models import (
 
 from audoma.drf import serializers
 from audoma.drf.decorators import document_and_format
+from audoma.choices import make_choices
 
 
 class NestedExampleSerializer(serializers.Serializer):
@@ -71,3 +72,13 @@ class ExampleModelCreateSerializer(serializers.ModelSerializer):
 
     def save(self, **kwargs):
         return ExampleModel(**self.validated_data)
+
+
+class ExampleOneFieldSerializer(serializers.Serializer):
+    
+    RATE_CHOICES = make_choices('RATE', ((0, "LIKE", "Like"), (1, "DISLIKIE", "Dislike")))
+
+    rate = serializers.ChoiceField(choices=RATE_CHOICES)
+
+    def save(self, **kwargs):
+        return self.validated_data

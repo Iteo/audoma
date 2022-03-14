@@ -98,6 +98,7 @@ def __extract_action(view):
     return getattr(view, action, None)
 
 def __parse_action_serializers(action_serializers):
+    # TODO - this should be modified
     if not action_serializers:
         return action_serializers
 
@@ -121,12 +122,13 @@ def __parse_action_serializers(action_serializers):
     return parsed_action_serializers
     
 def extract_collectors(view):
-    action_method = __extract_action(view)
-    collectors = getattr(action_method, "collectors", None)
+    action_function = __extract_action(view)
+    collectors = getattr(action_function, "collectors", None)
+    print(action_function, collectors)
     return __parse_action_serializers(collectors)
 
 
 def extract_responses(view):
-    action_method = __extract_action(view)
-    responses = getattr(action_method, "responses", None)
+    action_function = __extract_action(view)
+    responses = getattr(action_function, "responses", None)
     return __parse_action_serializers(responses)

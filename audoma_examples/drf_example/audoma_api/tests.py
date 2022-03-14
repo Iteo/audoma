@@ -118,38 +118,14 @@ class AudomaViewsTestCase(SimpleTestCase):
     def setUp(self):
         super().setUp()
         self.data = {
-<<<<<<< HEAD
-<<<<<<< HEAD
-            "char_field": "TESTChar",
-            "phone_number": "",
-            "email": "test@iteo.com",
-            "url": "",
-            "boolean": False,
-            "nullboolean": None,
-            "mac_adress": "",
-            "slug": "",
-            "uuid": "",
-            "ip_address": "",
-            "integer": "",
-            "_float": "",
-            "decimal": "",
-            "datetime": "",
-            "date": "",
-            "time": "",
-            "duration": "",
-            "choices": "",
-            "json": "",
-=======
             'char_field': "TESTChar",
             'phone_number': "(213) 444-1212",
             'email': "test@iteo.com",
             'url': "http://localhost:8000/redoc/",
-=======
             'char_field': 'TESTChar',
             'phone_number': '+18888888822',
             'email': 'test@iteo.com',
             'url': 'http://localhost:8000/redoc/',
->>>>>>> PINT-19:WIP simplified solution
             'boolean': False,
             'nullboolean': None,
             'mac_adress': '96:82:2E:6B:F5:49',
@@ -164,29 +140,11 @@ class AudomaViewsTestCase(SimpleTestCase):
             'time': datetime.now().time(),#'10:39:35Z',
             'duration': timedelta(days=1),
             'choices': 1,
-<<<<<<< HEAD
-            'json': "",
->>>>>>> PINT-19: added proper auto documentation of custom action decorator
-=======
-            'json': '',
->>>>>>> PINT-19:WIP simplified solution
+            'json': ''
         }
         self.client = APIClient()
 
     def test_detail_action_get(self):
-<<<<<<< HEAD
-        response = self.client.get(
-            reverse("model-examples-detail-action", kwargs={"pk": 0})
-        )
-        self.assertEqual(response.status_code, 405)
-        self.assertEqual(response.content, "GET method is not allowed")
-
-    def test_detail_action_post(self):
-
-        response = self.client.post(
-            reverse("model-examples-detail-action", kwargs={"pk": 0}), json=self.data
-        )
-=======
         response = self.client.get(reverse('permissionless-model-examples-detail-action', kwargs={'pk': 0}))
         self.assertEqual(response.status_code, 405)
     
@@ -195,42 +153,28 @@ class AudomaViewsTestCase(SimpleTestCase):
             reverse('permissionless-model-examples-detail-action', kwargs={'pk': 0}), self.data,
             format='json'
         )
-<<<<<<< HEAD
-        print(response.content)
->>>>>>> PINT-19: added proper auto documentation of custom action decorator
-=======
->>>>>>> PINT-19:WIP simplified solution
         self.assertEqual(response.status_code, 201)
         response_content = json.loads(response.content)
         self.assertEqual(self.data["char_field"], response_content["char_field"])
         self.assertEqual(self.data["mac_adress"], response_content["mac_adress"])
         self.assertEqual(self.data["uuid"], response_content["uuid"])
 
-    def test_detail_action_put(self):
-        response = self.client.put(
-<<<<<<< HEAD
-            reverse("model-examples-detail-action", kwargs={"pk": 0}), json=self.data
-=======
-            reverse('permissionless-model-examples-detail-action', kwargs={'pk': 0}), self.data,
-            format='json'
-        )
-        self.assertEqual(response.status_code, 405)
-
     def test_non_detail_action_get(self):
         response = self.client.get(reverse('permissionless-model-examples-non-detail-action'))
+        content = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, b'"This is a test view"')
+        self.assertEqual(content['message'], "This is a test view")
 
     def test_rate_create_action_post_success(self):
         response = self.client.post(
-            reverse('permissionless-model-examples-rate-create-action', kwargs={'pk': 10}), {'rate': 215},
+            reverse('permissionless-model-examples-rate-create-action'), {'rate': 1},
             format='json'
->>>>>>> PINT-19: added proper auto documentation of custom action decorator
         )
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.content, b'"Rate has been added"')
+        self.assertEqual(json.loads(response.content)['rate'], 1)
 
     def test_rate_create_action_post_failure(self):
-        response = self.client.post(reverse('permissionless-model-examples-rate-create-action', kwargs={'pk': 10}))
+        response = self.client.post(reverse('permissionless-model-examples-rate-create-action'))
+        content = json.loads(response.content)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.content, b'"Rate has not been passed"')
+        self.assertEqual(content['errors']['rate'], "This field is required.")

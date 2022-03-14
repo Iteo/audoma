@@ -14,6 +14,7 @@ from audoma_api.serializers import (
     ExampleModelCreateSerializer,
     ExampleModelSerializer,
     ExampleSerializer,
+    ExampleOneFieldSerializer
 )
 from django_filters import rest_framework as df_filters
 from rest_framework.decorators import action
@@ -96,7 +97,10 @@ class ExampleModelViewSet(
     serializer_class = ExampleModelSerializer
     queryset = ExampleModel.objects.all()
 
-    @action(detail=True, methods=["post"])
+    @audoma_action(detail=True, methods=['get'], responses={
+            'get': "GET method is not allowed"
+        }, collectors=None
+    )
     def detail_action(self, request, pk=None):
         return Response({})  # wrong
 
@@ -124,20 +128,20 @@ class ExampleModelPermissionLessViewSet(
 
     @audoma_action(detail=True, methods=['post'], collectors={
             'post': ExampleModelCreateSerializer
-        }, response=ExampleModelSerializer
+        }, responses={'post': {201: ExampleModelSerializer}}
     )
     def detail_action(self, request, collect_serializer, pk=None):
         return collect_serializer.save(), 201
 
-    @audoma_action(detail=False, methods=['get'], response="This is a test view", validate_collector=False)
-    def non_detail_action(self, request, collect_serializer):
+    @audoma_action(detail=False, methods=['get'], responses={'get': 'This is a test view'})
+    def non_detail_action(self, request):
         return None, 200
 
-    # TODO - rethink perform collect
     @audoma_action(
-        detail=True, methods=['post'], response={201: "Rate has been added"}, validate_collector=False
+        detail=False, methods=['post'], responses=ExampleOneFieldSerializer, 
+        collectors=ExampleOneFieldSerializer
     )
-    def rate_create_action(self, request, collect_serializer, pk=None):
-        if not request.data.get('rate'):
-            return "Rate has not been passed", 400
-        return None, 201
+    def rate_create_action(
+        self, request, collect_serializer
+    ):
+        return collect_serializer.save(), 201
