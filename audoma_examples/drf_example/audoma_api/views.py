@@ -88,7 +88,6 @@ class ExampleModelViewSet(
         AlternatePermission1 | AlternatePermission2,
     ]
 
-    filterset_fields = ["slug"]
     filterset_class = ExampleChoiceFilter
     serializer_class = ExampleModelSerializer
     queryset = ExampleModel.objects.all()
