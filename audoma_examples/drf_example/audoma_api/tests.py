@@ -8,12 +8,7 @@ from drf_example.urls import router
 from drf_spectacular.generators import SchemaGenerator
 from rest_framework.permissions import BasePermission
 
-<<<<<<< HEAD
-from audoma_api.models import ExampleModel
-
-=======
 from django.test import SimpleTestCase
->>>>>>> main
 
 from audoma.drf.viewsets import AudomaPagination
 
@@ -65,13 +60,13 @@ class AudomaTests(SimpleTestCase):
         example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
         self.assertEqual(20, len(example_model_properties))
 
-<<<<<<< HEAD
     def test_filter_params_description_model_viewset(self):
-        example_choices = ExampleModel.EXAMPLE_CHOICES.get_choices()
-        docs_description = self.schema['paths']['/model_examples/']['get']['parameters'][0]['description']
-        for choice in example_choices:
-            self.assertIn(choice[1], docs_description)
-=======
+        choices_desc = "Filter by choice \n * `EX_1` - example 1\n * `EX_2` - example 2\n * `EX_3` - example 3\n"
+        docs_description = self.schema["paths"]["/model_examples/"]["get"][
+            "parameters"
+        ][0]["description"]
+        self.assertEqual(choices_desc, docs_description)
+
     def test_permission_description_extension_model_viewset(self):
         expected_permissions = ExampleModelViewSet.permission_classes
         description = self.schema["paths"]["/model_examples/"]["get"]["description"]
@@ -90,23 +85,6 @@ class AudomaTests(SimpleTestCase):
                 continue
             self.assertIn(str(permission.__name__), description)
 
-    def test_create_openapi_description(self):
-        example_model_params = self.schema["paths"]["/model_examples/"]["get"][
-            "parameters"
-        ][0]
-        schema = example_model_params["schema"]
-        description = example_model_params["description"]
-        self.assertEqual(
-            example_choice.create_openapi_description().name,
-            example_model_params["name"],
-        )
-        self.assertEqual(
-            example_choice.create_openapi_description().enum, tuple(schema["enum"])
-        )
-        self.assertEqual(
-            example_choice.create_openapi_description().description, description
-        )
-
     def test_document_and_format_example_model_phone_number(self):
         example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
         phone_number = example_model_properties["phone_number"]
@@ -121,4 +99,3 @@ class AudomaTests(SimpleTestCase):
             paginated_example["properties"].keys(),
             expected_pagination["properties"].keys(),
         )
->>>>>>> main

@@ -12,11 +12,12 @@ class DocumentedTypedChoiceFilter(df_filters.TypedChoiceFilter):
         )
         self.full_choices = full_choices
         self.parameter_name = parameter_name
-        self.extra['help_text'] = self.extra.get('help_text', "") + "<br/>"
-        self.extra['help_text'] += self._get_choices_description()
+        self.extra["help_text"] = self.extra.get("help_text", "{choices}").format(
+            **{"choices": self._get_choices_description()}
+        )
 
     def _get_choices_description(self):
         description = f"Filter by {self.parameter_name} \n"
         for key, val in self.full_choices.get_api_choices():
-                description += f" * `{key}` - {val}\n"
+            description += f" * `{key}` - {val}\n"
         return description
