@@ -12,8 +12,6 @@ from django.test import SimpleTestCase
 
 from audoma.drf.viewsets import AudomaPagination
 
-from .views import example_choice
-
 
 class AudomaTests(SimpleTestCase):
     def setUp(self):
