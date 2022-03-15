@@ -8,7 +8,7 @@ class DocumentedTypedChoiceFilter(df_filters.TypedChoiceFilter):
         super().__init__(
             coerce=lambda value: full_choices.get_value_by_name(value),
             choices=full_choices.get_api_choices(),
-            **kwargs
+            **kwargs,
         )
         self.full_choices = full_choices
         self.parameter_name = parameter_name
