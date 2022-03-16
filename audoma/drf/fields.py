@@ -1,4 +1,5 @@
 import random
+from unicodedata import decimal
 
 import exrex
 from drf_spectacular.types import OpenApiTypes
@@ -8,15 +9,21 @@ from rest_framework import fields
 from rest_framework.fields import *  # noqa: F403, F401
 
 from django.core import validators
+from django.utils.functional import lazy
 
 from audoma.drf.mixins import ExampleMixin
 
 
-@extend_schema_field(
-    field={"type": "number", "example": round(random.uniform(0, 1000), 2)}
-)
 class DecimalField(ExampleMixin, fields.DecimalField):
-    pass
+    def __init__(self, **kwargs):
+        if "example" not in kwargs:
+            decimal_places = kwargs.get("decimal_places", None) or 2
+            min_value = kwargs.get("min_value", None) or 0
+            max_value = kwargs.get("max_value", None) or 1000
+            kwargs["example"] = round(
+                random.uniform(min_value, max_value), decimal_places
+            )
+        super().__init__(**kwargs)
 
 
 @extend_schema_field(OpenApiTypes.UUID)
@@ -24,14 +31,22 @@ class UUIDField(ExampleMixin, fields.UUIDField):
     pass
 
 
-@extend_schema_field(field={"example": random.randint(1, 1000)})
 class IntegerField(ExampleMixin, fields.IntegerField):
-    pass
+    def __init__(self, **kwargs):
+        if "example" not in kwargs:
+            min_value = kwargs.get("min_value", None) or 0
+            max_value = kwargs.get("max_value", None) or 1000
+            kwargs["example"] = random.randint(min_value, max_value)
+        super().__init__(**kwargs)
 
 
-@extend_schema_field(field={"example": random.uniform(0, 1000)})
 class FloatField(ExampleMixin, fields.FloatField):
-    pass
+    def __init__(self, **kwargs):
+        if "example" not in kwargs:
+            min_value = kwargs.get("min_value", None) or 0
+            max_value = kwargs.get("max_value", None) or 1000
+            kwargs["example"] = random.uniform(min_value, max_value)
+        super().__init__(**kwargs)
 
 
 class RegexField(ExampleMixin, fields.RegexField):
@@ -74,6 +89,6 @@ class IPAddressField(ExampleMixin, fields.IPAddressField):
     pass
 
 
-@extend_schema_field(field={"format": "tel", "example": "+1 8888888822"})
+@extend_schema_field(field={"format": "tel", "example": "555-2310"})
 class PhoneNumberField(ExampleMixin, serializerfields.PhoneNumberField):
     pass
