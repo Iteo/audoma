@@ -109,3 +109,8 @@ class AudomaTests(SimpleTestCase):
             paginated_example["properties"].keys(),
             expected_pagination["properties"].keys(),
         )
+
+    def test_example_float_field_with_range(self):
+        float_field = self.redoc_schemas["Example"]["properties"]["float"]
+        self.assertLessEqual(float_field["minimum"], float_field["example"])
+        self.assertGreaterEqual(float_field["maximum"], float_field["example"])
