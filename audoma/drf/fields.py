@@ -9,7 +9,6 @@ from rest_framework import fields
 from rest_framework.fields import *  # noqa: F403, F401
 
 from django.core import validators
-from django.utils.functional import lazy
 
 from audoma.drf.mixins import ExampleMixin
 
