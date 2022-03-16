@@ -1,5 +1,4 @@
 import random
-from unicodedata import decimal
 
 import exrex
 from drf_spectacular.types import OpenApiTypes
