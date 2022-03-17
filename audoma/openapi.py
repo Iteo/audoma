@@ -9,6 +9,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 
 from audoma.openapi_helpers import (
+    AudomaApiResponseCreator,
     get_permissions_description,
     extract_collectors,
     extract_responses
@@ -18,6 +19,8 @@ from audoma.openapi_helpers import get_permissions_description
 
 
 class AudomaAutoSchema(AutoSchema):
+    response_creator = AudomaApiResponseCreator()
+
     def get_description(self):
         view = self.view
         description = super().get_description() or ""
@@ -30,9 +33,9 @@ class AudomaAutoSchema(AutoSchema):
 
         # code responsible for documenting audoma_action decorator
         if serializer_type == "collect":
-            action_serializers = extract_collectors(view)
+            action_serializers = self.response_creator.extract_collectors(view)
         else:
-            action_serializers = extract_responses(view)
+            action_serializers = self.response_creator.extract_responses(view)
 
         if action_serializers:
             if isinstance(action_serializers, dict) and method.lower() in action_serializers:

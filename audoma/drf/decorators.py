@@ -6,8 +6,13 @@ from django.core.exceptions import ImproperlyConfigured
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.decorators import action
+from rest_framework.exceptions import APIException
 from rest_framework.permissions import SAFE_METHODS
 
+from django.conf import settings as project_settings
+from django.core.exceptions import ImproperlyConfigured
+
+from audoma import settings as audoma_settings
 from audoma.operations import (
     extract_operation, 
     apply_response_operation
@@ -33,7 +38,7 @@ def document_and_format(serializer_or_field):
     return decorator
 
 
-def document_serializers(collectors={}, responses={}, methods=None):
+def document_serializers(collectors={}, responses={}, errors=[], methods=None):
     """
         This method simply sets collectors and responses function attributes.
         This may be used for method in views, where there is no reason to use audoma_action.
@@ -55,14 +60,16 @@ def document_serializers(collectors={}, responses={}, methods=None):
 
     
 def audoma_action(
-       collectors={}, responses={}, validate_collector=True,**kwargs
-    ):
+    collectors={}, responses={}, errors=[], validate_collector=True, **kwargs
+):
     """
         This is a custom action tag which allows to define collectors and responses.
         This tag also applies the collect serializer, and validates the input.
         # TODO
     """
-    methods = kwargs.get('methods')
+    assert isinstance(errors, list)
+
+    methods = kwargs.get("methods")
     framework_decorator = action(**kwargs)
     serializers_decorator = document_serializers(collectors=collectors, responses=responses, methods=methods)
     def decorator(func):
@@ -72,7 +79,12 @@ def audoma_action(
 
         @wraps(func)
         def wrapper(view, request, *args, **kwargs):
-            # TODO does not allow returning error codes, which are not defined
+            # extend errors too allow default errors occurance
+            errors = func.errors
+            errors += audoma_settings.DEFAULT_COMMON_API_ERRORS + getattr(
+                project_settings, "COMMON_API_ERROR", []
+            )
+
             if collectors is not None and request.method not in SAFE_METHODS:
                 collect_serializer_class = extract_operation(
                     collectors, request, operation_category="collect"
@@ -84,9 +96,21 @@ def audoma_action(
                     collect_serializer = collect_serializer_class(data=request.data)
                     if validate_collector:
                         collect_serializer.is_valid(raise_exception=True)
-                    kwargs['collect_serializer'] = collect_serializer
-
-            instance, code = func(view, request, *args, **kwargs)
+                    kwargs["collect_serializer"] = collect_serializer
+            try:
+                instance, code = func(view, request, *args, **kwargs)
+            except APIException as exception:
+                # TODO how we should checko error occurance
+                exceptions = [
+                    error for error in errors if error.__class__ == exception.__class__
+                ]
+                if exceptions:
+                    raise exceptions[0]
+                else:
+                    raise ValueError(
+                        f"Exception has not been defined {exception.__class__} in audoma_action tag errors."
+                        + " Audoma allows only to raise defined exceptions"
+                    )
 
             response_operation = extract_operation(
                 responses, request, code=code

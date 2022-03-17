@@ -1,3 +1,8 @@
+from drf_spectacular.utils import (
+    OpenApiExample,
+    OpenApiResponse,
+)
+from rest_framework.exceptions import APIException
 from rest_framework.permissions import (
     AND,
     OR,
@@ -90,45 +95,68 @@ def get_permissions_description(view):  # noqa: C901
         return ""
 
 
-def __extract_action(view):
-    action = getattr(view, "action", None)
-    if not action:
-        return
+class AudomaApiResponseCreator:
+    def extract_collectors(self, view):
+        action_function = self.__extract_action(view)
+        collectors = getattr(action_function, "collectors", None)
+        return self.__parse_action_serializers(collectors)
 
-    return getattr(view, action, None)
+    def extract_responses(self, view):
+        action_function = self.__extract_action(view)
+        responses = self.__parse_action_serializers(
+            getattr(action_function, "responses", None)
+        )
+        errors = self.__parse_action_errors(getattr(action_function, "errors", []))
+        if responses:
+            responses.update(errors)
+            return responses
 
-def __parse_action_serializers(action_serializers):
-    # TODO - this should be modified
-    if not action_serializers:
-        return action_serializers
+        return errors
 
-    if isinstance(action_serializers, str):
-        return OpenApiResponse(description=action_serializers)
+    def __extract_action(self, view):
+        action = getattr(view, "action", None)
+        if not action:
+            return
 
-    if not isinstance(action_serializers, dict):
-        return action_serializers
+        return getattr(view, action, None)
 
-    parsed_action_serializers = action_serializers.copy()
-    
-    for method, method_serializers in action_serializers.items():
-        if isinstance(method_serializers, str):
-            parsed_action_serializers[method] = OpenApiResponse(description=method_serializers)
-        elif isinstance(method_serializers, dict):
-            for code, item in method_serializers.items():
-                if isinstance(item, str):
-                    parsed_action_serializers[method][code] = OpenApiResponse(
-                        description=method_serializers
-                    )    
-    return parsed_action_serializers
-    
-def extract_collectors(view):
-    action_function = __extract_action(view)
-    collectors = getattr(action_function, "collectors", None)
-    print(action_function, collectors)
-    return __parse_action_serializers(collectors)
+    def __parse_action_serializers(self, action_serializers):
+        if not action_serializers:
+            return action_serializers
 
+        if isinstance(action_serializers, str):
+            return {"default": OpenApiResponse(description=action_serializers)}
 
-def extract_responses(view):
-    action_function = __extract_action(view)
-    responses = getattr(action_function, "responses", None)
-    return __parse_action_serializers(responses)
+        if not isinstance(action_serializers, dict):
+            return {"default": action_serializers}
+
+        parsed_action_serializers = action_serializers.copy()
+
+        for method, method_serializers in action_serializers.items():
+            if isinstance(method_serializers, str):
+                parsed_action_serializers[method] = OpenApiResponse(
+                    description=method_serializers
+                )
+            elif isinstance(method_serializers, dict):
+                for code, item in method_serializers.items():
+                    if isinstance(item, str):
+                        parsed_action_serializers[method][code] = OpenApiResponse(
+                            description=method_serializers
+                        )
+        return parsed_action_serializers
+
+    def __parse_action_errors(self, action_errors):
+        if not action_errors:
+            return action_errors
+
+        parsed_errors = {}
+        for error in action_errors:
+            # TODO fix represenatation
+            parsed_errors[error.status_code] = OpenApiResponse(
+                response={
+                    "type": "object",
+                    "properties": {"detail": {"type": type(error.detail).__name__}},
+                    "example": {"detail": error.detail},
+                }
+            )
+        return parsed_errors

@@ -177,4 +177,35 @@ class AudomaViewsTestCase(SimpleTestCase):
         response = self.client.post(reverse('permissionless-model-examples-rate-create-action'))
         content = json.loads(response.content)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(content['errors']['rate'], "This field is required.")
+        self.assertEqual(content["errors"]["rate"], "This field is required.")
+
+    def test_properly_defined_exception_example(self):
+        response = self.client.get(
+            reverse("permissionless-model-examples-properly-defined-exception-example")
+        )
+        self.assertEqual(response.status_code, 409)
+        content = json.loads(response.content)
+        self.assertEqual(content["errors"]["detail"], "Conflict has occured")
+
+    def test_proper_usage_of_common_errors(self):
+        response = self.client.get(
+            reverse("permissionless-model-examples-proper-usage-of-common-errors")
+        )
+        self.assertEqual(response.status_code, 404)
+        content = json.loads(response.content)
+        self.assertEqual(content["errors"]["detail"], "Not found.")
+
+    def test_improperly_defined_exception_example(self):
+        try:
+            self.client.get(
+                reverse(
+                    "permissionless-model-examples-improperly-defined-exception-example"
+                )
+            )
+        except Exception as e:
+            self.assertEqual(e.__class__, ValueError)
+            self.assertEqual(
+                str(e),
+                "Exception has not been defined <class 'audoma_api.exceptions.CustomBadRequestException'> "
+                + "in audoma_action tag errors. Audoma allows only to raise defined exceptions",
+            )

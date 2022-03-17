@@ -2,6 +2,10 @@ from audoma_api.models import (
     ExampleFileModel,
     ExampleModel,
 )
+from audoma_api.exceptions import (
+    CustomBadRequestException,
+    CustomConflictException,
+)
 from audoma_api.permissions import (
     AlternatePermission1,
     AlternatePermission2,
@@ -19,6 +23,7 @@ from audoma_api.serializers import (
 from django_filters import rest_framework as df_filters
 from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser
+from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -145,3 +150,24 @@ class ExampleModelPermissionLessViewSet(
         self, request, collect_serializer
     ):
         return collect_serializer.save(), 201
+
+    @audoma_action(
+        detail=False,
+        methods=["get"],
+        responses=ExampleOneFieldSerializer,
+        errors=[CustomBadRequestException(), CustomConflictException()],
+    )
+    def properly_defined_exception_example(self, request):
+        raise CustomConflictException
+
+    @audoma_action(detail=False, methods=["get"])
+    def proper_usage_of_common_errors(self, request):
+        raise NotFound
+
+    @audoma_action(
+        detail=False,
+        methods=["get"],
+        responses=ExampleOneFieldSerializer,
+    )
+    def improperly_defined_exception_example(self, request):
+        raise CustomBadRequestException
