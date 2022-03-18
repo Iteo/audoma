@@ -109,3 +109,10 @@ class AudomaTests(SimpleTestCase):
             paginated_example["properties"].keys(),
             expected_pagination["properties"].keys(),
         )
+
+    def test_file_upload_view_parsers(self):
+        example_schema = self.schema["paths"]["/file-upload-example/"]["post"][
+            "requestBody"
+        ]["content"]
+        self.assertEqual(len(example_schema.keys()), 1)
+        self.assertEqual(list(example_schema.keys())[0], "multipart/form-data")
