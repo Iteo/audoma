@@ -1,4 +1,7 @@
-from audoma_api.models import ExampleModel
+from audoma_api.models import (
+    ExampleFileModel,
+    ExampleModel,
+)
 from audoma_api.permissions import (
     AlternatePermission1,
     AlternatePermission2,
@@ -7,12 +10,14 @@ from audoma_api.permissions import (
     ViewPermission,
 )
 from audoma_api.serializers import (
+    ExampleFileModelSerializer,
     ExampleModelSerializer,
     ExampleSerializer,
 )
 from django_filters import rest_framework as df_filters
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -102,3 +107,14 @@ class ExampleModelViewSet(
     @action(detail=False, methods=["post"])
     def non_detail_action(self, request):
         return Response({})  # wron
+
+
+class ExampleFileUploadViewSet(
+    mixins.ActionModelMixin,
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet,
+):
+    serializer_class = ExampleFileModelSerializer
+    queryset = ExampleFileModel.objects.all()
+
+    parser_classes = [MultiPartParser]
