@@ -1,5 +1,3 @@
-import random
-
 import exrex
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
@@ -9,19 +7,14 @@ from rest_framework.fields import *  # noqa: F403, F401
 
 from django.core import validators
 
-from audoma.drf.mixins import ExampleMixin
+from audoma.drf.mixins import (
+    ExampleMixin,
+    NumericExampleMixin,
+)
 
 
-class DecimalField(ExampleMixin, fields.DecimalField):
-    def __init__(self, **kwargs):
-        if "example" not in kwargs:
-            decimal_places = kwargs.get("decimal_places", None) or 2
-            min_value = kwargs.get("min_value", None) or 0
-            max_value = kwargs.get("max_value", None) or 1000
-            kwargs["example"] = round(
-                random.uniform(min_value, max_value), decimal_places
-            )
-        super().__init__(**kwargs)
+class DecimalField(NumericExampleMixin, fields.DecimalField):
+    pass
 
 
 @extend_schema_field(OpenApiTypes.UUID)
@@ -29,22 +22,12 @@ class UUIDField(ExampleMixin, fields.UUIDField):
     pass
 
 
-class IntegerField(ExampleMixin, fields.IntegerField):
-    def __init__(self, **kwargs):
-        if "example" not in kwargs:
-            min_value = kwargs.get("min_value", None) or 0
-            max_value = kwargs.get("max_value", None) or 1000
-            kwargs["example"] = random.randint(min_value, max_value)
-        super().__init__(**kwargs)
+class IntegerField(NumericExampleMixin, fields.IntegerField):
+    pass
 
 
-class FloatField(ExampleMixin, fields.FloatField):
-    def __init__(self, **kwargs):
-        if "example" not in kwargs:
-            min_value = kwargs.get("min_value", None) or 0
-            max_value = kwargs.get("max_value", None) or 1000
-            kwargs["example"] = random.uniform(min_value, max_value)
-        super().__init__(**kwargs)
+class FloatField(NumericExampleMixin, fields.FloatField):
+    pass
 
 
 class RegexField(ExampleMixin, fields.RegexField):
