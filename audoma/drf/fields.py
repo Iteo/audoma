@@ -1,3 +1,5 @@
+import sys
+
 import exrex
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
@@ -11,6 +13,41 @@ from audoma.drf.mixins import (
     ExampleMixin,
     NumericExampleMixin,
 )
+
+
+field_names = [
+    "BooleanField",
+    "NullBooleanField",
+    "CharField",
+    "EmailField",
+    "SlugField",
+    "URLField",
+    "DateTimeField",
+    "DurationField",
+    "ChoiceField",
+    "MultipleChoiceField",
+    "FilePathField",
+    "FileField",
+    "ImageField",
+    "ListField",
+    "DictField",
+    "HStoreField",
+    "JSONField",
+    "ReadOnlyField",
+    "SerializerMethodField",
+]
+
+
+this = sys.modules[__name__]
+
+
+for field_name in field_names:
+
+    class Field(ExampleMixin, getattr(fields, field_name)):
+        pass
+
+    Field.__name__ = field_name
+    setattr(this, field_name, Field)
 
 
 class DecimalField(NumericExampleMixin, fields.DecimalField):
@@ -40,7 +77,7 @@ class RegexField(ExampleMixin, fields.RegexField):
 class MACAddressField(ExampleMixin, fields.CharField):
     def __init__(self, **kwargs):
         self.regex = "^([0-9A-F]{2}:){5}([0-9A-F]{2})|([0-9A-F]{2}-){5}([0-9A-F]{2})$"
-        self.validarors = [validators.RegexValidator(self.regex)]
+        self.validators = [validators.RegexValidator(self.regex)]
         if "example" not in kwargs:
             kwargs["example"] = str(exrex.getone(self.regex))
         super().__init__(**kwargs)
