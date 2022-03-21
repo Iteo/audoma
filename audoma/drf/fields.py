@@ -12,6 +12,7 @@ from django.core import validators
 from audoma.drf.mixins import (
     ExampleMixin,
     NumericExampleMixin,
+    RegexExampleMixin,
 )
 
 
@@ -67,19 +68,14 @@ class FloatField(NumericExampleMixin, fields.FloatField):
     pass
 
 
-class RegexField(ExampleMixin, fields.RegexField):
-    def __init__(self, regex, **kwargs):
-        if "example" not in kwargs:
-            kwargs["example"] = str(exrex.getone(regex))
-        super().__init__(regex, **kwargs)
+class RegexField(RegexExampleMixin, fields.RegexField):
+    pass
 
 
-class MACAddressField(ExampleMixin, fields.CharField):
+class MACAddressField(RegexExampleMixin, fields.CharField):
     def __init__(self, **kwargs):
         self.regex = "^([0-9A-F]{2}:){5}([0-9A-F]{2})|([0-9A-F]{2}-){5}([0-9A-F]{2})$"
         self.validators = [validators.RegexValidator(self.regex)]
-        if "example" not in kwargs:
-            kwargs["example"] = str(exrex.getone(self.regex))
         super().__init__(**kwargs)
 
 

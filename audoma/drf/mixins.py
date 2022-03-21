@@ -1,5 +1,7 @@
+import inspect
 import random
 
+import exrex
 from drf_spectacular.drainage import set_override
 from rest_framework import (
     mixins,
@@ -7,6 +9,8 @@ from rest_framework import (
 )
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
+
+from django.core import validators
 
 
 class ActionModelMixin:
@@ -132,6 +136,8 @@ class Example:
 
     def get_value(self):
         if self.example is not DEFAULT:
+            if inspect.isfunction(self.example):
+                return self.example()
             return self.example
         return self.generate_value()
 
@@ -144,6 +150,19 @@ class NumericExample(Example):
         min_val = getattr(self.field, "min_value", 1) or 1
         max_val = getattr(self.field, "max_value", 1000) or 1000
         return random.uniform(min_val, max_val)
+
+
+class RegexExample(Example):
+    def generate_value(self):
+        regex_validators = [
+            validator
+            for validator in self.field.validators
+            if isinstance(validator, validators.RegexValidator)
+        ]
+        if regex_validators:
+            regex_validator = regex_validators[0]
+            return exrex.getone(regex_validator.regex.pattern)
+        return None
 
 
 class ExampleMixin:
@@ -163,3 +182,7 @@ class ExampleMixin:
 
 class NumericExampleMixin(ExampleMixin):
     audoma_example_class = NumericExample
+
+
+class RegexExampleMixin(ExampleMixin):
+    audoma_example_class = RegexExample
