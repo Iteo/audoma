@@ -9,8 +9,16 @@ settings.SPECTACULAR_SETTINGS[
 ] = "audoma.plumbing.get_lib_doc_excludes_audoma"
 
 
-DEFAULT_COMMON_API_ERRORS = [
+COMMON_API_ERRORS = [
     exceptions.NotFound(),
     exceptions.ValidationError(),
     exceptions.APIException(),
 ]
+
+settings.SPECTACULAR_SETTINGS["POSTPROCESSING_HOOKS"] = [
+    "audoma.hooks.postprocess_common_errors_section",
+]
+
+settings.SPECTACULAR_SETTINGS[
+    "DEFAULT_GENERATOR_CLASS"
+] = "audoma.generators.AudomaSchemaGenerator"

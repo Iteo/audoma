@@ -1,5 +1,7 @@
 from django.conf import settings
 
+from audoma.common_exceptions import CustomExceptionDescCreator
+
 
 def preprocess_include_path_format(endpoints, **kwargs):
     """
@@ -18,3 +20,13 @@ def preprocess_include_path_format(endpoints, **kwargs):
             or path.startswith("/" + format_path)
         )
     ]
+
+
+def postprocess_common_errors_section(result, **kwargs):
+    generator = CustomExceptionDescCreator()
+    result["info"] = result.get("info", {})
+    result["info"]["description"] = (
+        result["info"].get("description", "") + "\n\n" + generator.get_description()
+    )
+
+    return result
