@@ -18,7 +18,3 @@ COMMON_API_ERRORS = [
 settings.SPECTACULAR_SETTINGS["POSTPROCESSING_HOOKS"] = [
     "audoma.hooks.postprocess_common_errors_section",
 ]
-
-settings.SPECTACULAR_SETTINGS[
-    "DEFAULT_GENERATOR_CLASS"
-] = "audoma.generators.AudomaSchemaGenerator"

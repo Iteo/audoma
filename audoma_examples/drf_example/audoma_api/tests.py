@@ -1,5 +1,8 @@
 import json
-from datetime import date
+from datetime import (
+    date,
+    timedelta
+)
 
 from django.shortcuts import reverse
 from django.test import SimpleTestCase
@@ -112,35 +115,87 @@ class AudomaTests(SimpleTestCase):
         phone_number = example_model_properties["phone_number"]
         self.assertEqual("tel", phone_number["format"])
         self.assertEqual("+1 8888888822", phone_number["example"])
+        
+    def test_default_response_in_view_responses(self):
+        docs = self.schema["paths"][
+            "/permissionless_model_examples/properly_defined_exception_example/"
+        ]
+        responses_docs = docs["get"]["responses"]
+        self.assertEqual(
+            responses_docs["default"]["content"]["application/json"]["schema"]["$ref"],
+            "#/components/schemas/ExampleOneField",
+        )
+
+    def test_custom_responses_in_view_responses(self):
+        docs = self.schema["paths"][
+            "/permissionless_model_examples/{id}/detail_action/"
+        ]
+        responses_docs = docs["post"]["responses"]
+        self.assertEqual(
+            responses_docs["201"]["content"]["application/json"]["schema"]["$ref"],
+            "#/components/schemas/ExampleModel",
+        )
+        self.assertEqual(
+            responses_docs["202"]["content"]["application/json"]["schema"]["$ref"],
+            "#/components/schemas/ExampleOneField",
+        )
+
+    def test_common_errors_in_description(self):
+        error_data = json.dumps(
+            {"errors": {"detail": "Not found."}}, indent=4, separators=(",", ": ")
+        )
+
+        self.assertIn(error_data, self.schema["info"]["description"])
+        error_data = json.dumps(
+            {"errors": {"detail": "A server error occurred."}},
+            indent=4,
+            separators=(",", ": "),
+        )
+
+        self.assertIn(error_data, self.schema["info"]["description"])
+
+    def test_viewset_errors_in_viewset_responses(self):
+        docs = self.schema["paths"][
+            "/permissionless_model_examples/properly_defined_exception_example/"
+        ]
+        responses_docs = docs["get"]["responses"]
+        self.assertEqual(
+            responses_docs["400"]["content"]["application/json"]["schema"]["example"][
+                "detail"
+            ],
+            "Custom Bad Request Exception",
+        )
+        self.assertEqual(
+            responses_docs["409"]["content"]["application/json"]["schema"]["example"][
+                "detail"
+            ],
+            "Conflict has occured",
+        )
 
 
 class AudomaViewsTestCase(SimpleTestCase):
     def setUp(self):
         super().setUp()
         self.data = {
-            'char_field': "TESTChar",
-            'phone_number': "(213) 444-1212",
-            'email': "test@iteo.com",
-            'url': "http://localhost:8000/redoc/",
-            'char_field': 'TESTChar',
-            'phone_number': '+18888888822',
-            'email': 'test@iteo.com',
-            'url': 'http://localhost:8000/redoc/',
-            'boolean': False,
-            'nullboolean': None,
-            'mac_adress': '96:82:2E:6B:F5:49',
-            'slug': 'tst',
-            'uuid': '14aefe15-7c96-49b6-9637-7019c58c25d2',
-            'ip_address': '192.168.10.1',
-            'integer': 16,
-            '_float': 12.2,
-            'decimal': '13.23',
-            'datetime': datetime.now(),# '2009-11-13T10:39:35Z',
-            'date': date.today(), #'2009-11-13',
-            'time': datetime.now().time(),#'10:39:35Z',
-            'duration': timedelta(days=1),
-            'choices': 1,
-            'json': ''
+            "char_field": "TESTChar",
+            "phone_number": "+18888888822",
+            "email": "test@iteo.com",
+            "url": "http://localhost:8000/redoc/",
+            "boolean": False,
+            "nullboolean": None,
+            "mac_adress": "96:82:2E:6B:F5:49",
+            "slug": "tst",
+            "uuid": "14aefe15-7c96-49b6-9637-7019c58c25d2",
+            "ip_address": "192.168.10.1",
+            "integer": 16,
+            "_float": 12.2,
+            "decimal": "13.23",
+            "datetime": "2009-11-13T10:39:35Z",
+            "date": "2009-11-13",
+            "time": "10:39:35",
+            "duration": timedelta(days=1),
+            "choices": 1,
+            "json": "",
         }
         self.client = APIClient()
 

@@ -131,9 +131,13 @@ class ExampleModelPermissionLessViewSet(
     serializer_class = ExampleModelSerializer
     queryset = ExampleModel.objects.all()
 
-    @audoma_action(detail=True, methods=['post'], collectors={
-            'post': ExampleModelCreateSerializer
-        }, responses={'post': {201: ExampleModelSerializer}}
+    @audoma_action(
+        detail=True,
+        methods=["post"],
+        collectors={"post": ExampleModelCreateSerializer},
+        responses={
+            "post": {201: ExampleModelSerializer, 202: ExampleOneFieldSerializer}
+        },
     )
     def detail_action(self, request, collect_serializer, pk=None):
         return collect_serializer.save(), 201

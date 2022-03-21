@@ -81,7 +81,7 @@ def audoma_action(
         def wrapper(view, request, *args, **kwargs):
             # extend errors too allow default errors occurance
             errors = func.errors
-            errors += audoma_settings.DEFAULT_COMMON_API_ERRORS + getattr(
+            errors += audoma_settings.COMMON_API_ERRORS + getattr(
                 project_settings, "COMMON_API_ERROR", []
             )
 

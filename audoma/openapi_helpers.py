@@ -1,8 +1,4 @@
-from drf_spectacular.utils import (
-    OpenApiExample,
-    OpenApiResponse,
-)
-from rest_framework.exceptions import APIException
+from drf_spectacular.utils import OpenApiResponse
 from rest_framework.permissions import (
     AND,
     OR,
