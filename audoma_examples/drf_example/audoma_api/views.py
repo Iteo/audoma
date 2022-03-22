@@ -140,7 +140,9 @@ class ExampleModelPermissionLessViewSet(
         },
     )
     def detail_action(self, request, collect_serializer, pk=None):
-        return collect_serializer.save(), 201
+        if request.data.pop("usertype", None):
+            return collect_serializer.save(), 201
+        return {"rate": ExampleOneFieldSerializer.RATE_CHOICES.LIKE}, 202
 
     @audoma_action(detail=False, methods=['get'], responses={'get': 'This is a test view'})
     def non_detail_action(self, request):

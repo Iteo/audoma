@@ -118,6 +118,142 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
         ...
     ```
 
+* `audoma_action` decorator - this is a wrapper for standrad drfs' action decorator. It also handles documenting the action. In this decorator this is possible to define:
+    * collectors - collect serializers, those are being used to process user input collecotrs may be passed as a serializer class which iherits from serializers.BaseSerializer, it may also be passed as a dict with such structure: {'http_method1': Serializer1, 'http_method2': Serializer2}
+    Examples:
+    ``` py
+    @audoma_action(
+        detail=True,
+        methods=["post"],
+        collectors={"post": ExampleModelCreateSerializer},
+        responses={
+            "post": {201: ExampleModelSerializer, 202: ExampleOneFieldSerializer}
+        },
+    )
+    def detail_action(self, request, collect_serializer, pk=None):
+        ...
+    ...
+    @audoma_action(
+        detail=False,
+        methods=["post"],
+        responses=ExampleOneFieldSerializer,
+        collectors=ExampleOneFieldSerializer,
+    )
+    def rate_create_action(self, request, collect_serializer):
+        ...
+    ```
+    In case there are no collectors defined audoma_action will try to fallback to standard way of retrieving serializer from view.
+
+    * responses - responses allows to define custom responses for each method, and returned status_code. Responses may be given i three different dictionary forms:
+        * {'http_method1': Serializer1Class or string, 'http_method2': Serializer2Class or string}
+        * {'http_method1: {status_code: Serializer1Class or string}}
+        * {status_code: Serializer1Class or string }
+    If the response consist of serializer, it'll simply serialized returned instance, if the response is a string, it'll return it as a message. The response, may be also given simply as a serializer class or a string message.
+
+    Examples:
+    ``` py
+    @audoma_action(
+        detail=True,
+        methods=["post"],
+        collectors={"post": ExampleModelCreateSerializer},
+        responses={
+            "post": {201: ExampleModelSerializer, 202: ExampleOneFieldSerializer}
+        },
+    )
+    def detail_action(self, request, collect_serializer, pk=None):
+        ...
+
+    @audoma_action(
+        detail=False, methods=["get"], responses={"get": "This is a test view"}
+    )
+    def non_detail_action(self, request):
+        ...
+
+    @audoma_action(
+        detail=False,
+        methods=["post"],
+        responses=ExampleOneFieldSerializer,
+        collectors=ExampleOneFieldSerializer,
+    )
+    def rate_create_action(self, request, collect_serializer):
+        ...
+    ```
+    In case there are no responses defined audoma_action will try to fallback to standard way of retrieving
+    serializer from view.
+
+    * errors - a list of ApiException subclasses objects. Exceptions defined in this list may be thrown in the action method. Throwing not defined exception will cause throwing ValueError.
+    If you are going to raise exception with other message than the one defined in the decorator, decorator will ingore this and still raise exception given in errors list.
+    Examples:
+    ```py
+    @audoma_action(
+        detail=False,
+        methods=["get"],
+        responses=ExampleOneFieldSerializer,
+        errors=[CustomBadRequestException(), CustomConflictException()],
+    )
+    def properly_defined_exception_example(self, request):
+        raise CustomConflictException
+
+
+    @audoma_action(
+        detail=False,
+        methods=["get"],
+        responses=ExampleOneFieldSerializer,
+    )
+    def improperly_defined_exception_example(self, request):
+        raise CustomBadRequestException
+    ```
+    By default Audoma catch two types of exceptions:
+    * NotFound
+    * Validation Error
+    If you want to add more common exceptions for your API, you should add exception objects in COMMON_API_ERRORS list in your project settings
+    Example:
+    ```py
+        from rest_framework import exceptions
+        ...
+        COMMON_API_ERRORS = [
+            exceptions.NotFound(),
+            exceptions.ValidationError(),
+        ]
+    ```
+
+    While using `audoma_action` custom decorator, your action method should not return the response. To allow `audoma_action` to work properly you should return the instance and the status code as a tuple.
+    \
+    Examples for serializers:
+    * With collect serializer defined
+        ```py
+        @audoma_action(
+            detail=False,
+            methods=["post"],
+            responses=ExampleOneFieldSerializer,
+            collectors=ExampleOneFieldSerializer,
+        )
+        def rate_create_action(self, request, collect_serializer):
+            return collect_serializer.save(), 201
+        ```
+    * Without collect serializer defined
+        ```py
+        # TODO
+        ```
+
+    Example for string messages:
+    ```py
+    @audoma_action(
+        detail=False, methods=["get"], responses={"get": "This is a test view"}
+    )
+    def non_detail_action(self, request):
+        return None, 200
+
+    ```
+    If string defined responses, will return None, it'll simply use the message defined in response, otherwise, it'll return the message passed as an instance
+
+    #### Note:
+    You may still use standard `@action` decorator with action methods. It'll still work in Audoma and will take advantage of multiple ViewSet serializers.
+
+
+* `document_sedocument_serializersrializer` decorator - this decorator is the simple version of audoma_action it's only and main task is to add information about responses, collectors and erros to the decorated function. This allows to access those during generating the schema for OpenAPI. Methods decorated with this decorator does not change it's behaviour, its' only influence documentation.
+
+
 
 Testing and example application
 ------------

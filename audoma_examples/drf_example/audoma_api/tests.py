@@ -202,8 +202,9 @@ class AudomaViewsTestCase(SimpleTestCase):
     def test_detail_action_get(self):
         response = self.client.get(reverse('permissionless-model-examples-detail-action', kwargs={'pk': 0}))
         self.assertEqual(response.status_code, 405)
-    
-    def test_detail_action_post(self):
+
+    def test_detail_action_post_with_usertype(self):
+        self.data["usertype"] = "admin"
         response = self.client.post(
             reverse('permissionless-model-examples-detail-action', kwargs={'pk': 0}), self.data,
             format='json'
@@ -214,9 +215,21 @@ class AudomaViewsTestCase(SimpleTestCase):
         self.assertEqual(self.data["mac_adress"], response_content["mac_adress"])
         self.assertEqual(self.data["uuid"], response_content["uuid"])
 
+    def test_detail_action_post_without_usertype(self):
+        response = self.client.post(
+            reverse("permissionless-model-examples-detail-action", kwargs={"pk": 0}),
+            self.data,
+            format="json",
+        )
+        self.assertEqual(response.status_code, 202)
+        response_content = json.loads(response.content)
+        self.assertEqual(response_content["rate"], 0)
+
     def test_non_detail_action_get(self):
-        response = self.client.get(reverse('permissionless-model-examples-non-detail-action'))
-        content = json.loads(response.content)
+        response = self.client.get(
+            reverse("permissionless-model-examples-non-detail-action")
+        )
+        content = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(content['message'], "This is a test view")
 

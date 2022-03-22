@@ -63,9 +63,23 @@ def audoma_action(
     collectors={}, responses={}, errors=[], validate_collector=True, **kwargs
 ):
     """
-        This is a custom action tag which allows to define collectors and responses.
-        This tag also applies the collect serializer, and validates the input.
-        # TODO
+    This is a custom action tag which allows to define collectors, responses and errors.
+    This tag also applies the collect serializer if such has been defined.
+    It also prevents from raising not defined error, so if you want to raise an exception
+    its' object has to be passed into audoma_action decorator.
+
+        * collectors - collect serializers, it may be passed as a dict: {'http_method': serializer_class}
+                        or just as a serializer_class. Those serializer are being used to collect data from user.
+                        NOTE: - it is not possible to define collectors for SAFE_METHODS
+        * responses - response serializers/messages, it may be passed as a dict in three forms:
+                    * {'http_method': serializer_class}
+                    * {'http_method': {status_code: serializer_class, status_code: serializer_class}}
+                    * {status_code: serializer_class}
+                    or just as a serializer_class
+        * errors - list of exception objects, list of exceptions which may be raised in decorated method.
+                    'audoma_action' will not allow raising any other exceptions than those
+        * validate_collector - by default set to True, it specifies if collectors serializer
+                    should be validated in the decorator, or not.
     """
     assert isinstance(errors, list)
 
@@ -82,7 +96,7 @@ def audoma_action(
             # extend errors too allow default errors occurance
             errors = func.errors
             errors += audoma_settings.COMMON_API_ERRORS + getattr(
-                project_settings, "COMMON_API_ERROR", []
+                project_settings, "COMMON_API_ERRORS", []
             )
 
             if collectors is not None and request.method not in SAFE_METHODS:
@@ -100,7 +114,6 @@ def audoma_action(
             try:
                 instance, code = func(view, request, *args, **kwargs)
             except APIException as exception:
-                # TODO how we should checko error occurance
                 exceptions = [
                     error for error in errors if error.__class__ == exception.__class__
                 ]

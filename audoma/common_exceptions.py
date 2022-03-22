@@ -6,6 +6,11 @@ from audoma import settings as audoma_settings
 
 
 class CustomExceptionDescCreator:
+    """
+    Responsible for generating common errors section in documenation.
+    This section, should be added to the API description in docs.
+    """
+
     def __init__(self):
         self.common_exceptions = audoma_settings.COMMON_API_ERRORS + getattr(
             django_settings, "COMMON_API_ERRORS", []
