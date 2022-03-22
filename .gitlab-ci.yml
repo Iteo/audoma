@@ -17,9 +17,16 @@ audoma-build:
 audoma-test:
   stage: test
   script:
-    - cd audoma_examples/drf_example
-    - python3 manage.py test
-
+    - echo "---> Building test image and running tests"
+    - cd docker && docker-compose --project-name=$CI_BUILD_ID run --rm tests
+  after_script:
+    - echo "---> Cleaning up"
+    - cd docker
+    - >
+      docker-compose --project-name=$CI_BUILD_ID down
+      && docker-compose --project-name=$CI_BUILD_ID kill
+      && docker-compose --project-name=$CI_BUILD_ID rm -fvs
+      && docker rmi audoma-tests-$CI_BUILD_ID
 
 audoma-static:
   stage: test
