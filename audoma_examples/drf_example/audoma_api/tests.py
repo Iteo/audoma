@@ -1,3 +1,4 @@
+import re
 from datetime import date
 
 from audoma_api.views import (
@@ -10,6 +11,7 @@ from rest_framework.permissions import BasePermission
 
 from django.test import SimpleTestCase
 
+from audoma.drf import serializers
 from audoma.drf.viewsets import AudomaPagination
 
 from .views import example_choice
@@ -114,3 +116,10 @@ class AudomaTests(SimpleTestCase):
         float_field = self.redoc_schemas["Example"]["properties"]["float"]
         self.assertLessEqual(float_field["minimum"], float_field["example"])
         self.assertGreaterEqual(float_field["maximum"], float_field["example"])
+
+    def test_example_mac_address_field_with_regex_mixin(self):
+        example_mac_address = self.redoc_schemas["Example"]["properties"]["mac_address"]
+        mac_address = serializers.MACAddressField()
+        regex_pattern = re.compile(mac_address.regex)
+        self.assertEqual(mac_address.regex, example_mac_address["pattern"])
+        self.assertTrue(bool(regex_pattern.match(example_mac_address["example"])))
