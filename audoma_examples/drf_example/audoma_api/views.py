@@ -11,12 +11,9 @@ from audoma_api.serializers import (
     ExampleSerializer,
 )
 from django_filters import rest_framework as df_filters
-from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
-from django.utils.decorators import method_decorator
 
 from audoma.drf import (
     mixins,
@@ -72,10 +69,6 @@ class ExampleChoiceFilter(df_filters.FilterSet):
         ]
 
 
-@method_decorator(
-    name="list",
-    decorator=extend_schema(parameters=[example_choice.create_openapi_description()]),
-)
 class ExampleModelViewSet(
     mixins.ActionModelMixin,
     mixins.CreateModelMixin,
@@ -92,6 +85,7 @@ class ExampleModelViewSet(
         AlternatePermission1 | AlternatePermission2,
     ]
 
+    filterset_class = ExampleChoiceFilter
     serializer_class = ExampleModelSerializer
     queryset = ExampleModel.objects.all()
 
