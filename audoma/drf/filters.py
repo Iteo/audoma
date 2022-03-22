@@ -13,7 +13,7 @@ class DocumentedTypedChoiceFilter(df_filters.TypedChoiceFilter):
         self.full_choices = full_choices
         self.parameter_name = parameter_name
         self.extra["help_text"] = self.extra.get("help_text", "{choices}").format(
-            **{"choices": self._get_choices_description()}
+            choices=self._get_choices_description()
         )
 
     def _get_choices_description(self):
