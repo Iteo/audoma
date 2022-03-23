@@ -1,6 +1,7 @@
-from django.db.models import *
+from django.db.models import *  # noqa: F403, F401
 
-from audoma.django.db.fields import (  # DurationField as DurationField,; FloatField as FloatField,
+
+from audoma.django.db.fields import (  # NOQA # isort:skip
     AutoField as AutoField,
     BigAutoField as BigAutoField,
     BigIntegerField as BigIntegerField,
@@ -11,10 +12,12 @@ from audoma.django.db.fields import (  # DurationField as DurationField,; FloatF
     DateField as DateField,
     DateTimeField as DateTimeField,
     DecimalField as DecimalField,
+    DurationField as DurationField,
     EmailField as EmailField,
     Empty as Empty,
     Field as Field,
     FilePathField as FilePathField,
+    FloatField as FloatField,
     GenericIPAddressField as GenericIPAddressField,
     IntegerField as IntegerField,
     IPAddressField as IPAddressField,
