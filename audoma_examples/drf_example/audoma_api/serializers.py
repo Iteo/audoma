@@ -1,6 +1,9 @@
 from datetime import date
 
-from audoma_api.models import ExampleModel
+from audoma_api.models import (
+    ExampleModel,
+    ExamplePerson,
+)
 
 from audoma.drf import serializers
 from audoma.drf.decorators import document_and_format
@@ -49,7 +52,14 @@ class ExampleModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExampleModel
         fields = "__all__"
+        extra_kwargs = {"char_field": {"example": "lorem ipsum"}}
 
     @document_and_format(serializers.PhoneNumberField)
     def get_phone_number(self):
         return self.phone_number
+
+
+class ExamplePersonModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExamplePerson
+        fields = "__all__"

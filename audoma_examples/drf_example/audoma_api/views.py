@@ -1,4 +1,7 @@
-from audoma_api.models import ExampleModel
+from audoma_api.models import (
+    ExampleModel,
+    ExamplePerson,
+)
 from audoma_api.permissions import (
     AlternatePermission1,
     AlternatePermission2,
@@ -8,6 +11,7 @@ from audoma_api.permissions import (
 )
 from audoma_api.serializers import (
     ExampleModelSerializer,
+    ExamplePersonModelSerializer,
     ExampleSerializer,
 )
 from django_filters import rest_framework as df_filters
@@ -102,3 +106,30 @@ class ExampleModelViewSet(
     @action(detail=False, methods=["post"])
     def non_detail_action(self, request):
         return Response({})  # wron
+
+
+class ExamplePersonModelViewSet(
+    mixins.ActionModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    permission_classes = [
+        IsAuthenticated,
+        ViewAndDetailPermission,
+        DetailPermission,
+        ViewPermission,
+    ]
+
+    serializer_class = ExamplePersonModelSerializer
+    queryset = ExamplePerson.objects.all()
+
+    @action(detail=True, methods=["post"])
+    def detail_action(self, request, pk=None):
+        return Response({})
+
+    @action(detail=False, methods=["post"])
+    def non_detail_action(self, request):
+        return Response({})

@@ -15,6 +15,7 @@ Including another URLconf
 """
 from audoma_api.views import (
     ExampleModelViewSet,
+    ExamplePersonModelViewSet,
     ExampleViewSet,
 )
 from drf_spectacular.views import (
@@ -31,6 +32,9 @@ router = routers.DefaultRouter()
 
 router.register(r"examples", ExampleViewSet, basename="examples")
 router.register(r"model_examples", ExampleModelViewSet, basename="model-examples")
+router.register(
+    r"model_person_example", ExamplePersonModelViewSet, basename="model-person-example"
+)
 
 urlpatterns = router.urls
 
