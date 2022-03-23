@@ -22,7 +22,7 @@ from audoma.django.db.fields import (  # NOQA # isort:skip
     IntegerField as IntegerField,
     IPAddressField as IPAddressField,
     NullBooleanField as NullBooleanField,
-    # PositiveBigIntegerField as PositiveBigIntegerField,
+    PositiveBigIntegerField as PositiveBigIntegerField,
     PositiveIntegerField as PositiveIntegerField,
     PositiveSmallIntegerField as PositiveSmallIntegerField,
     SlugField as SlugField,
