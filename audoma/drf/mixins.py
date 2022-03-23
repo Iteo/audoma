@@ -1,4 +1,3 @@
-import inspect
 import random
 
 import exrex
@@ -136,7 +135,7 @@ class Example:
 
     def get_value(self):
         if self.example is not DEFAULT:
-            if inspect.isfunction(self.example):
+            if callable(self.example):
                 return self.example()
             return self.example
         return self.generate_value()
