@@ -119,36 +119,36 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
     ```
 
 * `audoma_action` decorator - this is a wrapper for standrad drfs' action decorator. It also handles documenting the action. In this decorator this is possible to define:
-    * collectors - collect serializers, those are being used to process user input collecotrs may be passed as a serializer class which iherits from serializers.BaseSerializer, it may also be passed as a dict with such structure: {'http_method1': Serializer1, 'http_method2': Serializer2}
+    * collectors - collect serializers, those are being used to process users input, collectors may be passed as a serializer class which inherits from serializers.BaseSerializer, it may also be passed as a dict with given structure: {'http_method1': Serializer1Class, 'http_method2': Serializer2Class}
     Examples:
-    ``` py
-    @audoma_action(
-        detail=True,
-        methods=["post"],
-        collectors={"post": ExampleModelCreateSerializer},
-        responses={
-            "post": {201: ExampleModelSerializer, 202: ExampleOneFieldSerializer}
-        },
-    )
-    def detail_action(self, request, collect_serializer, pk=None):
+        ``` py
+        @audoma_action(
+            detail=True,
+            methods=["post"],
+            collectors={"post": ExampleModelCreateSerializer},
+            responses={
+                "post": {201: ExampleModelSerializer, 202: ExampleOneFieldSerializer}
+            },
+        )
+        def detail_action(self, request, collect_serializer, pk=None):
+            ...
         ...
-    ...
-    @audoma_action(
-        detail=False,
-        methods=["post"],
-        responses=ExampleOneFieldSerializer,
-        collectors=ExampleOneFieldSerializer,
-    )
-    def rate_create_action(self, request, collect_serializer):
-        ...
-    ```
-    In case there are no collectors defined audoma_action will try to fallback to standard way of retrieving serializer from view.
+        @audoma_action(
+            detail=False,
+            methods=["post"],
+            responses=ExampleOneFieldSerializer,
+            collectors=ExampleOneFieldSerializer,
+        )
+        def rate_create_action(self, request, collect_serializer):
+            ...
+        ```
+        In case there are no collectors defined and http method is not a safe method, then audoma_action will try to fallback to standard way of retrieving collect serializer from view.
 
     * responses - responses allows to define custom responses for each method, and returned status_code. Responses may be given i three different dictionary forms:
         * {'http_method1': Serializer1Class or string, 'http_method2': Serializer2Class or string}
         * {'http_method1: {status_code: Serializer1Class or string}}
         * {status_code: Serializer1Class or string }
-    If the response consist of serializer, it'll simply serialized returned instance, if the response is a string, it'll return it as a message. The response, may be also given simply as a serializer class or a string message.
+    If the response consist of serializer, it'll simply serialize returned instance, if the response is a string, it'll return it as a message. The response, may be also given simply as a serializer class or a string message.
 
     Examples:
     ``` py
@@ -217,6 +217,8 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
         ]
     ```
 
+    * validate_collector - boolean variable which tells audoma_action eihter collect serialiser should be validated or not.
+
     While using `audoma_action` custom decorator, your action method should not return the response. To allow `audoma_action` to work properly you should return the instance and the status code as a tuple.
     \
     Examples for serializers:
@@ -233,25 +235,27 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
         ```
     * Without collect serializer defined
         ```py
-        # TODO
+        @audoma_action(detail=True, methods=["get"], responses=ExampleOneFieldSerializer)
+        def specific_rate(self, request, pk=None):
+            return {"rate": 1}, 200
         ```
 
-    Example for string messages:
-    ```py
-    @audoma_action(
-        detail=False, methods=["get"], responses={"get": "This is a test view"}
-    )
-    def non_detail_action(self, request):
-        return None, 200
+    * Example for string messages:
+        ```py
+        @audoma_action(
+            detail=False, methods=["get"], responses={"get": "This is a test view"}
+        )
+        def non_detail_action(self, request):
+            return None, 200
 
-    ```
-    If string defined responses, will return None, it'll simply use the message defined in response, otherwise, it'll return the message passed as an instance
+        ```
+        If string defined responses, will return None, it'll simply use the message defined in response, otherwise, it'll return the message passed as an instance
 
     #### Note:
     You may still use standard `@action` decorator with action methods. It'll still work in Audoma and will take advantage of multiple ViewSet serializers.
 
 
-* `document_sedocument_serializersrializer` decorator - this decorator is the simple version of audoma_action it's only and main task is to add information about responses, collectors and erros to the decorated function. This allows to access those during generating the schema for OpenAPI. Methods decorated with this decorator does not change it's behaviour, its' only influence documentation.
+* `document_serializers` decorator - this decorator is the simple version of audoma_action it's only and main task is to add information about responses, collectors and erros to the decorated function. This allows to access those during generating the schema for OpenAPI. Methods decorated with this decorator does not change it's behaviour, its' only influence documentation.
 
 
 

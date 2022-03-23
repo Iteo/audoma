@@ -157,6 +157,10 @@ class ExampleModelPermissionLessViewSet(
     ):
         return collect_serializer.save(), 201
 
+    @audoma_action(detail=True, methods=["get"], responses=ExampleOneFieldSerializer)
+    def specific_rate(self, request, pk=None):
+        return {"rate": 1}, 200
+
     @audoma_action(
         detail=False,
         methods=["get"],

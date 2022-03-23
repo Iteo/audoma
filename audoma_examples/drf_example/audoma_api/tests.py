@@ -147,7 +147,7 @@ class AudomaTests(SimpleTestCase):
 
         self.assertIn(error_data, self.schema["info"]["description"])
         error_data = json.dumps(
-            {"errors": {"detail": "A server error occurred."}},
+            {"errors": {"detail": ["Invalid input."]}},
             indent=4,
             separators=(",", ": "),
         )
@@ -246,6 +246,13 @@ class AudomaViewsTestCase(SimpleTestCase):
         content = json.loads(response.content)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(content["errors"]["rate"], "This field is required.")
+
+    def test_specific_rate_get_success(self):
+        response = self.client.get(
+            reverse("permissionless-model-examples-specific-rate", kwargs={"pk": 1})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["rate"], 1)
 
     def test_properly_defined_exception_example(self):
         response = self.client.get(
