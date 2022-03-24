@@ -1,6 +1,8 @@
 import re
 from datetime import date
 
+from audoma_api.models import ExamplePerson
+from audoma_api.serializers import ExampleModelSerializer
 from audoma_api.views import (
     ExampleModelViewSet,
     ExampleViewSet,
@@ -123,3 +125,33 @@ class AudomaTests(SimpleTestCase):
         regex_pattern = re.compile(mac_address.regex)
         self.assertEqual(mac_address.regex, example_mac_address["pattern"])
         self.assertTrue(bool(regex_pattern.match(example_mac_address["example"])))
+
+    def test_override_model_example_in_extra_kwargs(self):
+        example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
+        char_field = example_model_properties["char_field"]
+        expected_result = ExampleModelSerializer.Meta.extra_kwargs["char_field"][
+            "example"
+        ]
+        self.assertEqual(expected_result, char_field["example"])
+
+    def test_example_models_custom_examples(self):
+        example_person_properties = self.redoc_schemas["ExamplePersonModel"][
+            "properties"
+        ]
+        first_name = example_person_properties["first_name"]
+        last_name = example_person_properties["last_name"]
+        self.assertTrue("example" in ExamplePerson.first_name.field.__dict__)
+        self.assertEqual(
+            ExamplePerson.first_name.field.__dict__["example"], first_name["example"]
+        )
+        self.assertEqual(
+            ExamplePerson.last_name.field.__dict__["example"], last_name["example"]
+        )
+
+    def test_example_with_callable_as_argument(self):
+        example_person_properties = self.redoc_schemas["ExamplePersonModel"][
+            "properties"
+        ]
+        age = example_person_properties["age"]
+        self.assertLessEqual(18, age["example"])
+        self.assertGreaterEqual(80, age["example"])
