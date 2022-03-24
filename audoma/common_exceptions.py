@@ -25,15 +25,8 @@ class CustomExceptionDescCreator:
     def __generate_exception_desc(self, error):
         exc_desc = ""
         exc_desc = f"Status Code: `{error.status_code}` \n\n"
-
-        custom_properties_function = getattr(error, "get_custom_properties", None)
-        if custom_properties_function:
-            properties = custom_properties_function()
-        else:
-            properties = {"detail": error.detail}
-
         error_data = json.dumps(
-            {"errors": properties}, indent=4, separators=(",", ": ")
+            {"errors": {"detail": error.detail}}, indent=4, separators=(",", ": ")
         )
 
         exc_desc += f"``` \n {error_data} \n ``` \n\n"
