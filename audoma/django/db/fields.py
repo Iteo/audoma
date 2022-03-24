@@ -20,3 +20,11 @@ for field_name in model_fields:
         setattr(this, field_name, Field)
     except TypeError:
         pass
+
+
+class PositiveBigIntegerField(ExampleMixin, models.PositiveBigIntegerField):
+    pass
+
+
+class SmallAutoField(ExampleMixin, models.SmallAutoField):
+    pass
