@@ -1,7 +1,7 @@
 import sys
 
 from django.db import models
-from django.db.models.fields import fields  # noqa: F403, F401
+from django.db.models import fields  # noqa: F403, F401
 from django.db.models.fields import __all__ as model_fields
 
 from .mixins import ExampleMixin
