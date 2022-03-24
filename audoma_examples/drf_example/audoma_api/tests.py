@@ -33,7 +33,7 @@ class AudomaTests(SimpleTestCase):
         expected_phone_number_field = {
             "type": "string",
             "format": "tel",
-            "example": "555-2310",
+            "example": "+1-202-555-0140",
         }
         self.assertTrue("example" in mac_address_field and "type" in mac_address_field)
         self.assertTrue("example" in regex_field and "type" in regex_field)
@@ -103,7 +103,7 @@ class AudomaTests(SimpleTestCase):
         example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
         phone_number = example_model_properties["phone_number"]
         self.assertEqual("tel", phone_number["format"])
-        self.assertEqual("555-2310", phone_number["example"])
+        self.assertEqual("+1-202-555-0140", phone_number["example"])
 
     def test_custom_paginated_response_schema(self):
         paginated_example = self.redoc_schemas["PaginatedExampleList"]

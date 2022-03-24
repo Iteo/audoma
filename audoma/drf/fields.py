@@ -103,6 +103,6 @@ class IPAddressField(ExampleMixin, fields.IPAddressField):
     pass
 
 
-@extend_schema_field(field={"format": "tel", "example": "555-2310"})
+@extend_schema_field(field={"format": "tel", "example": "+1-202-555-0140"})
 class PhoneNumberField(ExampleMixin, serializerfields.PhoneNumberField):
     pass

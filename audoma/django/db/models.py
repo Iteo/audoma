@@ -1,35 +1,3 @@
 from django.db.models import *  # noqa: F403, F401
 
-
-from audoma.django.db.fields import (  # NOQA # isort:skip
-    AutoField as AutoField,
-    BigAutoField as BigAutoField,
-    BigIntegerField as BigIntegerField,
-    BinaryField as BinaryField,
-    BooleanField as BooleanField,
-    CharField as CharField,
-    CommaSeparatedIntegerField as CommaSeparatedIntegerField,
-    DateField as DateField,
-    DateTimeField as DateTimeField,
-    DecimalField as DecimalField,
-    DurationField as DurationField,
-    EmailField as EmailField,
-    Empty as Empty,
-    Field as Field,
-    FilePathField as FilePathField,
-    FloatField as FloatField,
-    GenericIPAddressField as GenericIPAddressField,
-    IntegerField as IntegerField,
-    IPAddressField as IPAddressField,
-    NullBooleanField as NullBooleanField,
-    # PositiveBigIntegerField as PositiveBigIntegerField,
-    PositiveIntegerField as PositiveIntegerField,
-    PositiveSmallIntegerField as PositiveSmallIntegerField,
-    SlugField as SlugField,
-    # SmallAutoField as SmallAutoField,
-    SmallIntegerField as SmallIntegerField,
-    TextField as TextField,
-    TimeField as TimeField,
-    URLField as URLField,
-    UUIDField as UUIDField,
-)
+from audoma.django.db.fields import *  # noqa: F403, F401
