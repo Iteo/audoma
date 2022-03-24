@@ -140,13 +140,8 @@ class AudomaTests(SimpleTestCase):
         ]
         first_name = example_person_properties["first_name"]
         last_name = example_person_properties["last_name"]
-        self.assertTrue("example" in ExamplePerson.first_name.field.__dict__)
-        self.assertEqual(
-            ExamplePerson.first_name.field.__dict__["example"], first_name["example"]
-        )
-        self.assertEqual(
-            ExamplePerson.last_name.field.__dict__["example"], last_name["example"]
-        )
+        self.assertEqual("Adam", first_name["example"])
+        self.assertEqual("Smith", last_name["example"])
 
     def test_example_with_callable_as_argument(self):
         example_person_properties = self.redoc_schemas["ExamplePersonModel"][
