@@ -7,7 +7,7 @@ from django.db.models.fields import (  # noqa: F401
     __all__,
 )
 
-from .mixins import ExampleMixin
+from .mixins import ModelExampleMixin
 
 
 this = sys.modules[__name__]
@@ -17,7 +17,7 @@ for field_name in __all__:
     if field_name in ["BLANK_CHOICE_DASH", "NOT_PROVIDED"]:
         continue
 
-    class Field(ExampleMixin, getattr(models, field_name)):
+    class Field(ModelExampleMixin, getattr(models, field_name)):
         pass
 
     Field.__name__ = field_name
