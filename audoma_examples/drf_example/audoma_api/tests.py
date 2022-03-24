@@ -1,7 +1,6 @@
 import re
 from datetime import date
 
-from audoma_api.models import ExamplePerson
 from audoma_api.serializers import ExampleModelSerializer
 from audoma_api.views import (
     ExampleModelViewSet,
