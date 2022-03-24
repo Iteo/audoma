@@ -1,7 +1,7 @@
 import sys
 
 from django.db import models
-from django.db.models.fields import *  # noqa: F403, F401
+from django.db.models.fields import fields  # noqa: F403, F401
 from django.db.models.fields import __all__ as model_fields
 
 from .mixins import ExampleMixin
@@ -22,9 +22,9 @@ for field_name in model_fields:
         pass
 
 
-class PositiveBigIntegerField(ExampleMixin, models.PositiveBigIntegerField):
+class PositiveBigIntegerField(ExampleMixin, fields.PositiveBigIntegerField):
     pass
 
 
-class SmallAutoField(ExampleMixin, models.SmallAutoField):
+class SmallAutoField(ExampleMixin, fields.SmallAutoField):
     pass
