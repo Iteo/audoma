@@ -3,7 +3,6 @@ import logging
 from dataclasses import dataclass
 from functools import wraps
 
-from black import err
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import SAFE_METHODS
@@ -26,6 +25,46 @@ class AudomaArgs:
     responses: dict
     collectors: dict
     errors: list
+
+
+def __verify_error(processed_error, errors, func):
+    same_class_errors = []
+    for error in errors:
+        if isinstance(error, type):
+            if error == processed_error.__class__:
+                raise processed_error
+            else:
+                continue
+
+        elif (
+            isinstance(error, APIException)
+            and error.__class__ == processed_error.__class__
+        ):
+            same_class_errors.append(error)
+
+    if same_class_errors:
+        # compare errors details
+        for error in same_class_errors:
+            if json.dumps(error.__dict__) == json.dumps(processed_error.__dict__):
+                raise error
+
+        if project_settings.DEBUG:
+            raise ValueError(
+                f"Exception has not been defined {processed_error.__class__} \
+                    in audoma_action tag errors for function: {func.__name__}. \
+                    Audoma allows only to raise defined exceptions \
+                    Please define proper exception instance or proper exception class"
+            )
+
+        logger.exception("Undefined error: {error} has been raised in {func.__name__}")
+        raise processed_error
+
+    raise ValueError(
+        f"Exception has not been defined {processed_error.__class__} \
+            in audoma_action tag errors for function: {func.__name__}. \
+            Audoma allows only to raise defined exceptions \
+            Please define proper exception instance or proper exception class"
+    )
 
 
 def audoma_action(
@@ -74,49 +113,6 @@ def audoma_action(
         # apply action decorator
         func = framework_decorator(func)
 
-        def __verify_error(processed_error):
-            same_class_errors = []
-            for error in errors:
-                if isinstance(error, type):
-                    if error == processed_error.__class__:
-                        raise processed_error
-                    else:
-                        continue
-
-                elif (
-                    isinstance(error, APIException)
-                    and error.__class__ == processed_error.__class__
-                ):
-                    same_class_errors.append(error)
-
-            if same_class_errors:
-                # compare errors details
-                for error in same_class_errors:
-                    if json.dumps(error.__dict__) == json.dumps(
-                        processed_error.__dict__
-                    ):
-                        raise error
-
-                if project_settings.DEBUG:
-                    raise ValueError(
-                        f"Exception has not been defined {processed_error.__class__} \
-                            in audoma_action tag errors for function: {func.__name__}. \
-                            Audoma allows only to raise defined exceptions \
-                            Please define proper exception instance or proper exception class"
-                    )
-
-                logger.exception(
-                    "Undefined error: {error} has been raised in {func.__name__}"
-                )
-                raise processed_error
-
-            raise ValueError(
-                f"Exception has not been defined {processed_error.__class__} \
-                    in audoma_action tag errors for function: {func.__name__}. \
-                    Audoma allows only to raise defined exceptions \
-                    Please define proper exception instance or proper exception class"
-            )
-
         @wraps(func)
         def wrapper(view, request, *args, **kwargs):
             # extend errors too allow default errors occurance
@@ -141,8 +137,8 @@ def audoma_action(
                     kwargs["collect_serializer"] = collect_serializer
             try:
                 instance, code = func(view, request, *args, **kwargs)
-            except APIException as error:
-                __verify_error(error)
+            except APIException as processed_error:
+                __verify_error(processed_error, errors, func)
 
             response_operation = operation_extractor.extract_operation(
                 request, code=code
