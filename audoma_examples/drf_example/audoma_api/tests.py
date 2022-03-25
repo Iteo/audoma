@@ -141,18 +141,10 @@ class AudomaTests(SimpleTestCase):
         )
 
     def test_common_errors_in_description(self):
-        error_data = json.dumps(
-            {"errors": {"detail": "Not found."}}, indent=4, separators=(",", ": ")
-        )
-
-        self.assertIn(error_data, self.schema["info"]["description"])
-        error_data = json.dumps(
-            {"errors": {"detail": ["Invalid input."]}},
-            indent=4,
-            separators=(",", ": "),
-        )
-
-        self.assertIn(error_data, self.schema["info"]["description"])
+        expected_error_data = '\n {\n    "detail": "Not found."\n} \n'
+        self.assertIn(expected_error_data, self.schema["info"]["description"])
+        expected_error_data = ' \n {\n    "detail": "Authentication credentials were not provided."\n} \n '
+        self.assertIn(expected_error_data, self.schema["info"]["description"])
 
     def test_viewset_errors_in_viewset_responses(self):
         docs = self.schema["paths"][
@@ -279,8 +271,7 @@ class AudomaViewsTestCase(SimpleTestCase):
             )
         except Exception as e:
             self.assertEqual(e.__class__, ValueError)
-            self.assertEqual(
-                str(e),
-                "Exception has not been defined <class 'audoma_api.exceptions.CustomBadRequestException'> "
-                + "in audoma_action tag errors. Audoma allows only to raise defined exceptions",
+            self.assertIn(
+                "<class 'audoma_api.exceptions.CustomBadRequestException'>", str(e)
             )
+            self.assertIn("improperly_defined_exception_example.", str(e))

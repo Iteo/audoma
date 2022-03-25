@@ -94,15 +94,15 @@ def get_permissions_description(view):  # noqa: C901
 class AudomaApiResponseCreator:
     def extract_collectors(self, view):
         action_function = self.__extract_action(view)
-        collectors = getattr(action_function, "collectors", None)
+        _audoma = getattr(action_function, "_audoma", None)
+        collectors = getattr(_audoma, "collectors", None)
         return self.__parse_action_serializers(collectors)
 
     def extract_responses(self, view):
         action_function = self.__extract_action(view)
-        responses = self.__parse_action_serializers(
-            getattr(action_function, "responses", None)
-        )
-        errors = self.__parse_action_errors(getattr(action_function, "errors", []))
+        _audoma = getattr(action_function, "_audoma", None)
+        responses = self.__parse_action_serializers(getattr(_audoma, "responses", None))
+        errors = self.__parse_action_errors(getattr(_audoma, "errors", []))
         if responses:
             responses.update(errors)
             return responses
@@ -147,12 +147,19 @@ class AudomaApiResponseCreator:
 
         parsed_errors = {}
         for error in action_errors:
-            # TODO fix represenatation
+            if isinstance(error, type):
+                error = error()
+
+            # build properties
+            properties = {}
+            for key, value in error.__dict__.items():
+                properties[key] = ({key: {"type": type(value).__name__}},)
+
             parsed_errors[error.status_code] = OpenApiResponse(
                 response={
                     "type": "object",
-                    "properties": {"detail": {"type": type(error.detail).__name__}},
-                    "example": {"detail": error.detail},
+                    "properties": properties,
+                    "example": error.__dict__,
                 }
             )
         return parsed_errors

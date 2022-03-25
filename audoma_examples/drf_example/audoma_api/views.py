@@ -27,11 +27,13 @@ from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from django.utils.decorators import method_decorator
+
+from audoma.decorators import audoma_action
 from audoma.drf import (
     mixins,
     viewsets,
 )
-from audoma.drf.decorators import audoma_action
 from audoma.drf.filters import DocumentedTypedChoiceFilter
 
 
@@ -165,10 +167,10 @@ class ExampleModelPermissionLessViewSet(
         detail=False,
         methods=["get"],
         responses=ExampleOneFieldSerializer,
-        errors=[CustomBadRequestException(), CustomConflictException()],
+        errors=[CustomBadRequestException(), CustomConflictException],
     )
     def properly_defined_exception_example(self, request):
-        raise CustomConflictException
+        raise CustomConflictException()
 
     @audoma_action(detail=False, methods=["get"])
     def proper_usage_of_common_errors(self, request):
