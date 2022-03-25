@@ -119,7 +119,8 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
     ```
 
 * `audoma_action` decorator - this is a wrapper for standrad drfs' action decorator. It also handles documenting the action. In this decorator this is possible to define:
-    * collectors - collect serializers, those are being used to process users input, collectors may be passed as a serializer class which inherits from serializers.BaseSerializer, it may also be passed as a dict with given structure: {'http_method1': Serializer1Class, 'http_method2': Serializer2Class}
+    * **collectors** - collect serializers, those are being used to process users input, collectors may be passed as a serializer class which inherits from serializers.BaseSerializer, it may also be passed as a dict with given structure: {'http_method1': Serializer1Class, 'http_method2': Serializer2Class}
+     \
     Examples:
         ``` py
         @audoma_action(
@@ -144,12 +145,12 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
         ```
         In case there are no collectors defined and http method is not a safe method, then audoma_action will try to fallback to standard way of retrieving collect serializer from view.
 
-    * responses - responses allows to define custom responses for each method, and returned status_code. Responses may be given i three different dictionary forms:
+    * **responses** - responses allows to define custom responses for each method, and returned status_code. Responses may be given i three different dictionary forms:
         * {'http_method1': Serializer1Class or string, 'http_method2': Serializer2Class or string}
         * {'http_method1: {status_code: Serializer1Class or string}}
         * {status_code: Serializer1Class or string }
     If the response consist of serializer, it'll simply serialize returned instance, if the response is a string, it'll return it as a message. The response, may be also given simply as a serializer class or a string message.
-
+     \
     Examples:
     ``` py
     @audoma_action(
@@ -181,8 +182,10 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
     In case there are no responses defined audoma_action will try to fallback to standard way of retrieving
     serializer from view.
 
-    * errors - a list of ApiException subclasses objects. Exceptions defined in this list may be thrown in the action method. Throwing not defined exception will cause throwing ValueError.
-    If you are going to raise exception with other message than the one defined in the decorator, decorator will ingore this and still raise exception given in errors list.
+    * **errors** - a list of APIException subclasses objects or simply APIException subclasses. Exceptions defined in this list may be thrown in the action method.
+    If you would like to accept all exceptions of given class simply pass exception class to the list, otherwise pass precise exception instance.
+    If you passed exception instance, if DEBUG=True, and the raised exception content won't match the exception defined in decorator, this will cause raising ValueError, if DEBUG=False then there'll only appear logging exception, but exception will be raised.
+     \
     Examples:
     ```py
     @audoma_action(
@@ -203,10 +206,16 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
     def improperly_defined_exception_example(self, request):
         raise CustomBadRequestException
     ```
-    By default Audoma catch two types of exceptions:
+    By default Audoma catch exceptions:
     * NotFound
-    * Validation Error
-    If you want to add more common exceptions for your API, you should add exception objects in COMMON_API_ERRORS list in your project settings
+    * NotAuthenticated
+    * NotAuthenticated
+    * AuthenticationFailed
+    * ParseError
+    * PermissionDenied
+    * NotAcceptable
+     \
+    If you want to add more common exceptions for your API, you should add exception objects or classes in COMMON_API_ERRORS list in your project settings
     Example:
     ```py
         from rest_framework import exceptions
@@ -216,6 +225,8 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
             exceptions.ValidationError(),
         ]
     ```
+
+    **NOTE: this is not possible to define exceptions with extra required params as classes.**
 
     * validate_collector - boolean variable which tells audoma_action eihter collect serialiser should be validated or not.
 
@@ -253,10 +264,6 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
 
     #### Note:
     You may still use standard `@action` decorator with action methods. It'll still work in Audoma and will take advantage of multiple ViewSet serializers.
-
-
-* `document_serializers` decorator - this decorator is the simple version of audoma_action it's only and main task is to add information about responses, collectors and erros to the decorated function. This allows to access those during generating the schema for OpenAPI. Methods decorated with this decorator does not change it's behaviour, its' only influence documentation.
-
 
 
 Testing and example application

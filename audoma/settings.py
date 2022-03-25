@@ -10,8 +10,12 @@ settings.SPECTACULAR_SETTINGS[
 
 
 COMMON_API_ERRORS = [
-    exceptions.NotFound(),
-    exceptions.NotAuthenticated(),
+    exceptions.NotFound,
+    exceptions.NotAuthenticated,
+    exceptions.AuthenticationFailed,
+    exceptions.ParseError,
+    exceptions.PermissionDenied,
+    exceptions.NotAcceptable,
 ]
 
 settings.SPECTACULAR_SETTINGS["POSTPROCESSING_HOOKS"] = [

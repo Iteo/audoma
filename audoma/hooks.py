@@ -39,6 +39,8 @@ def postprocess_common_errors_section(result, request, **kwargs):
     def _get_description():
         desc = "###  Common API Errors \n"
         for error in common_exceptions:
+            if isinstance(error, type):
+                error = error()
             desc += __generate_exception_desc(error)
         return desc
 
