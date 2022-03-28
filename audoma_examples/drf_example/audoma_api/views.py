@@ -77,12 +77,12 @@ example_choice = DocumentedTypedChoiceFilter(
 
 
 class ExampleChoiceFilter(df_filters.FilterSet):
-    choices = example_choice
+    choice = example_choice
 
     class Meta:
         model = ExampleModel
         fields = [
-            "choices",
+            "choice",
         ]
 
 
