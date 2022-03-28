@@ -59,7 +59,7 @@ class AudomaTests(SimpleTestCase):
         self.assertEqual(20, len(example_model_properties))
 
     def test_filter_params_description_model_viewset_documented_typed(self):
-        choices_desc = "Filter by choices \n * `EX_1` - example 1\n * `EX_2` - example 2\n * `EX_3` - example 3\n"
+        choices_desc = "Filter by choice \n * `EX_1` - example 1\n * `EX_2` - example 2\n * `EX_3` - example 3\n"
         docs_description = self.schema["paths"]["/model_examples/"]["get"][
             "parameters"
         ][0]["description"]
@@ -118,3 +118,15 @@ class AudomaTests(SimpleTestCase):
             "get"
         ]["parameters"][0]["description"]
         self.assertEqual(choices_desc, docs_description)
+
+    def test_serach_fields_description(self):
+        expected_search_description = (
+            "Search by: \n* `foreign_key` \n\t * `name` \n* `name` \n"
+        )
+
+        docs_description = self.schema["paths"]["/example_related_model_viewset/"][
+            "get"
+        ]["parameters"]
+        search_docs_data = docs_description[-1]
+        self.assertEqual(search_docs_data["name"], "search")
+        self.assertEqual(search_docs_data["description"], expected_search_description)
