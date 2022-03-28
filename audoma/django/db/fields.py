@@ -1,5 +1,9 @@
 import sys
 
+import phonenumbers
+from phonenumber_field.modelfields import PhoneNumberField
+from phonenumber_field.phonenumber import to_python
+
 from django.db import models
 from django.db.models.fields import (  # noqa: F401
     BLANK_CHOICE_DASH,
@@ -22,3 +26,16 @@ for field_name in __all__:
 
     Field.__name__ = field_name
     setattr(this, field_name, Field)
+
+__all__ += ["PhoneNumberField"]
+
+
+class PhoneNumberField(ModelExampleMixin, PhoneNumberField):
+    def __init__(self, *args, region=None, **kwargs):
+        if not kwargs.get("example", None):
+            if region:
+                number = phonenumbers.example_number(region)
+                self.example = to_python(number).as_international
+            else:
+                self.example = "+12125552368"
+        super().__init__(*args, region=region, **kwargs)
