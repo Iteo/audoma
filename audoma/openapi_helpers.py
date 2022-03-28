@@ -87,3 +87,7 @@ def get_permissions_description(view):  # noqa: C901
         )
     else:
         return ""
+
+
+def create_enum_description(operation):
+    ...

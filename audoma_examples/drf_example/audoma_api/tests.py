@@ -58,8 +58,8 @@ class AudomaTests(SimpleTestCase):
         example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
         self.assertEqual(20, len(example_model_properties))
 
-    def test_filter_params_description_model_viewset(self):
-        choices_desc = "Filter by choice \n * `EX_1` - example 1\n * `EX_2` - example 2\n * `EX_3` - example 3\n"
+    def test_filter_params_description_model_viewset_documented_typed(self):
+        choices_desc = "Filter by choices \n * `EX_1` - example 1\n * `EX_2` - example 2\n * `EX_3` - example 3\n"
         docs_description = self.schema["paths"]["/model_examples/"]["get"][
             "parameters"
         ][0]["description"]
@@ -104,3 +104,17 @@ class AudomaTests(SimpleTestCase):
         ]["content"]
         self.assertEqual(len(example_schema.keys()), 1)
         self.assertEqual(list(example_schema.keys())[0], "multipart/form-data")
+        
+    def test_filterset_class_description_in_query_params_schema(self):
+        choices_desc = "Filter by choices \n * `1` - example 1\n * `2` - example 2\n * `3` - example 3\n"
+        docs_description = self.schema["paths"]["/example_filterset_class_viewset/"][
+            "get"
+        ]["parameters"][0]["description"]
+        self.assertEqual(choices_desc, docs_description)
+
+    def test_filterset_fields_description_in_query_paramas_schema(self):
+        choices_desc = "Filter by choices \n * `1` - example 1\n * `2` - example 2\n * `3` - example 3\n"
+        docs_description = self.schema["paths"]["/example_filterset_fields_viewset/"][
+            "get"
+        ]["parameters"][0]["description"]
+        self.assertEqual(choices_desc, docs_description)

@@ -44,3 +44,12 @@ class ExampleModel(models.Model):
 class ExampleFileModel(models.Model):
     file_field = models.FileField()
     name = models.CharField(max_length=255)
+    
+    
+class ExampleForeignKeyModel(models.Model):
+    name = models.CharField(max_length=255)
+
+
+class ExampleDependedModel(models.Model):
+    name = models.CharField(max_length=255)
+    foreign_key = models.ForeignKey(ExampleForeignKeyModel, on_delete=models.CASCADE)

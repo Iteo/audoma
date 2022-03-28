@@ -1,5 +1,9 @@
 from audoma_api.models import (
+<<<<<<< HEAD
     ExampleFileModel,
+=======
+    ExampleDependedModel,
+>>>>>>> PINT-22: added search field explicit description
     ExampleModel,
 )
 from audoma_api.permissions import (
@@ -10,13 +14,21 @@ from audoma_api.permissions import (
     ViewPermission,
 )
 from audoma_api.serializers import (
+<<<<<<< HEAD
     ExampleFileModelSerializer,
+=======
+    ExampleDependedModelSerializer,
+>>>>>>> PINT-22: added search field explicit description
     ExampleModelSerializer,
     ExampleSerializer,
 )
 from django_filters import rest_framework as df_filters
 from rest_framework.decorators import action
+<<<<<<< HEAD
 from rest_framework.parsers import MultiPartParser
+=======
+from rest_framework.filters import SearchFilter
+>>>>>>> PINT-22: added search field explicit description
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -65,12 +77,12 @@ example_choice = DocumentedTypedChoiceFilter(
 
 
 class ExampleChoiceFilter(df_filters.FilterSet):
-    choice = example_choice
+    choices = example_choice
 
     class Meta:
         model = ExampleModel
         fields = [
-            "choice",
+            "choices",
         ]
 
 
@@ -103,6 +115,7 @@ class ExampleModelViewSet(
         return Response({})  # wron
 
 
+<<<<<<< HEAD
 class ExampleFileUploadViewSet(
     mixins.ActionModelMixin,
     mixins.CreateModelMixin,
@@ -112,3 +125,52 @@ class ExampleFileUploadViewSet(
     queryset = ExampleFileModel.objects.all()
 
     parser_classes = [MultiPartParser]
+=======
+class ExampleDefaultChoiceFilter(df_filters.FilterSet):
+    class Meta:
+        model = ExampleModel
+        fields = [
+            "choices",
+        ]
+
+
+class ExampleFiltersetClassViewset(
+    mixins.ActionModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    filterset_class = ExampleDefaultChoiceFilter
+    serializer_class = ExampleModelSerializer
+    queryset = ExampleModel.objects.all()
+
+
+class ExampleFiltersetFieldsViewset(
+    mixins.ActionModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    filterset_fields = [
+        "choices",
+    ]
+    serializer_class = ExampleModelSerializer
+    queryset = ExampleModel.objects.all()
+
+
+class ExampleRelatedModelsViewSet(
+    mixins.ActionModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+
+    queryset = ExampleDependedModel.objects.none()
+    serializer_class = ExampleDependedModelSerializer
+
+    filter_backends = [SearchFilter, df_filters.DjangoFilterBackend]
+    filterset_fields = [
+        "foreign_key__name",
+    ]
+    search_fields = ["foreign_key__name", "name"]
+>>>>>>> PINT-22: added search field explicit description
