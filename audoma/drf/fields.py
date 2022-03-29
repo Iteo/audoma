@@ -111,6 +111,7 @@ class IPAddressField(ExampleMixin, fields.IPAddressField):
     pass
 
 
+@extend_schema_field(field={"format": "tel"})
 class PhoneNumberField(ExampleMixin, serializerfields.PhoneNumberField):
     default_validators = [validate_international_phonenumber]
 
