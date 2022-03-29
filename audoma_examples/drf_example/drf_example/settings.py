@@ -137,4 +137,5 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     # 'PREPROCESSING_HOOKS': ['audoma.hooks.preprocess_include_path_format'],
     # OTHER SETTINGS
+    "COMPONENT_SPLIT_REQUEST": True,
 }

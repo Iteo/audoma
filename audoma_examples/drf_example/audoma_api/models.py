@@ -39,3 +39,8 @@ class ExampleModel(models.Model):
     duration = models.DurationField()
     choices = models.IntegerField(choices=EXAMPLE_CHOICES.get_choices())
     json = JSONField()
+
+
+class ExampleFileModel(models.Model):
+    file_field = models.FileField()
+    name = models.CharField(max_length=255)
