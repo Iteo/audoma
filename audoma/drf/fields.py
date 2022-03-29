@@ -1,15 +1,23 @@
 import sys
 
 import exrex
+import phonenumbers
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from phonenumber_field import serializerfields
+from phonenumber_field.phonenumber import (
+    to_python,
+    validate_region,
+)
+from phonenumber_field.validators import validate_international_phonenumber
 from rest_framework import fields
 from rest_framework.fields import *  # noqa: F403, F401
 
+from django.conf import settings
 from django.core import validators
 
 from audoma.drf.mixins import (
+    DEFAULT,
     ExampleMixin,
     NumericExampleMixin,
     RegexExampleMixin,
@@ -103,6 +111,17 @@ class IPAddressField(ExampleMixin, fields.IPAddressField):
     pass
 
 
-@extend_schema_field(field={"format": "tel", "example": "+1-202-555-0140"})
 class PhoneNumberField(ExampleMixin, serializerfields.PhoneNumberField):
-    pass
+    default_validators = [validate_international_phonenumber]
+
+    def __init__(self, *args, region=None, **kwargs):
+        validate_region(region)
+        self.region = region or getattr(settings, "PHONENUMBER_DEFAULT_REGION", None)
+        example = kwargs.pop("example", None)
+        if not example:
+            if region:
+                number = phonenumbers.example_number(region)
+                example = to_python(number).as_international
+            else:
+                example = "+12125552368"
+        super().__init__(*args, example=example, **kwargs)
