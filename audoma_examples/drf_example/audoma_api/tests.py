@@ -1,6 +1,7 @@
 import re
 from datetime import date
 
+import phonenumbers
 from audoma_api.serializers import ExampleModelSerializer
 from audoma_api.views import (
     ExampleModelViewSet,
@@ -8,6 +9,7 @@ from audoma_api.views import (
 )
 from drf_example.urls import router
 from drf_spectacular.generators import SchemaGenerator
+from phonenumber_field.phonenumber import to_python
 from rest_framework.permissions import BasePermission
 
 from django.test import SimpleTestCase
@@ -32,7 +34,7 @@ class AudomaTests(SimpleTestCase):
         expected_phone_number_field = {
             "type": "string",
             "format": "tel",
-            "example": "+1-202-555-0140",
+            "example": "+12125552368",
         }
         self.assertTrue("example" in mac_address_field and "type" in mac_address_field)
         self.assertTrue("example" in regex_field and "type" in regex_field)
@@ -102,7 +104,7 @@ class AudomaTests(SimpleTestCase):
         example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
         phone_number = example_model_properties["phone_number"]
         self.assertEqual("tel", phone_number["format"])
-        self.assertEqual("+1-202-555-0140", phone_number["example"])
+        self.assertEqual("+12125552368", phone_number["example"])
 
     def test_custom_paginated_response_schema(self):
         paginated_example = self.redoc_schemas["PaginatedExampleList"]
@@ -149,3 +151,31 @@ class AudomaTests(SimpleTestCase):
         age = example_person_properties["age"]
         self.assertLessEqual(18, age["example"])
         self.assertGreaterEqual(80, age["example"])
+
+    def test_phone_number_with_example_and_region(self):
+        phone_number_example_field = self.redoc_schemas["Example"]["properties"][
+            "phone_number_example"
+        ]
+        phone_number_region_field = self.redoc_schemas["Example"]["properties"][
+            "phone_number_region_japan"
+        ]
+
+        phone_number_example = phone_number_example_field["example"]
+        phone_number_region = phone_number_region_field["example"]
+
+        generated_japan_number = to_python(
+            phonenumbers.example_number("JP")
+        ).as_international
+        self.assertEqual("+48 123 456 789", phone_number_example)
+        self.assertEqual(generated_japan_number, phone_number_region)
+
+    def test_model_phonenumber_with_region(self):
+        example_person_properties = self.redoc_schemas["ExamplePersonModel"][
+            "properties"
+        ]
+        phone_number_field = example_person_properties["phone_number"]
+        phone_number_example = phone_number_field["example"]
+        generated_france_number = to_python(
+            phonenumbers.example_number("FR")
+        ).as_international
+        self.assertEqual(generated_france_number, phone_number_example)

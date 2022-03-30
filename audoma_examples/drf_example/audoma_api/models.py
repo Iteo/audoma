@@ -68,3 +68,4 @@ class ExamplePerson(models.Model):
     )
     has_valid_account = models.BooleanField()
     ip_address = models.GenericIPAddressField()
+    phone_number = models.PhoneNumberField(region="FR")
