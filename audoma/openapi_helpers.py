@@ -5,7 +5,6 @@ from rest_framework.permissions import (
     OperandHolder,
     SingleOperandHolder,
 )
-from drf_spectacular.utils import OpenApiResponse
 
 
 def get_permissions_description(view):  # noqa: C901

@@ -1,18 +1,17 @@
 import json
 from datetime import (
     date,
-    timedelta
+    timedelta,
 )
 
-from django.shortcuts import reverse
-from django.test import SimpleTestCase
+from audoma_api.views import (
+    ExampleModelViewSet,
+    ExampleViewSet,
+)
 from drf_example.urls import router
 from drf_spectacular.generators import SchemaGenerator
 from rest_framework.permissions import BasePermission
 from rest_framework.test import APIClient
-
-from audoma_api.views import ExampleModelViewSet
-from audoma_api.views import ExampleViewSet
 
 from django.shortcuts import reverse
 from django.test import SimpleTestCase
@@ -115,7 +114,7 @@ class AudomaTests(SimpleTestCase):
         phone_number = example_model_properties["phone_number"]
         self.assertEqual("tel", phone_number["format"])
         self.assertEqual("+1 8888888822", phone_number["example"])
-        
+
     def test_default_response_in_view_responses(self):
         docs = self.schema["paths"][
             "/permissionless_model_examples/properly_defined_exception_example/"
@@ -192,14 +191,17 @@ class AudomaViewsTestCase(SimpleTestCase):
         self.client = APIClient()
 
     def test_detail_action_get(self):
-        response = self.client.get(reverse('permissionless-model-examples-detail-action', kwargs={'pk': 0}))
+        response = self.client.get(
+            reverse("permissionless-model-examples-detail-action", kwargs={"pk": 0})
+        )
         self.assertEqual(response.status_code, 405)
 
     def test_detail_action_post_with_usertype(self):
         self.data["usertype"] = "admin"
         response = self.client.post(
-            reverse('permissionless-model-examples-detail-action', kwargs={'pk': 0}), self.data,
-            format='json'
+            reverse("permissionless-model-examples-detail-action", kwargs={"pk": 0}),
+            self.data,
+            format="json",
         )
         self.assertEqual(response.status_code, 201)
         response_content = json.loads(response.content)
@@ -223,18 +225,21 @@ class AudomaViewsTestCase(SimpleTestCase):
         )
         content = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(content['message'], "This is a test view")
+        self.assertEqual(content["message"], "This is a test view")
 
     def test_rate_create_action_post_success(self):
         response = self.client.post(
-            reverse('permissionless-model-examples-rate-create-action'), {'rate': 1},
-            format='json'
+            reverse("permissionless-model-examples-rate-create-action"),
+            {"rate": 1},
+            format="json",
         )
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(json.loads(response.content)['rate'], 1)
+        self.assertEqual(json.loads(response.content)["rate"], 1)
 
     def test_rate_create_action_post_failure(self):
-        response = self.client.post(reverse('permissionless-model-examples-rate-create-action'))
+        response = self.client.post(
+            reverse("permissionless-model-examples-rate-create-action")
+        )
         content = json.loads(response.content)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(content["errors"]["rate"], "This field is required.")

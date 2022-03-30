@@ -1,21 +1,17 @@
 from __future__ import annotations
 
 import typing
-from urllib import response
 
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import error
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 
+from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
 from audoma.openapi_helpers import (
     AudomaApiResponseCreator,
     get_permissions_description,
-    extract_collectors,
-    extract_responses
 )
-from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
-from audoma.openapi_helpers import get_permissions_description
 
 
 class AudomaAutoSchema(AutoSchema):
@@ -38,7 +34,10 @@ class AudomaAutoSchema(AutoSchema):
             action_serializers = self.response_creator.extract_responses(view)
 
         if action_serializers:
-            if isinstance(action_serializers, dict) and method.lower() in action_serializers:
+            if (
+                isinstance(action_serializers, dict)
+                and method.lower() in action_serializers
+            ):
                 return action_serializers[method.lower()]
             else:
                 return action_serializers

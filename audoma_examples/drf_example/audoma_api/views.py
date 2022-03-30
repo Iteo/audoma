@@ -1,10 +1,10 @@
-from audoma_api.models import (
-    ExampleFileModel,
-    ExampleModel,
-)
 from audoma_api.exceptions import (
     CustomBadRequestException,
     CustomConflictException,
+)
+from audoma_api.models import (
+    ExampleFileModel,
+    ExampleModel,
 )
 from audoma_api.permissions import (
     AlternatePermission1,
@@ -17,17 +17,15 @@ from audoma_api.serializers import (
     ExampleFileModelSerializer,
     ExampleModelCreateSerializer,
     ExampleModelSerializer,
+    ExampleOneFieldSerializer,
     ExampleSerializer,
-    ExampleOneFieldSerializer
 )
 from django_filters import rest_framework as df_filters
 from rest_framework.decorators import action
-from rest_framework.parsers import MultiPartParser
 from rest_framework.exceptions import NotFound
+from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
-from django.utils.decorators import method_decorator
 
 from audoma.decorators import audoma_action
 from audoma.drf import (
@@ -104,14 +102,16 @@ class ExampleModelViewSet(
     serializer_class = ExampleModelSerializer
     queryset = ExampleModel.objects.all()
 
-    @audoma_action(detail=True, methods=['get'], responses={
-            'get': "GET method is not allowed"
-        }, collectors=None
+    @audoma_action(
+        detail=True,
+        methods=["get"],
+        responses={"get": "GET method is not allowed"},
+        collectors=None,
     )
     def detail_action(self, request, pk=None):
         return Response({})  # wrong
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=["post"])
     def non_detail_action(self, request):
         return Response({})  # wron
 
@@ -146,17 +146,19 @@ class ExampleModelPermissionLessViewSet(
             return collect_serializer.save(), 201
         return {"rate": ExampleOneFieldSerializer.RATE_CHOICES.LIKE}, 202
 
-    @audoma_action(detail=False, methods=['get'], responses={'get': 'This is a test view'})
+    @audoma_action(
+        detail=False, methods=["get"], responses={"get": "This is a test view"}
+    )
     def non_detail_action(self, request):
         return None, 200
 
     @audoma_action(
-        detail=False, methods=['post'], responses=ExampleOneFieldSerializer, 
-        collectors=ExampleOneFieldSerializer
+        detail=False,
+        methods=["post"],
+        responses=ExampleOneFieldSerializer,
+        collectors=ExampleOneFieldSerializer,
     )
-    def rate_create_action(
-        self, request, collect_serializer
-    ):
+    def rate_create_action(self, request, collect_serializer):
         return collect_serializer.save(), 201
 
     @audoma_action(detail=True, methods=["get"], responses=ExampleOneFieldSerializer)
