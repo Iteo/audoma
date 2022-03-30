@@ -77,7 +77,7 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
     }
     ```
 
-    You can also add example documentation directly to model fields. It works the same way as in serializers, just inherit from `ModelExampleMixin`, or
+    You can also add example directly to model fields. It works the same way as in serializers, just inherit from `ModelExampleMixin`, or
     use audoma's fields defined in `audoma.django.db` and initialize model field with example like shown below.
 
     ```python
