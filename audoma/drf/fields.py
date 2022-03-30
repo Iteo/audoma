@@ -112,16 +112,9 @@ class IPAddressField(ExampleMixin, fields.IPAddressField):
 
 @extend_schema_field(field={"format": "tel"})
 class PhoneNumberField(ExampleMixin, serializerfields.PhoneNumberField):
-    default_validators = [validate_international_phonenumber]
-
-    def __init__(self, *args, region=None, **kwargs):
-        validate_region(region)
-        self.region = region or getattr(settings, "PHONENUMBER_DEFAULT_REGION", None)
+    def __init__(self, *args, **kwargs):
         example = kwargs.pop("example", None)
         if not example:
-            if region:
-                number = phonenumbers.example_number(region)
-                example = to_python(number).as_international
-            else:
-                example = "+12125552368"
+            number = phonenumbers.example_number(None)
+            example = str(to_python(number))
         super().__init__(*args, example=example, **kwargs)

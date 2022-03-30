@@ -32,10 +32,7 @@ __all__ += ["PhoneNumberField"]
 
 class PhoneNumberField(ModelExampleMixin, PhoneNumberField):
     def __init__(self, *args, region=None, **kwargs):
-        if not kwargs.get("example", None):
-            if region:
-                number = phonenumbers.example_number(region)
-                self.example = to_python(number).as_international
-            else:
-                self.example = "+12125552368"
         super().__init__(*args, region=region, **kwargs)
+        if not kwargs.get("example", None):
+            number = phonenumbers.example_number(region)
+            self.example = str(to_python(number))
