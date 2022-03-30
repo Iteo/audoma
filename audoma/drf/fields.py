@@ -17,7 +17,6 @@ from django.conf import settings
 from django.core import validators
 
 from audoma.drf.mixins import (
-    DEFAULT,
     ExampleMixin,
     NumericExampleMixin,
     RegexExampleMixin,
