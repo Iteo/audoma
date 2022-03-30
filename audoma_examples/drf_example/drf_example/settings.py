@@ -137,3 +137,5 @@ SPECTACULAR_SETTINGS = {
     # 'PREPROCESSING_HOOKS': ['audoma.hooks.preprocess_include_path_format'],
     # OTHER SETTINGS
 }
+
+PHONENUMBER_DEFAULT_FORMAT = "INTERNATIONAL"

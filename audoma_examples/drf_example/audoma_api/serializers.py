@@ -18,7 +18,6 @@ class ExampleSerializer(serializers.Serializer):
     charfield_min_max = serializers.CharField(min_length=5, max_length=20)
     phone_number = serializers.PhoneNumberField()
     phone_number_example = serializers.PhoneNumberField(example="+48 123 456 789")
-    phone_number_region_japan = serializers.PhoneNumberField(region="JP")
     email = serializers.EmailField()
     url = serializers.URLField()
     boolean = serializers.BooleanField()
