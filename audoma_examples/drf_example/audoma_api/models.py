@@ -68,3 +68,8 @@ class ExamplePerson(models.Model):
     )
     has_valid_account = models.BooleanField()
     ip_address = models.GenericIPAddressField()
+
+
+class ExampleFileModel(models.Model):
+    file_field = models.FileField()
+    name = models.CharField(max_length=255)

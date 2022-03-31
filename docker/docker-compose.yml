@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  tests:
+    image: audoma-tests-${CI_BUILD_ID}
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile
+    command: tox

@@ -1,0 +1,4 @@
+include *.md
+include *.txt
+include *.cfg
+recursive-include audoma_examples *

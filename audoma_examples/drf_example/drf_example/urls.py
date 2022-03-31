@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from audoma_api.views import (
+    ExampleFileUploadViewSet,
     ExampleModelViewSet,
     ExamplePersonModelViewSet,
     ExampleViewSet,
@@ -34,6 +35,9 @@ router.register(r"examples", ExampleViewSet, basename="examples")
 router.register(r"model_examples", ExampleModelViewSet, basename="model-examples")
 router.register(
     r"model_person_example", ExamplePersonModelViewSet, basename="model-person-example"
+)
+router.register(
+    r"file-upload-example", ExampleFileUploadViewSet, basename="file-upload-example"
 )
 
 urlpatterns = router.urls
