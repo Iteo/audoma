@@ -24,9 +24,7 @@ from audoma.drf.viewsets import AudomaPagination
 from .views import example_choice
 
 
-@override_settings(PHONENUMBER_DEFAULT_FORMAT="INTERNATIONAL")
 class AudomaTests(SimpleTestCase):
-    @override_settings(PHONENUMBER_DEFAULT_FORMAT="INTERNATIONAL")
     def setUp(self):
         patterns = router.urls
         generator = SchemaGenerator(patterns=patterns)
@@ -167,24 +165,23 @@ class AudomaTests(SimpleTestCase):
         self.assertEqual(generated_france_number, phone_number_example)
 
     def test_phonenubber_example_region_international_format(self):
-        class Example(models.Model):
-            pn = models.PhoneNumberField(region="PL")
+
+        pn = models.PhoneNumberField(region="PL")
 
         expected_example = to_python(phonenumbers.example_number("PL")).as_international
-        self.assertEqual(expected_example, Example.pn.field.example)
+        self.assertEqual(expected_example, pn.example)
 
     @override_settings(PHONENUMBER_DEFAULT_FORMAT="NATIONAL")
     def test_phonenumber_example_region_national_format(self):
-        class Example(models.Model):
-            pn = models.PhoneNumberField(region="PL")
+        pn = models.PhoneNumberField(region="PL")
 
         expected_example = to_python(phonenumbers.example_number("PL")).as_national
-        self.assertEqual(expected_example, Example.pn.field.example)
+        self.assertEqual(expected_example, pn.example)
 
     @override_settings(PHONENUMBER_DEFAULT_FORMAT="E164")
     def test_phonenumber_example_region_e164_format(self):
-        class Example(models.Model):
-            pn = models.PhoneNumberField(region="PL")
+
+        pn = models.PhoneNumberField(region="PL")
 
         expected_example = to_python(phonenumbers.example_number("PL")).as_e164
-        self.assertEqual(expected_example, Example.pn.field.example)
+        self.assertEqual(expected_example, pn.example)
