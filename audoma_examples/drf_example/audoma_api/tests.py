@@ -17,10 +17,7 @@ from django.test import (
     override_settings,
 )
 
-from audoma.django.db import (
-    fields,
-    models,
-)
+from audoma.django.db import models
 from audoma.drf import serializers
 from audoma.drf.viewsets import AudomaPagination
 
@@ -171,7 +168,7 @@ class AudomaTests(SimpleTestCase):
 
     def test_phonenubber_example_region_international_format(self):
         class Example(models.Model):
-            pn = fields.PhoneNumberField(region="PL")
+            pn = models.PhoneNumberField(region="PL")
 
         expected_example = to_python(phonenumbers.example_number("PL")).as_international
         self.assertEqual(expected_example, Example.pn.field.example)
@@ -179,7 +176,7 @@ class AudomaTests(SimpleTestCase):
     @override_settings(PHONENUMBER_DEFAULT_FORMAT="NATIONAL")
     def test_phonenumber_example_region_national_format(self):
         class Example(models.Model):
-            pn = fields.PhoneNumberField(region="PL")
+            pn = models.PhoneNumberField(region="PL")
 
         expected_example = to_python(phonenumbers.example_number("PL")).as_national
         self.assertEqual(expected_example, Example.pn.field.example)
@@ -187,7 +184,7 @@ class AudomaTests(SimpleTestCase):
     @override_settings(PHONENUMBER_DEFAULT_FORMAT="E164")
     def test_phonenumber_example_region_e164_format(self):
         class Example(models.Model):
-            pn = fields.PhoneNumberField(region="PL")
+            pn = models.PhoneNumberField(region="PL")
 
         expected_example = to_python(phonenumbers.example_number("PL")).as_e164
         self.assertEqual(expected_example, Example.pn.field.example)
