@@ -66,3 +66,8 @@ class ExamplePerson(models.Model):
     has_valid_account = models.BooleanField()
     ip_address = models.GenericIPAddressField()
     phone_number = models.PhoneNumberField(region="IT")
+
+
+class ExampleFileModel(models.Model):
+    file_field = models.FileField()
+    name = models.CharField(max_length=255)

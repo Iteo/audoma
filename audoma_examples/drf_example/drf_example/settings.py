@@ -124,6 +124,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 REST_FRAMEWORK = {
     # YOUR SETTINGS
     "DEFAULT_SCHEMA_CLASS": "audoma.openapi.AudomaAutoSchema",
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
 }
 
 # Use it if you want to create schema only based on paths that starts with specific keyword
@@ -136,6 +137,7 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     # 'PREPROCESSING_HOOKS': ['audoma.hooks.preprocess_include_path_format'],
     # OTHER SETTINGS
+    "COMPONENT_SPLIT_REQUEST": True,
 }
 
 PHONENUMBER_DEFAULT_FORMAT = "INTERNATIONAL"
