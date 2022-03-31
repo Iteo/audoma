@@ -5,15 +5,10 @@ import phonenumbers
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from phonenumber_field import serializerfields
-from phonenumber_field.phonenumber import (
-    to_python,
-    validate_region,
-)
-from phonenumber_field.validators import validate_international_phonenumber
+from phonenumber_field.phonenumber import to_python
 from rest_framework import fields
 from rest_framework.fields import *  # noqa: F403, F401
 
-from django.conf import settings
 from django.core import validators
 
 from audoma.drf.mixins import (
