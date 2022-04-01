@@ -13,11 +13,8 @@ services:
     build:
       context: ../
       dockerfile: ./docker/Dockerfile.local
-    command:
-      - cd audoma_examples/drf_example
-      - python manage.py runserver
-
+    command: bash -c "pip install -e . && cd audoma_examples/drf_example && python manage.py runserver"
     volumes:
-      - .:../audoma
+      - ..:/audoma
     ports:
       - 8000:8000
