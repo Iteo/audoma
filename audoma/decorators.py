@@ -2,10 +2,17 @@ import json
 import logging
 from dataclasses import dataclass
 from functools import wraps
+from typing import (
+    Callable,
+    List,
+    Union,
+)
 
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import SAFE_METHODS
+from rest_framework.response import Response
+from rest_framework.serializers import BaseSerializer
 
 from django.conf import settings as project_settings
 from django.core.exceptions import ImproperlyConfigured
@@ -22,12 +29,14 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class AudomaArgs:
-    responses: dict
-    collectors: dict
+    responses: Union[dict, BaseSerializer]
+    collectors: Union[dict, BaseSerializer]
     errors: list
 
 
-def __verify_error(processed_error, errors, func):
+def __verify_and_handle_error(
+    processed_error: APIException, errors: List[APIException], func: Callable
+) -> None:
     same_class_errors = []
     for error in errors:
         if isinstance(error, type):
@@ -68,8 +77,13 @@ def __verify_error(processed_error, errors, func):
 
 
 def audoma_action(
-    collectors={}, responses={}, errors=[], validate_collector=True, **kwargs
-):
+    collectors: Union[dict, BaseSerializer] = None,
+    responses: Union[dict, BaseSerializer] = None,
+    errors: List[APIException] = None,
+    validate_collector: bool = True,
+    ignore_view_collectors: bool = False,
+    **kwargs,
+) -> Response:
     """
     This is a custom action tag which allows to define collectors, responses and errors.
     This tag also applies the collect serializer if such has been defined.
@@ -88,11 +102,14 @@ def audoma_action(
                     'audoma_action' will not allow raising any other exceptions than those
         * validate_collector - by default set to True, it specifies if collectors serializer
                     should be validated in the decorator, or not.
+        * ignore_view_collectors - by default set to False, if set to True, audoma_action won't try
+                    to reach default view collect serializer, may be useful in specific cases.
     """
-    assert isinstance(errors, list)
 
     # get rid of serializer_class from kwargs if passed
-    kwargs.pop("serializer_class", None)
+    collectors = collectors or {}
+    responses = responses or {}
+    errors = errors or []
 
     methods = kwargs.get("methods")
     framework_decorator = action(**kwargs)
@@ -121,14 +138,13 @@ def audoma_action(
                 project_settings, "COMMON_API_ERRORS", []
             )
 
-            if collectors is not None and request.method not in SAFE_METHODS:
+            if request.method not in SAFE_METHODS:
                 collect_serializer_class = operation_extractor.extract_operation(
                     request, operation_category="collect"
                 )
 
-                collect_serializer_class = (
-                    collect_serializer_class or view.get_serializer_class()
-                )
+                if not collect_serializer_class and not ignore_view_collectors:
+                    collect_serializer = view.get_serializer_class()
 
                 if collect_serializer_class:
                     collect_serializer = collect_serializer_class(data=request.data)
@@ -138,11 +154,22 @@ def audoma_action(
             try:
                 instance, code = func(view, request, *args, **kwargs)
             except APIException as processed_error:
-                __verify_error(processed_error, errors, func)
+                __verify_and_handle_error(processed_error, errors, func)
 
             response_operation = operation_extractor.extract_operation(
                 request, code=code
             )
+
+            assert (
+                code is not None
+            ), "Status code has not been returned to audoma action."
+
+            assert (
+                isinstance(response_operation, str) or instance is not None
+            ), "Instance \
+            returned in audoma_action decorated method may not be None if \
+            response operation is not str message"
+
             return apply_response_operation(
                 response_operation, instance, code, view, many=not func.detail
             )

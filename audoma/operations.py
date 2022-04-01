@@ -1,17 +1,27 @@
+from dataclasses import dataclass
 from inspect import isclass
+from typing import (
+    List,
+    Union,
+)
 
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
 
-from django.db.models import QuerySet
+from django.db.models import (
+    Model,
+    QuerySet,
+)
+from django.views import View
 
 
+@dataclass
 class OperationExtractor:
-    def __init__(self, collectors, responses, errors):
-        self.collectors = collectors
-        self.responses = responses
-        self.errors = errors
+
+    collectors: Union[dict, BaseSerializer]
+    responses: Union[dict, BaseSerializer]
+    errors: List[APIException]
 
     def extract_operation(self, request, code=None, operation_category="response"):
         if operation_category == "response":
@@ -65,7 +75,13 @@ class OperationExtractor:
         return self.collectors.get(method)
 
 
-def apply_response_operation(operation, instance, code, view, many):
+def apply_response_operation(
+    operation: Union[str, APIException, BaseSerializer],
+    instance: Union[QuerySet, str, dict, Model],
+    code: int,
+    view: View,
+    many: bool,
+) -> Response:
 
     if isinstance(operation, APIException):
         raise operation
