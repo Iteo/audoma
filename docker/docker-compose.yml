@@ -15,6 +15,8 @@ services:
       dockerfile: ./docker/Dockerfile.local
     volumes:
       - ..:/audoma
+    stdin_open: true
+    tty: true
     ports:
       - 8000:8000
-    command: bash -c "cd audoma_examples/drf_example && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c " PYTHONUNBUFFERED=True cd audoma_examples/drf_example && python manage.py runserver 0.0.0.0:8000"
