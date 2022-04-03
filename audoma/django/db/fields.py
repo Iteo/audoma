@@ -27,7 +27,8 @@ for field_name in __all__:
     Field.__name__ = field_name
     setattr(this, field_name, Field)
 
-__all__ += ["PhoneNumberField"]
+
+__all__.append("PhoneNumberField")
 
 
 class PhoneNumberField(ModelExampleMixin, PhoneNumberField):
