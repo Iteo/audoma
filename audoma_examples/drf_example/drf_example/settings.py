@@ -139,3 +139,11 @@ SPECTACULAR_SETTINGS = {
     # OTHER SETTINGS
     "COMPONENT_SPLIT_REQUEST": True,
 }
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "db.sqlite3",
+        "TEST_NAME": "test_db.sqlite3",
+    }
+}

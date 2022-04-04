@@ -1,6 +1,7 @@
 from audoma_api.models import (
     ExampleFileModel,
     ExampleModel,
+    ExampleSimpleModel,
 )
 from audoma_api.permissions import (
     AlternatePermission1,
@@ -13,6 +14,7 @@ from audoma_api.serializers import (
     ExampleFileModelSerializer,
     ExampleModelSerializer,
     ExampleSerializer,
+    ExampleSimpleModelSerializer,
 )
 from django_filters import rest_framework as df_filters
 from rest_framework.decorators import action
@@ -112,3 +114,28 @@ class ExampleFileUploadViewSet(
     queryset = ExampleFileModel.objects.all()
 
     parser_classes = [MultiPartParser]
+
+
+class ExampleSimpleModelViewSet(
+    mixins.ListModelMixin,
+    mixins.BulkCreateModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.BulkUpdateModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
+    serializer_class = ExampleSimpleModelSerializer
+
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return ExampleSimpleModel.objects.all()
+
+    # def get_serializer(self, *args, **kwargs):
+    #     ret = super().get_serializer(*args, **kwargs)
+    #     print(ret)
+    #     return ret
+
+    # def dispatch(self, request, *args, **kwargs):
+    #     return super().dispatch(request, *args, **kwargs)

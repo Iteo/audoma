@@ -3,6 +3,8 @@ from datetime import date
 from audoma_api.models import (
     ExampleFileModel,
     ExampleModel,
+    ExampleSimpleModel,
+    ExampleTagModel,
 )
 
 from audoma.drf import serializers
@@ -45,6 +47,9 @@ class ExampleSerializer(serializers.Serializer):
     readonly = serializers.ReadOnlyField()
     nested = NestedExampleSerializer()
 
+    class Meta:
+        model = ExampleModel
+
 
 class ExampleModelSerializer(serializers.ModelSerializer):
     phone_number = serializers.SerializerMethodField()
@@ -62,3 +67,12 @@ class ExampleFileModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExampleFileModel
         fields = "__all__"
+
+
+class ExampleSimpleModelSerializer(
+    serializers.ModelSerializer, serializers.BulkSerializerMixin
+):
+    class Meta:
+        model = ExampleSimpleModel
+        fields = "__all__"
+        list_serializer_class = serializers.BulkListSerializer

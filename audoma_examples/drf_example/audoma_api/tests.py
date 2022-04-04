@@ -7,8 +7,10 @@ from audoma_api.views import (
 from drf_example.urls import router
 from drf_spectacular.generators import SchemaGenerator
 from rest_framework.permissions import BasePermission
+from rest_framework.test import APITestCase
 
 from django.test import SimpleTestCase
+from django.urls import reverse
 
 from audoma.drf.viewsets import AudomaPagination
 
@@ -104,3 +106,29 @@ class AudomaTests(SimpleTestCase):
         ]["content"]
         self.assertEqual(len(example_schema.keys()), 1)
         self.assertEqual(list(example_schema.keys())[0], "multipart/form-data")
+
+
+class AudomaBulkOperationsTest(APITestCase):
+    def setUp(self):
+        self.list_url = reverse("bulk-example-list")
+        return super().setUp()
+
+    def test_create_records_bulk(self):
+        data = [
+            {
+                "name": "test 1",
+                "value": 2138,
+            },
+            {
+                "name": "test 2",
+                "value": 2137,
+            },
+        ]
+
+        resp = self.client.post(self.list_url, data, format="json")
+        self.assertEqual(201, resp.status_code, resp.json())
+
+        from .models import ExampleSimpleModel
+
+        qs = ExampleSimpleModel.objects.all()
+        self.assertEqual(qs.count(), 2)
