@@ -24,6 +24,7 @@ class ExampleModel(models.Model):
     char_field = models.CharField(max_length=255)
     phone_number = models.PhoneNumberField(example="+123456789")
     email = models.EmailField()
+    text_field = models.TextField()
     url = models.URLField()
     boolean = models.BooleanField()
     nullboolean = models.BooleanField(null=True)

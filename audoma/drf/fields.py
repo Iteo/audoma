@@ -21,12 +21,12 @@ from audoma.drf.mixins import (
     NumericExampleMixin,
     RegexExampleMixin,
 )
+from audoma.helpers import generate_lorem_ipsum
 
 
 field_names = [
     "BooleanField",
     "NullBooleanField",
-    "CharField",
     "EmailField",
     "SlugField",
     "URLField",
@@ -117,4 +117,15 @@ class PhoneNumberField(ExampleMixin, serializerfields.PhoneNumberField):
         if not example:
             number = phonenumbers.example_number(None)
             example = str(to_python(number))
+        super().__init__(*args, example=example, **kwargs)
+
+
+class CharField(ExampleMixin, fields.CharField):
+    def __init__(self, *args, **kwargs):
+        example = kwargs.pop("example", None)
+        min_length = kwargs.get("min_length", None)
+        max_length = kwargs.get("max_length", None)
+        if not example:
+            example = generate_lorem_ipsum(min_length=min_length, max_length=max_length)
+
         super().__init__(*args, example=example, **kwargs)
