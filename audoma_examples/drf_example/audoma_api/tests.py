@@ -2,7 +2,10 @@ import re
 from datetime import date
 
 import phonenumbers
-from audoma_api.serializers import ExampleModelSerializer
+from audoma_api.serializers import (
+    ExampleModelSerializer,
+    ExampleSerializer,
+)
 from audoma_api.views import (
     ExampleModelViewSet,
     ExampleViewSet,
@@ -63,7 +66,7 @@ class AudomaTests(SimpleTestCase):
 
     def test_model_mapping_all_field_serializer(self):
         example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
-        self.assertEqual(20, len(example_model_properties))
+        self.assertEqual(21, len(example_model_properties))
 
     def test_filter_params_description_model_viewset(self):
         choices_desc = "Filter by choice \n * `EX_1` - example 1\n * `EX_2` - example 2\n * `EX_3` - example 3\n"
@@ -180,3 +183,14 @@ class AudomaTests(SimpleTestCase):
         ]["content"]
         self.assertEqual(len(example_schema.keys()), 1)
         self.assertEqual(list(example_schema.keys())[0], "multipart/form-data")
+
+    def test_charfield_example_limits(self):
+        charfield_redoc = self.redoc_schemas["Example"]["properties"][
+            "charfield_min_max"
+        ]
+        charfield_example = charfield_redoc["example"]
+        charfield = ExampleSerializer.__dict__["_declared_fields"]["charfield_min_max"]
+        min_length = charfield.min_length
+        max_length = charfield.max_length
+        self.assertLessEqual(min_length, len(charfield_example))
+        self.assertGreaterEqual(max_length, len(charfield_example))
