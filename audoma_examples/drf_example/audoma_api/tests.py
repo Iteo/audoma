@@ -121,7 +121,7 @@ class AudomaTests(SimpleTestCase):
 
     def test_serach_fields_description(self):
         expected_search_description = (
-            "Search by: \n* `foreign_key` \n\t * `name` \n* `name` \n"
+            "Search by: \n* `foreign_key` \n\t * `name(Exact matches.)` \n* `name` \n"
         )
 
         docs_description = self.schema["paths"]["/example_related_model_viewset/"][
@@ -130,3 +130,16 @@ class AudomaTests(SimpleTestCase):
         search_docs_data = docs_description[-1]
         self.assertEqual(search_docs_data["name"], "search")
         self.assertEqual(search_docs_data["description"], expected_search_description)
+
+    def test_links_in_schema(self):
+        schema_part = self.schema["paths"]["/model_examples/"]["get"]["responses"][
+            "200"
+        ]["links"]
+        self.assertEqual(type(schema_part["ModelExamplesDetailAction"]), dict)
+
+        details = schema_part["ModelExamplesDetailAction"]
+        self.assertEqual(details["description"], "The source of detail object id")
+        self.assertEqual(
+            details["operationId"], "model_examples_detail_action_retrieve"
+        )
+        self.assertEqual(details["parameters"], {"pk": "$response.body#/id"})

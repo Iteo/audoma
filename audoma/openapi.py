@@ -18,6 +18,30 @@ class AudomaAutoSchema(AutoSchema):
         description += get_permissions_description(view)
         return description
 
+    def _get_response_bodies(self):
+        schema = super()._get_response_bodies()
+        action_name = getattr(self.view, "action", None)
+        if not action_name:
+            return schema
+        action_function = getattr(self.view, action_name, None)
+        if not action_function:
+            return schema
+
+        _audoma_choices_links = getattr(action_function, "_audoma_choices_links", [])
+
+        for link in _audoma_choices_links:
+            if link.status_code:
+                if not str(link.status_code) in schema:
+                    continue
+                status_code = str(link.status_code)
+            else:
+                status_code = list(schema.keys())[0]
+            schema[status_code]["links"] = schema[status_code].get("links", {})
+            schema[status_code]["links"][link.link_name] = link.get_link_data(
+                self.path_prefix, self.path_regex
+            )
+        return schema
+
     def _get_serializer(self, serializer_type="collect"):  # noqa: C901
         view = self.view
         try:

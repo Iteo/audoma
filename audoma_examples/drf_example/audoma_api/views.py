@@ -1,9 +1,6 @@
 from audoma_api.models import (
-<<<<<<< HEAD
     ExampleFileModel,
-=======
     ExampleDependedModel,
->>>>>>> PINT-22: added search field explicit description
     ExampleModel,
 )
 from audoma_api.permissions import (
@@ -14,24 +11,19 @@ from audoma_api.permissions import (
     ViewPermission,
 )
 from audoma_api.serializers import (
-<<<<<<< HEAD
     ExampleFileModelSerializer,
-=======
     ExampleDependedModelSerializer,
->>>>>>> PINT-22: added search field explicit description
     ExampleModelSerializer,
     ExampleSerializer,
 )
 from django_filters import rest_framework as df_filters
 from rest_framework.decorators import action
-<<<<<<< HEAD
 from rest_framework.parsers import MultiPartParser
-=======
 from rest_framework.filters import SearchFilter
->>>>>>> PINT-22: added search field explicit description
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from audoma.decorators import register_audoma_field_link
 from audoma.drf import (
     mixins,
     viewsets,
@@ -94,6 +86,7 @@ class ExampleModelViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
+
     permission_classes = [
         IsAuthenticated,
         ViewAndDetailPermission,
@@ -106,7 +99,18 @@ class ExampleModelViewSet(
     serializer_class = ExampleModelSerializer
     queryset = ExampleModel.objects.all()
 
-    @action(detail=True, methods=["post"])
+    @register_audoma_field_link(
+        viewname="model_examples-detail-action",
+        view_kwargs={"pk": 1},
+        description="The source of detail object id",
+        parameters={"pk": "$response.body#/id"},
+        status_code=200,
+        method="get",
+    )
+    def list(self, request):
+        return Response({})
+
+    @action(detail=True, methods=["get"])
     def detail_action(self, request, pk=None):
         return Response({})  # wrong
 
@@ -115,7 +119,6 @@ class ExampleModelViewSet(
         return Response({})  # wron
 
 
-<<<<<<< HEAD
 class ExampleFileUploadViewSet(
     mixins.ActionModelMixin,
     mixins.CreateModelMixin,
@@ -125,7 +128,6 @@ class ExampleFileUploadViewSet(
     queryset = ExampleFileModel.objects.all()
 
     parser_classes = [MultiPartParser]
-=======
 class ExampleDefaultChoiceFilter(df_filters.FilterSet):
     class Meta:
         model = ExampleModel
@@ -172,5 +174,4 @@ class ExampleRelatedModelsViewSet(
     filterset_fields = [
         "foreign_key__name",
     ]
-    search_fields = ["foreign_key__name", "name"]
->>>>>>> PINT-22: added search field explicit description
+    search_fields = ["=foreign_key__name", "name"]
