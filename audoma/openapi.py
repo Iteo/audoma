@@ -2,24 +2,14 @@ from __future__ import annotations
 
 import typing
 
-from drf_spectacular.drainage import get_override
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import (
-    ResolvedComponent,
     build_array_type,
-    build_basic_type,
     build_media_type_object,
     error,
     force_instance,
-    is_basic_type,
-    is_list_serializer,
-    is_serializer,
     modify_media_types_for_versioning,
-    warn,
 )
-from drf_spectacular.settings import spectacular_settings
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiResponse
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 
@@ -111,100 +101,34 @@ class AudomaAutoSchema(AutoSchema):
 
     def _get_response_for_code(self, serializer, status_code, media_types=None):
 
-        if isinstance(serializer, OpenApiResponse):
-            serializer, description, examples = (
-                serializer.response,
-                serializer.description,
-                serializer.examples,
-            )
-        else:
+        if isinstance(serializer, BulkSerializerMixin) and self.view.action != "list":
             description, examples = "", []
 
-        serializer = force_instance(serializer)
-        headers = self._get_response_headers_for_code(status_code)
-        headers = {"headers": headers} if headers else {}
+            serializer = force_instance(serializer)
+            headers = self._get_response_headers_for_code(status_code)
+            headers = {"headers": headers} if headers else {}
 
-        if not serializer:
-            return {**headers, "description": description or _("No response body")}
-        elif is_list_serializer(serializer):
-            schema = self._unwrap_list_serializer(serializer.child, "response")
-            if not schema:
-                return {**headers, "description": description or _("No response body")}
-        elif is_serializer(serializer):
             component = self.resolve_serializer(serializer, "response")
-            if not component:
-                return {**headers, "description": description or _("No response body")}
-            schema = component.ref
-        elif is_basic_type(serializer):
-            schema = build_basic_type(serializer)
-        elif isinstance(serializer, dict):
-            # bypass processing and use given schema directly
-            schema = serializer
-            # prevent invalid dict case in _is_list_view() as this not a status_code dict.
-            serializer = None
-        else:
-            warn(
-                f'could not resolve "{serializer}" for {self.method} {self.path}. Expected either '
-                f"a serializer or some supported override mechanism. Defaulting to "
-                f"generic free-form object."
-            )
-            schema = build_basic_type(OpenApiTypes.OBJECT)
-            schema["description"] = _("Unspecified response body")
 
-        if (
-            self._is_list_view(serializer)
-            and get_override(serializer, "many") is not False
-            and (
-                "200" <= status_code < "300"
-                or spectacular_settings.ENABLE_LIST_MECHANICS_ON_NON_2XX
-            )
-        ):
-            schema = build_array_type(schema)
-            paginator = self._get_paginator()
+            schema = {"oneOf": [build_array_type(component.ref), component.ref]}
 
-            if (
-                paginator
-                and is_serializer(serializer)
-                and (
-                    not is_list_serializer(serializer)
-                    or is_serializer(serializer.child)
-                )
-            ):
-                paginated_name = self.get_paginated_name(
-                    self._get_serializer_name(serializer, "response")
-                )
-                component = ResolvedComponent(
-                    name=paginated_name,
-                    type=ResolvedComponent.SCHEMA,
-                    schema=paginator.get_paginated_response_schema(schema),
-                    object=serializer.child
-                    if is_list_serializer(serializer)
-                    else serializer,
-                )
-                self.registry.register_on_missing(component)
-                schema = component.ref
-            elif paginator:
-                schema = paginator.get_paginated_response_schema(schema)
+            if not media_types:
+                media_types = self.map_renderers("media_type")
 
-        if not media_types:
-            media_types = self.map_renderers("media_type")
+            media_types = modify_media_types_for_versioning(self.view, media_types)
 
-        media_types = modify_media_types_for_versioning(self.view, media_types)
-        from audoma.drf.serializers import BulkSerializerMixin
+            return {
+                **headers,
+                "content": {
+                    media_type: build_media_type_object(
+                        schema,
+                        self._get_examples(
+                            serializer, "response", media_type, status_code, examples
+                        ),
+                    )
+                    for media_type in media_types
+                },
+                "description": description,
+            }
 
-        if isinstance(serializer, BulkSerializerMixin) and self.view.action != "list":
-            schema = {"oneOf": [build_array_type(schema), schema]}
-
-        return {
-            **headers,
-            "content": {
-                media_type: build_media_type_object(
-                    schema,
-                    self._get_examples(
-                        serializer, "response", media_type, status_code, examples
-                    ),
-                )
-                for media_type in media_types
-            },
-            "description": description,
-        }
+        return super()._get_response_for_code(serializer, status_code, media_types)
