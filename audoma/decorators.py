@@ -1,18 +1,18 @@
-import json
 import logging
 from dataclasses import dataclass
 from functools import wraps
+from inspect import isclass
 from typing import (
-    Callable,
     List,
+    Type,
     Union,
 )
 
 from rest_framework.decorators import action
-from rest_framework.exceptions import APIException
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
+from rest_framework.views import APIView
 
 from django.conf import settings as project_settings
 from django.core.exceptions import ImproperlyConfigured
@@ -29,106 +29,190 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class AudomaArgs:
-    responses: Union[dict, BaseSerializer]
+    responses: Union[dict, BaseSerializer, str]
     collectors: Union[dict, BaseSerializer]
-    errors: list
+    errors: List[Union[Exception, Type[Exception]]]
 
 
-def __verify_and_handle_error(
-    processed_error: APIException, errors: List[APIException], func: Callable
-) -> None:
-    same_class_errors = []
-    for error in errors:
-        if isinstance(error, type):
-            if error == processed_error.__class__:
-                raise processed_error
+class AudomaAction:
+    def _sanitize_error(
+        self, _errors: List[Union[Exception, Type[Exception]]]
+    ) -> List[Union[Exception, Type[Exception]]]:
+        if not _errors:
+            return _errors
+        instances = []
+        types = []
+        sanitized_errors = []
+
+        for error in _errors:
+            if isclass(error):
+                types.append(error)
+            elif isinstance(error, Exception):
+                instances.append(error)
             else:
-                continue
+                raise ImproperlyConfigured(
+                    f"Something that is not an Exception instance or class has been passed \
+                        to AudomaAction errors list. The value which caused exception: {error}"
+                )
+        # check if there are no repetitions
+        for instance in instances:
+            if type(instance) in types:
+                exception = ImproperlyConfigured(
+                    f"Something that is not an Exception instance or class has been passed \
+                        to AudomaAction errors list. The value which caused exception: {error}"
+                )
+                if project_settings.DEBUG:
+                    raise exception
+                logger.error(str(exception))
+            else:
+                sanitized_errors.append(instance)
 
-        elif (
-            isinstance(error, APIException)
-            and error.__class__ == processed_error.__class__
-        ):
-            same_class_errors.append(error)
+        sanitized_errors += types
+        return sanitized_errors
 
-    if same_class_errors:
-        # compare errors details
-        for error in same_class_errors:
-            if json.dumps(error.__dict__) == json.dumps(processed_error.__dict__):
-                raise error
+    def __init__(
+        self,
+        collectors: Union[dict, BaseSerializer] = None,
+        responses: Union[dict, BaseSerializer, str] = None,
+        errors: List[Union[Exception, Type[Exception]]] = None,
+        validate_collector: bool = True,
+        ignore_view_collectors: bool = False,
+        **kwargs,
+    ) -> None:
+        """
+        This is a custom action decorator which allows to define collectors, responses and errors.
+        This decorator also applies the collect serializer if such has been defined.
+        It also prevents from raising not defined errors, so if you want to raise an exception
+        its' object or class has to be passed into AudomaAction decorator.
 
-        if project_settings.DEBUG:
-            raise ValueError(
-                f"Exception has not been defined {processed_error.__class__} \
-                    in audoma_action tag errors for function: {func.__name__}. \
-                    Audoma allows only to raise defined exceptions \
-                    Please define proper exception instance or proper exception class"
+            * collectors - collect serializers, it may be passed as a dict: {'http_method': serializer_class}
+                            or just as a serializer_class. Those serializer are being used to
+                            collect data from user.
+                            NOTE: - it is not possible to define collectors for SAFE_METHODS
+            * responses - response serializers/messages, it may be passed as a dict in three forms:
+                        * {'http_method': serializer_class}
+                        * {'http_method': {status_code: serializer_class, status_code: serializer_class}}
+                        * {status_code: serializer_class}
+                        or just as a serializer_class
+            * errors - list of exception objects, list of exceptions which may be raised in decorated method.
+                        'AudomaAction' will not allow raising any other exceptions than those
+            * validate_collector - by default set to True, it specifies if collectors serializer
+                        should be validated in the decorator, or not.
+            * ignore_view_collectors - If set to True, decorator is ignoring view collect serializers.
+                        May be useful if we don't want to falback to default view collect serializer retrieval.
+        """
+
+        # get rid of serializer_class from kwargs if passed
+        self.collectors = collectors or {}
+        self.responses = responses or {}
+        self.errors = self._sanitize_error(errors) or []
+        self.validate_collector = validate_collector
+        self.ignore_view_collectors = ignore_view_collectors
+
+        self.kwargs = kwargs
+        self.methods = kwargs.get("methods")
+        self.framework_decorator = action(**kwargs)
+        self.operation_extractor = OperationExtractor(collectors, responses, errors)
+
+        # validate methods
+        modify_methods = [
+            method for method in self.methods if method not in SAFE_METHODS
+        ]
+
+        if not modify_methods and collectors:
+            raise ImproperlyConfigured(
+                "There should be no collectors defined if there are not create/update requests accepted."
             )
 
-        logger.exception("Undefined error: {error} has been raised in {func.__name__}")
-        raise processed_error
+    def _get_error_instance_and_class(self, error: Union[Exception, Type[Exception]]):
+        if isclass(error):
+            error_class = error
+            error_instance = error()
+        else:
+            error_instance = error
+            error_class = type(error)
+        return error_instance, error_class
 
-    raise ValueError(
-        f"Exception has not been defined {processed_error.__class__} \
-            in audoma_action tag errors for function: {func.__name__}. \
+    def _compare_errors_content(
+        self,
+        raised_error: Exception,
+        compared_error: Exception,
+        view: APIView,
+        raised_error_class: Type[Exception],
+    ) -> bool:
+        handler = view.get_exception_handler()
+        handler_context = view.get_exception_handler_context()
+        raised_error_result = handler(raised_error, handler_context)
+        compared_error_result = handler(compared_error, handler_context)
+
+        unhandled_exception = (
+            raised_error_result if not raised_error_result else compared_error_result
+        )
+        if not unhandled_exception:
+            raise ImproperlyConfigured(
+                f"Exception handler is unable to handle this exception: {type(unhandled_exception)}.\
+                    To handle this type of exception you should write custom exception handler."
+            )
+
+        assert all(
+            getattr(raised_error_result, attr) == getattr(compared_error_result, attr)
+            for attr in ["status_code", "data", "headers"]
+        ), f"Exception has not been defined {raised_error_class} \
+            in AudomaAction decorator errors for action: {view.action}. \
             Audoma allows only to raise defined exceptions \
             Please define proper exception instance or proper exception class"
-    )
 
+    def _process_error(
+        self,
+        processed_error: Union[Exception, Type[Exception]],
+        errors: List[Union[Exception, Type[Exception]]],
+        view: APIView,
+    ) -> None:
+        (
+            processed_error_instance,
+            processed_error_class,
+        ) = self._get_error_instance_and_class(processed_error)
+        no_class_match = False
+        try:
+            for error in errors:
+                error_instance, error_class = self._get_error_instance_and_class(error)
+                # This causes the issue, because this will not throw error for no matching class
+                if not processed_error_class == error_class:
+                    no_class_match = True
+                    continue
 
-def audoma_action(
-    collectors: Union[dict, BaseSerializer] = None,
-    responses: Union[dict, BaseSerializer] = None,
-    errors: List[APIException] = None,
-    validate_collector: bool = True,
-    ignore_view_collectors: bool = False,
-    **kwargs,
-) -> Response:
-    """
-    This is a custom action tag which allows to define collectors, responses and errors.
-    This tag also applies the collect serializer if such has been defined.
-    It also prevents from raising not defined error, so if you want to raise an exception
-    its' object has to be passed into audoma_action decorator.
+                no_class_match = False
+                # compare content only if defined error is an instance, if it is a class, all
+                # class instances are valid
+                if not isclass(error):
+                    self._compare_errors_content(
+                        processed_error_instance,
+                        error_instance,
+                        view,
+                        processed_error_class,
+                    )
 
-        * collectors - collect serializers, it may be passed as a dict: {'http_method': serializer_class}
-                        or just as a serializer_class. Those serializer are being used to collect data from user.
-                        NOTE: - it is not possible to define collectors for SAFE_METHODS
-        * responses - response serializers/messages, it may be passed as a dict in three forms:
-                    * {'http_method': serializer_class}
-                    * {'http_method': {status_code: serializer_class, status_code: serializer_class}}
-                    * {status_code: serializer_class}
-                    or just as a serializer_class
-        * errors - list of exception objects, list of exceptions which may be raised in decorated method.
-                    'audoma_action' will not allow raising any other exceptions than those
-        * validate_collector - by default set to True, it specifies if collectors serializer
-                    should be validated in the decorator, or not.
-        * ignore_view_collectors - by default set to False, if set to True, audoma_action won't try
-                    to reach default view collect serializer, may be useful in specific cases.
-    """
+                break
 
-    # get rid of serializer_class from kwargs if passed
-    collectors = collectors or {}
-    responses = responses or {}
-    errors = errors or []
+            assert (
+                not no_class_match
+            ), f"There is no class or instance of {processed_error_class} \
+                defined in AudomaAction errors."
 
-    methods = kwargs.get("methods")
-    framework_decorator = action(**kwargs)
-    operation_extractor = OperationExtractor(collectors, responses, errors)
+        except AssertionError as e:
+            if project_settings.DEBUG:
+                raise e
+            logger.error(str(e))
+            raise processed_error
+        else:
+            raise processed_error
 
-    # validate methods
-    modify_methods = [method for method in methods if method not in SAFE_METHODS]
-
-    if not modify_methods and collectors:
-        raise ImproperlyConfigured(
-            "There should be no collectors defined if there are not create/update requests accepted."
-        )
-
-    def decorator(func):
+    def __call__(self, func) -> Response:
         func._audoma = AudomaArgs(
-            collectors=collectors, responses=responses, errors=errors
+            collectors=self.collectors, responses=self.responses, errors=self.errors
         )
         # apply action decorator
-        func = framework_decorator(func)
+        func = self.framework_decorator(func)
 
         @wraps(func)
         def wrapper(view, request, *args, **kwargs):
@@ -139,24 +223,24 @@ def audoma_action(
             )
 
             if request.method not in SAFE_METHODS:
-                collect_serializer_class = operation_extractor.extract_operation(
+                collect_serializer_class = self.operation_extractor.extract_operation(
                     request, operation_category="collect"
                 )
 
-                if not collect_serializer_class and not ignore_view_collectors:
+                if not collect_serializer_class and not self.ignore_view_collectors:
                     collect_serializer = view.get_serializer_class()
 
                 if collect_serializer_class:
                     collect_serializer = collect_serializer_class(data=request.data)
-                    if validate_collector:
+                    if self.validate_collector:
                         collect_serializer.is_valid(raise_exception=True)
                     kwargs["collect_serializer"] = collect_serializer
             try:
                 instance, code = func(view, request, *args, **kwargs)
-            except APIException as processed_error:
-                __verify_and_handle_error(processed_error, errors, func)
+            except Exception as processed_error:
+                self._process_error(processed_error, errors, view)
 
-            response_operation = operation_extractor.extract_operation(
+            response_operation = self.operation_extractor.extract_operation(
                 request, code=code
             )
 
@@ -167,7 +251,7 @@ def audoma_action(
             assert (
                 isinstance(response_operation, str) or instance is not None
             ), "Instance \
-            returned in audoma_action decorated method may not be None if \
+            returned in AudomaAction decorated method may not be None if \
             response operation is not str message"
 
             return apply_response_operation(
@@ -175,5 +259,3 @@ def audoma_action(
             )
 
         return wrapper
-
-    return decorator

@@ -1,3 +1,5 @@
+from inspect import isclass
+
 from rest_framework.settings import api_settings
 
 from django.conf import settings as project_settings
@@ -36,15 +38,7 @@ def postprocess_common_errors_section(result, request, **kwargs):
         "DEFAULT_RENDERER_CLASSES", api_settings.DEFAULT_RENDERER_CLASSES
     )[0]()
 
-    def _get_description():
-        desc = "###  Common API Errors \n"
-        for error in common_exceptions:
-            if isinstance(error, type):
-                error = error()
-            desc += __generate_exception_desc(error)
-        return desc
-
-    def __generate_exception_desc(error):
+    def generate_exception_desc(error):
         exc_desc = ""
         exc_desc = f"Status Code: `{error.status_code}` \n\n"
         rendered_error_data = renderer.render(
@@ -55,8 +49,15 @@ def postprocess_common_errors_section(result, request, **kwargs):
         return exc_desc
 
     result["info"] = result.get("info", {})
+
+    description = "###  Common API Errors \n"
+    for error in common_exceptions:
+        if isclass(error):
+            error = error()
+        description += generate_exception_desc(error)
+
     result["info"]["description"] = (
-        result["info"].get("description", "") + "\n\n" + _get_description()
+        result["info"].get("description", "") + "\n\n" + description
     )
 
     return result

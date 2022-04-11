@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from inspect import isclass
 from typing import (
     List,
+    Type,
     Union,
 )
 
@@ -21,17 +22,17 @@ class OperationExtractor:
 
     collectors: Union[dict, BaseSerializer]
     responses: Union[dict, BaseSerializer]
-    errors: List[APIException]
+    errors: List[Union[APIException, Type[APIException]]]
 
     def extract_operation(self, request, code=None, operation_category="response"):
         if operation_category == "response":
-            return self.__extract_response_operation(request, code)
+            return self._extract_response_operation(request, code)
         elif operation_category == "collect":
-            return self.__extract_collect_operation(request)
+            return self._extract_collect_operation(request)
         else:
             raise ValueError("Unknown operation_category")
 
-    def __extract_response_operation(self, request, code):
+    def _extract_response_operation(self, request, code):
         if code >= 400:
             error_data = self.errors.get(code, {})
             error_kwargs = {
@@ -39,7 +40,7 @@ class OperationExtractor:
                 "detail": error_data.get("detail"),
                 "code": error_data.get("error_code"),
             }
-            return self.__create_exception(error_kwargs)
+            return self._create_exception(error_kwargs)
 
         if not self.responses or (
             isclass(self.responses) and issubclass(self.responses, BaseSerializer)
@@ -59,13 +60,13 @@ class OperationExtractor:
 
         return None
 
-    def __create_exception(self, options):
+    def _create_exception(self, options):
         status_code = options.pop("status_code")
         exception = APIException(**options)
         exception.status_code = status_code if status_code else exception.status_code
         return exception
 
-    def __extract_collect_operation(self, request):
+    def _extract_collect_operation(self, request):
         if not self.collectors or (
             isclass(self.collectors) and issubclass(self.collectors, BaseSerializer)
         ):

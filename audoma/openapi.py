@@ -27,7 +27,7 @@ class AudomaAutoSchema(AutoSchema):
         view = self.view
         method = view.request.method
 
-        # code responsible for documenting audoma_action decorator
+        # code responsible for documenting AudomaAction decorator
         if serializer_type == "collect":
             action_serializers = self.response_creator.extract_collectors(view)
         else:

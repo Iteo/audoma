@@ -1,3 +1,5 @@
+from inspect import isclass
+
 from drf_spectacular.utils import OpenApiResponse
 from rest_framework.permissions import (
     AND,
@@ -92,30 +94,30 @@ def get_permissions_description(view):  # noqa: C901
 
 class AudomaApiResponseCreator:
     def extract_collectors(self, view):
-        action_function = self.__extract_action(view)
+        action_function = self._extract_action(view)
         _audoma = getattr(action_function, "_audoma", None)
         collectors = getattr(_audoma, "collectors", None)
-        return self.__parse_action_serializers(collectors)
+        return self._parse_action_serializers(collectors)
 
     def extract_responses(self, view):
-        action_function = self.__extract_action(view)
+        action_function = self._extract_action(view)
         _audoma = getattr(action_function, "_audoma", None)
-        responses = self.__parse_action_serializers(getattr(_audoma, "responses", None))
-        errors = self.__parse_action_errors(getattr(_audoma, "errors", []))
+        responses = self._parse_action_serializers(getattr(_audoma, "responses", None))
+        errors = self._parse_action_errors(getattr(_audoma, "errors", []))
         if responses:
             responses.update(errors)
             return responses
 
         return errors
 
-    def __extract_action(self, view):
+    def _extract_action(self, view):
         action = getattr(view, "action", None)
         if not action:
             return
 
         return getattr(view, action, None)
 
-    def __parse_action_serializers(self, action_serializers):
+    def _parse_action_serializers(self, action_serializers):
         if not action_serializers:
             return action_serializers
 
@@ -140,13 +142,13 @@ class AudomaApiResponseCreator:
                         )
         return parsed_action_serializers
 
-    def __parse_action_errors(self, action_errors):
+    def _parse_action_errors(self, action_errors):
         if not action_errors:
             return action_errors
 
         parsed_errors = {}
         for error in action_errors:
-            if isinstance(error, type):
+            if isclass(error):
                 error = error()
 
             # build properties

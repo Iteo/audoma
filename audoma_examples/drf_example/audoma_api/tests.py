@@ -5,16 +5,23 @@ from datetime import (
 )
 
 from audoma_api.views import (
+    ExampleModelPermissionLessViewSet,
     ExampleModelViewSet,
     ExampleViewSet,
 )
 from drf_example.urls import router
 from drf_spectacular.generators import SchemaGenerator
 from rest_framework.permissions import BasePermission
-from rest_framework.test import APIClient
+from rest_framework.test import (
+    APIClient,
+    APIRequestFactory,
+)
 
 from django.shortcuts import reverse
-from django.test import SimpleTestCase
+from django.test import (
+    SimpleTestCase,
+    override_settings,
+)
 
 from audoma.drf.viewsets import AudomaPagination
 
@@ -251,13 +258,16 @@ class AudomaViewsTestCase(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["rate"], 1)
 
+    @override_settings(DEBUG=True)
     def test_properly_defined_exception_example(self):
         response = self.client.get(
             reverse("permissionless-model-examples-properly-defined-exception-example")
         )
         self.assertEqual(response.status_code, 409)
         content = json.loads(response.content)
-        self.assertEqual(content["errors"]["detail"], "Conflict has occured")
+        self.assertEqual(
+            content["errors"]["detail"], "Some custom message, that should be accepted"
+        )
 
     def test_proper_usage_of_common_errors(self):
         response = self.client.get(
@@ -267,16 +277,29 @@ class AudomaViewsTestCase(SimpleTestCase):
         content = json.loads(response.content)
         self.assertEqual(content["errors"]["detail"], "Not found.")
 
-    def test_improperly_defined_exception_example(self):
+    @override_settings(DEBUG=True)
+    def test_improperly_defined_exception_example_debug_true(self):
         try:
-            self.client.get(
-                reverse(
-                    "permissionless-model-examples-improperly-defined-exception-example"
-                )
+            view = ExampleModelPermissionLessViewSet()
+            url = reverse(
+                "permissionless-model-examples-improperly-defined-exception-example"
             )
+            factory = APIRequestFactory()
+            request = factory.get(url)
+            view.improperly_defined_exception_example(request)
+
         except Exception as e:
-            self.assertEqual(e.__class__, ValueError)
+            self.assertEqual(type(e), AssertionError)
             self.assertIn(
                 "<class 'audoma_api.exceptions.CustomBadRequestException'>", str(e)
             )
-            self.assertIn("improperly_defined_exception_example.", str(e))
+
+    def test_improperly_defined_exception_example_debug_false(self):
+        response = self.client.get(
+            reverse(
+                "permissionless-model-examples-improperly-defined-exception-example"
+            )
+        )
+        self.assertEqual(response.status_code, 400)
+        data = response.json()
+        self.assertEqual(data["errors"]["detail"], "Custom Bad Request Exception")

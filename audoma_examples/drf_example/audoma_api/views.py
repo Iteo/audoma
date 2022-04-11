@@ -27,7 +27,7 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from audoma.decorators import audoma_action
+from audoma.decorators import AudomaAction
 from audoma.drf import (
     mixins,
     viewsets,
@@ -102,7 +102,7 @@ class ExampleModelViewSet(
     serializer_class = ExampleModelSerializer
     queryset = ExampleModel.objects.all()
 
-    @audoma_action(
+    @AudomaAction(
         detail=True,
         methods=["get"],
         responses={"get": "GET method is not allowed"},
@@ -133,7 +133,7 @@ class ExampleModelPermissionLessViewSet(
     serializer_class = ExampleModelSerializer
     queryset = ExampleModel.objects.all()
 
-    @audoma_action(
+    @AudomaAction(
         detail=True,
         methods=["post"],
         collectors={"post": ExampleModelCreateSerializer},
@@ -146,13 +146,13 @@ class ExampleModelPermissionLessViewSet(
             return collect_serializer.save(), 201
         return {"rate": ExampleOneFieldSerializer.RATE_CHOICES.LIKE}, 202
 
-    @audoma_action(
+    @AudomaAction(
         detail=False, methods=["get"], responses={"get": "This is a test view"}
     )
     def non_detail_action(self, request):
         return None, 200
 
-    @audoma_action(
+    @AudomaAction(
         detail=False,
         methods=["post"],
         responses=ExampleOneFieldSerializer,
@@ -161,24 +161,24 @@ class ExampleModelPermissionLessViewSet(
     def rate_create_action(self, request, collect_serializer):
         return collect_serializer.save(), 201
 
-    @audoma_action(detail=True, methods=["get"], responses=ExampleOneFieldSerializer)
+    @AudomaAction(detail=True, methods=["get"], responses=ExampleOneFieldSerializer)
     def specific_rate(self, request, pk=None):
         return {"rate": 1}, 200
 
-    @audoma_action(
+    @AudomaAction(
         detail=False,
         methods=["get"],
         responses=ExampleOneFieldSerializer,
         errors=[CustomBadRequestException(), CustomConflictException],
     )
     def properly_defined_exception_example(self, request):
-        raise CustomConflictException()
+        raise CustomConflictException("Some custom message, that should be accepted")
 
-    @audoma_action(detail=False, methods=["get"])
+    @AudomaAction(detail=False, methods=["get"])
     def proper_usage_of_common_errors(self, request):
         raise NotFound
 
-    @audoma_action(
+    @AudomaAction(
         detail=False,
         methods=["get"],
         responses=ExampleOneFieldSerializer,
