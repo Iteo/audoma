@@ -3,11 +3,20 @@ from __future__ import annotations
 import typing
 
 from drf_spectacular.openapi import AutoSchema
-from drf_spectacular.plumbing import error
+from drf_spectacular.plumbing import (
+    build_array_type,
+    build_media_type_object,
+    error,
+    force_instance,
+    modify_media_types_for_versioning,
+)
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 
+from django.utils.translation import gettext_lazy as _
+
 from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
+from audoma.drf.serializers import BulkSerializerMixin
 from audoma.openapi_helpers import get_permissions_description
 
 
@@ -81,3 +90,45 @@ class AudomaAutoSchema(AutoSchema):
         if has_annotation:
             result.update(annotation["field"])
         return result
+
+    def _get_request_for_media_type(self, serializer):
+
+        schema, request_body_required = super()._get_request_for_media_type(serializer)
+
+        if isinstance(serializer, BulkSerializerMixin) and self.view.action != "list":
+            schema = {"oneOf": [build_array_type(schema), schema]}
+        return schema, request_body_required
+
+    def _get_response_for_code(self, serializer, status_code, media_types=None):
+
+        if isinstance(serializer, BulkSerializerMixin) and self.view.action != "list":
+            description, examples = "", []
+
+            serializer = force_instance(serializer)
+            headers = self._get_response_headers_for_code(status_code)
+            headers = {"headers": headers} if headers else {}
+
+            component = self.resolve_serializer(serializer, "response")
+
+            schema = {"oneOf": [build_array_type(component.ref), component.ref]}
+
+            if not media_types:
+                media_types = self.map_renderers("media_type")
+
+            media_types = modify_media_types_for_versioning(self.view, media_types)
+
+            return {
+                **headers,
+                "content": {
+                    media_type: build_media_type_object(
+                        schema,
+                        self._get_examples(
+                            serializer, "response", media_type, status_code, examples
+                        ),
+                    )
+                    for media_type in media_types
+                },
+                "description": description,
+            }
+
+        return super()._get_response_for_code(serializer, status_code, media_types)
