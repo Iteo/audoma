@@ -44,7 +44,7 @@ class PhoneNumberField(ModelExampleMixin, PhoneNumberField):
 class CharField(ModelExampleMixin, models.CharField):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        max_length = kwargs.get("max_length", None)
+        max_length = kwargs.get("max_length", 80)
         if not kwargs.get("example", None) and max_length:
             self.example = generate_lorem_ipsum(max_length=max_length)
 

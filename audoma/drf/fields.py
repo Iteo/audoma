@@ -118,8 +118,8 @@ class PhoneNumberField(ExampleMixin, serializerfields.PhoneNumberField):
 class CharField(ExampleMixin, fields.CharField):
     def __init__(self, *args, **kwargs):
         example = kwargs.pop("example", None)
-        min_length = kwargs.get("min_length", None)
-        max_length = kwargs.get("max_length", None)
+        min_length = kwargs.get("min_length", 20)
+        max_length = kwargs.get("max_length", 80)
         if not example:
             example = generate_lorem_ipsum(min_length=min_length, max_length=max_length)
 
