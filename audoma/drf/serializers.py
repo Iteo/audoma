@@ -168,12 +168,12 @@ class BulkSerializerMixin:
     def to_internal_value(self, data):
         ret = super().to_internal_value(data)
 
-        id_attr = getattr(self.Meta, "update_lookup_field", "id")
+        id_attr = getattr(self.Meta, "id_field", "id")
         request_method = getattr(
             getattr(self.context.get("view"), "request"), "method", ""
         )
 
-        # add update_lookup_field field back to validated data
+        # add id_field field back to validated data
         # since super by default strips out read-only fields
         # hence id will no longer be present in validated_data
 
@@ -193,7 +193,7 @@ class BulkSerializerMixin:
 
 
 class BulkListSerializer(ListSerializer):
-    update_lookup_field = "id"
+    id_field = "id"
 
     def get_unique_fields(self):
         return []
@@ -205,7 +205,7 @@ class BulkListSerializer(ListSerializer):
     def update(self, queryset, all_validated_data):
         from uuid import UUID
 
-        id_attr = getattr(self.child.Meta, "update_lookup_field", "id")
+        id_attr = getattr(self.child.Meta, "id_field", "id")
         all_validated_data_by_id = {i.pop(id_attr): i for i in all_validated_data}
 
         if not all(
@@ -219,9 +219,10 @@ class BulkListSerializer(ListSerializer):
         # since this method is given a queryset which can have many
         # model instances, first find all objects to update
         # and only then update the models
+        id_lookup_field = self.child.fields.get(id_attr).source or id_attr
         objects_to_update = queryset.filter(
             **{
-                "{}__in".format(id_attr): all_validated_data_by_id.keys(),
+                "{}__in".format(id_lookup_field): all_validated_data_by_id.keys(),
             }
         )
 
