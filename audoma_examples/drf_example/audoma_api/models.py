@@ -68,6 +68,7 @@ class ExamplePerson(models.Model):
     )
     has_valid_account = models.BooleanField()
     ip_address = models.GenericIPAddressField()
+    savings = models.MoneyField(max_digits=14, decimal_places=2, default_currency="PLN")
 
 
 class ExampleFileModel(models.Model):

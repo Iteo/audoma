@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "audoma_api",
+    "djmoney",
     "drf_spectacular",
     "rest_framework",
     "django_filters",
@@ -139,3 +140,5 @@ SPECTACULAR_SETTINGS = {
     # OTHER SETTINGS
     "COMPONENT_SPLIT_REQUEST": True,
 }
+
+CURRENCIES = ("USD", "EUR")

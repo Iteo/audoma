@@ -1,6 +1,7 @@
 import sys
 
 import exrex
+from djmoney.contrib.django_rest_framework import MoneyField
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from phonenumber_field import serializerfields
@@ -105,4 +106,8 @@ class IPAddressField(ExampleMixin, fields.IPAddressField):
 
 @extend_schema_field(field={"format": "tel", "example": "+1-202-555-0140"})
 class PhoneNumberField(ExampleMixin, serializerfields.PhoneNumberField):
+    pass
+
+
+class MoneyField(ExampleMixin, MoneyField):
     pass
