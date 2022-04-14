@@ -43,6 +43,7 @@ class ExampleModel(models.Model):
     duration = models.DurationField()
     choices = models.IntegerField(choices=EXAMPLE_CHOICES.get_choices())
     json = JSONField()
+    money = models.MoneyField(decimal_places=2, max_digits=10)
 
 
 example_countries = cycle(["United States", "Canada", "France", "Poland", "Italy"])

@@ -10,6 +10,7 @@ from drf_example.urls import router
 from drf_spectacular.generators import SchemaGenerator
 from rest_framework.permissions import BasePermission
 
+from django.conf import settings
 from django.test import SimpleTestCase
 
 from audoma.drf import serializers
@@ -59,7 +60,7 @@ class AudomaTests(SimpleTestCase):
 
     def test_model_mapping_all_field_serializer(self):
         example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
-        self.assertEqual(20, len(example_model_properties))
+        self.assertEqual(22, len(example_model_properties))
 
     def test_filter_params_description_model_viewset(self):
         choices_desc = "Filter by choice \n * `EX_1` - example 1\n * `EX_2` - example 2\n * `EX_3` - example 3\n"
@@ -144,3 +145,13 @@ class AudomaTests(SimpleTestCase):
         ]["content"]
         self.assertEqual(len(example_schema.keys()), 1)
         self.assertEqual(list(example_schema.keys())[0], "multipart/form-data")
+
+    def test_example_money_currency_with_default_currency(self):
+        currency = self.redoc_schemas["ExamplePersonModel"]["properties"][
+            "savings_currency"
+        ]
+        self.assertEqual("PLN", currency["example"])
+
+    def test_example_money_currency_with_currency_from_settings(self):
+        currency = self.redoc_schemas["ExampleModel"]["properties"]["money_currency"]
+        self.assertIn(currency["example"], settings.CURRENCIES)
