@@ -2,6 +2,7 @@ import re
 from datetime import date
 
 import phonenumbers
+from audoma_api.models import ExampleModel
 from audoma_api.serializers import ExampleModelSerializer
 from audoma_api.views import (
     ExampleModelViewSet,
@@ -63,7 +64,7 @@ class AudomaTests(SimpleTestCase):
 
     def test_model_mapping_all_field_serializer(self):
         example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
-        self.assertEqual(20, len(example_model_properties))
+        self.assertEqual(len(ExampleModel._meta.fields), len(example_model_properties))
 
     def test_filter_params_description_model_viewset(self):
         choices_desc = "Filter by choice \n * `EX_1` - example 1\n * `EX_2` - example 2\n * `EX_3` - example 3\n"
