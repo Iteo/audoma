@@ -11,7 +11,7 @@ from django.db.models.fields import (  # noqa: F401
     __all__,
 )
 
-from audoma.helpers import generate_lorem_ipsum
+from audoma.example_generators import generate_lorem_ipsum
 
 from .mixins import ModelExampleMixin
 

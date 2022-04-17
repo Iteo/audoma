@@ -11,7 +11,7 @@ from rest_framework.fields import *  # noqa: F403, F401
 
 from django.core import validators
 
-from audoma.helpers import generate_lorem_ipsum
+from audoma.example_generators import generate_lorem_ipsum
 from audoma.mixins import (
     ExampleMixin,
     NumericExampleMixin,
