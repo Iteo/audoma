@@ -11,12 +11,12 @@ from rest_framework.fields import *  # noqa: F403, F401
 
 from django.core import validators
 
-from audoma.drf.mixins import (
+from audoma.helpers import generate_lorem_ipsum
+from audoma.mixins import (
     ExampleMixin,
     NumericExampleMixin,
     RegexExampleMixin,
 )
-from audoma.helpers import generate_lorem_ipsum
 
 
 field_names = [
@@ -109,7 +109,7 @@ class IPAddressField(ExampleMixin, fields.IPAddressField):
 class PhoneNumberField(ExampleMixin, serializerfields.PhoneNumberField):
     def __init__(self, *args, **kwargs):
         example = kwargs.pop("example", None)
-        if not example:
+        if example is None:
             number = phonenumbers.example_number(None)
             example = str(to_python(number))
         super().__init__(*args, example=example, **kwargs)
