@@ -5,6 +5,8 @@ import lorem
 
 def generate_lorem_ipsum(min_length=20, max_length=80):
     random_lorem = lorem.text()
+    if len(random_lorem) < min_length:
+        random_lorem += lorem.text()
     if max_length < 20:
         max_length = max_length
     else:
