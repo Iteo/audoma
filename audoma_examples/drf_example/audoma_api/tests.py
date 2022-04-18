@@ -24,6 +24,7 @@ from django.test import (
 from audoma.django.db import models
 from audoma.drf import serializers
 from audoma.drf.viewsets import AudomaPagination
+from audoma.example_generators import generate_lorem_ipsum
 
 
 class AudomaTests(SimpleTestCase):
@@ -195,3 +196,25 @@ class AudomaTests(SimpleTestCase):
         max_length = charfield.max_length
         self.assertLessEqual(min_length, len(charfield_example))
         self.assertGreaterEqual(max_length, len(charfield_example))
+
+    def test_generate_lorem_ipsum_only_min_length(self):
+        short_lorem_example = generate_lorem_ipsum(min_length=60)
+        long_lorem_example = generate_lorem_ipsum(min_length=1024)
+        self.assertGreaterEqual(len(short_lorem_example), 60)
+        self.assertLessEqual(len(short_lorem_example), 80)
+        self.assertGreaterEqual(len(long_lorem_example), 1024)
+
+    def test_generate_lorem_ipsum_only_max_length(self):
+        short_lorem_example = generate_lorem_ipsum(max_length=10)
+        long_lorem_example = generate_lorem_ipsum(max_length=1024)
+        self.assertLessEqual(len(short_lorem_example), 10)
+        self.assertGreaterEqual(len(long_lorem_example), 20)
+        self.assertLessEqual(len(long_lorem_example), 1024)
+
+    def test_generate_lorem_ipsum_max_min(self):
+        short_lorem_example = generate_lorem_ipsum(min_length=1, max_length=5)
+        long_lorem_example = generate_lorem_ipsum(min_length=100, max_length=200)
+        self.assertGreaterEqual(len(short_lorem_example), 1)
+        self.assertLessEqual(len(short_lorem_example), 5)
+        self.assertGreaterEqual(len(long_lorem_example), 100)
+        self.assertLessEqual(len(long_lorem_example), 200)
