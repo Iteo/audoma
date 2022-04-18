@@ -7,7 +7,6 @@ from djmoney.models.fields import (
 )
 from djmoney.utils import get_currency_field_name
 
-from django.conf import settings
 from django.db import models
 from django.db.models.fields import (  # noqa: F401
     BLANK_CHOICE_DASH,
@@ -36,7 +35,16 @@ __all__.extend(["MoneyField", "CurrencyField"])
 
 
 class CurrencyField(ModelExampleMixin, CurrencyField):
-    pass
+    def __init__(self, *args, **kwargs):
+
+        default = kwargs.get("default", None)
+        if default and str(default) != "XYZ":
+            self.example = default
+        elif kwargs.get("choices", None):
+            self.example = random.choice(kwargs["choices"])[0]
+        else:
+            self.example = "XYZ"
+        super().__init__(*args, **kwargs)
 
 
 class MoneyField(ModelExampleMixin, MoneyField):
@@ -48,13 +56,6 @@ class MoneyField(ModelExampleMixin, MoneyField):
         Adds CurrencyField instance to a model class and creates example in documentation.
         """
 
-        if self.default_currency and str(self.default_currency) != "XYZ":
-            example = self.default_currency
-        elif getattr(settings, "CURRENCIES", None):
-            example = random.choice(settings.CURRENCIES)
-        else:
-            example = "XYZ"
-
         currency_field = CurrencyField(
             price_field=self,
             max_length=self.currency_max_length,
@@ -62,7 +63,6 @@ class MoneyField(ModelExampleMixin, MoneyField):
             editable=False,
             choices=self.currency_choices,
             null=self.default_currency is None,
-            example=example,
         )
         currency_field.creation_counter = self.creation_counter - 1
         currency_field_name = get_currency_field_name(name, self)
