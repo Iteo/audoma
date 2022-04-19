@@ -1,66 +1,86 @@
-import re
+import urllib
 from dataclasses import dataclass
+from typing import Dict
+
+from rest_framework.serializers import BaseSerializer
 
 from django.urls import reverse
 
 
 @dataclass
-class AudomaLink:
+class AudomaOptionsLink:
 
-    link_name: str
     viewname: str
-    method: str
-    view_args: tuple = None
+    sources: Dict[str, str] = None
+    destinations: Dict[str, str] = None
+    detail: bool = True
     view_kwargs: dict = None
     description: str = ""
-    parameters: dict = None
-    status_code: int = None
+    method: str = "get"
 
-    method_mapping = {
-        "get": "retrieve",
-        "post": "create",
-        "put": "update",
-        "patch": "partial_update",
-        "delete": "destroy",
-    }
+    def _format_param_field(self, fieldname):
+        if "$" in fieldname:
+            return fieldname
+        return f"$response.body#/{fieldname}"
 
-    def get_link_data(self, path_prefix, path_regex):
-        path = reverse(
-            self.viewname, args=self.view_args or (), kwargs=self.view_kwargs or {}
-        )
+    def __post_init__(self, *args, **kwargs):
+        self.view_kwargs = self.view_kwargs or {}
+        self.sources = self.sources or {}
+        self.destinations = self.destinations or {}
 
-        operationId = self._get_linked_operation_id(path, path_prefix, path_regex)
-        self.parameters = self.parameters or {}
+    @property
+    def formatted_destinations(self):
         return {
-            "operationId": operationId,
-            "parameters": self.parameters,
-            "description": self.description,
+            key: self._format_param_field(value)
+            for key, value in self.destinations.items()
         }
 
-    def _get_linked_operation_id(self, path, path_prefix, path_regex):
-        """override this for custom behaviour"""
-        tokenized_path = self._tokenize_path(path, path_prefix)
-        # replace dashes as they can be problematic later in code generation
-        tokenized_path = [t.replace("-", "_") for t in tokenized_path]
-        method_action = self.method_mapping[self.method.lower()]
+    @property
+    def formatted_sources(self):
+        return {
+            key: self._format_param_field(value) for key, value in self.sources.items()
+        }
 
-        if not tokenized_path:
-            tokenized_path.append("root")
+    def get_reversed_link(self) -> str:
+        view_kwargs = self.view_kwargs
+        view_kwargs.update(
+            {key: "{" + value + "}" for key, value in self.destinations.items()}
+        )
 
-        if re.search(r"<drf_format_suffix\w*:\w+>", path_regex):
-            tokenized_path.append("formatted")
-        return "_".join(tokenized_path + [method_action])
+        return reverse(self.viewname, kwargs=view_kwargs)
 
-    def _tokenize_path(self, path, path_prefix):
-        # remove path prefix
-        path = re.sub(pattern=path_prefix, repl="", string=path, flags=re.IGNORECASE)
-        # remove all view args and kwargs
-        args = self.view_args + tuple(self.view_kwargs.values())
-        for arg in args:
-            path = path.replace(str(arg), "")
 
-        # remove path variables
-        path = re.sub(pattern=r"\{[\w\-]+\}", repl="", string=path)
-        # cleanup and tokenize remaining parts.
-        path = path.rstrip("/").lstrip("/").split("/")
-        return [t for t in path if t]
+class AudomaOptionsLinkSchemaGenerator:
+    def __init__(self, serializer: BaseSerializer):
+        self.serializer = serializer
+        self._audoma_links = serializer.get_audoma_links()
+
+    def _generate_param_schema(self, link: AudomaOptionsLink) -> dict:
+        schema = {}
+        schema.update(link.formatted_destinations)
+        schema.update(link.formatted_sources)
+        return schema
+
+    def _get_link_schema(self, audoma_link: AudomaOptionsLink) -> dict:
+        path = urllib.parse.unquote(audoma_link.get_reversed_link())
+
+        return {
+            "operationRef": path,
+            "description": audoma_link.description,
+            "parameters": self._generate_param_schema(audoma_link),
+        }
+
+    def _create_link_title(self, link: AudomaOptionsLink) -> str:
+        partials = link.viewname.replace("-", " ").replace("_", " ").split(" ")
+        partials = [p.capitalize() for p in partials]
+        return " ".join(partials).title()
+
+    def generate_schema(self) -> dict:
+        audoma_links = {}
+        for item in self._audoma_links:
+            link = item.get("link", None)
+            if not link:
+                continue
+            title = self._create_link_title(link)
+            audoma_links[title] = self._get_link_schema(link)
+        return audoma_links

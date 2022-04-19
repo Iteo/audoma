@@ -1,3 +1,5 @@
+from typing import List
+
 import jsonfield
 from rest_framework import serializers
 from rest_framework.serializers import *  # noqa: F403, F401
@@ -84,7 +86,20 @@ class ResultSerializerClassMixin:
         return cls
 
 
-class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
+class LinkedSerializerMixin:
+    def get_audoma_links(self) -> List[dict]:
+        links = []
+        for field_name, field_instance in self.fields.items():
+            audoma_link = getattr(field_instance, "audoma_link", None)
+            if audoma_link:
+                # NOTE - this may be a tuple
+                links.append({"field_name": field_name, "link": audoma_link})
+        return links
+
+
+class ModelSerializer(
+    ResultSerializerClassMixin, LinkedSerializerMixin, serializers.ModelSerializer
+):
     serializer_field_mapping = {
         models.AutoField: IntegerField,
         models.BigIntegerField: IntegerField,
@@ -117,7 +132,9 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
     }
 
 
-class Serializer(ResultSerializerClassMixin, serializers.Serializer):
+class Serializer(
+    ResultSerializerClassMixin, LinkedSerializerMixin, serializers.Serializer
+):
     pass
 
 

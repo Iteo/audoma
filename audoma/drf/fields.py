@@ -9,39 +9,42 @@ from rest_framework.fields import *  # noqa: F403, F401
 
 from django.core import validators
 
-from audoma.drf.mixins import ExampleMixin
+from audoma.drf.mixins import (
+    ExampleMixin,
+    FieldLinkMixin,
+)
 
 
 @extend_schema_field(
     field={"type": "number", "example": round(random.uniform(0, 1000), 2)}
 )
-class DecimalField(ExampleMixin, fields.DecimalField):
+class DecimalField(ExampleMixin, FieldLinkMixin, fields.DecimalField):
     pass
 
 
 @extend_schema_field(OpenApiTypes.UUID)
-class UUIDField(ExampleMixin, fields.UUIDField):
+class UUIDField(ExampleMixin, FieldLinkMixin, fields.UUIDField):
     pass
 
 
 @extend_schema_field(field={"example": random.randint(1, 1000)})
-class IntegerField(ExampleMixin, fields.IntegerField):
+class IntegerField(ExampleMixin, FieldLinkMixin, fields.IntegerField):
     pass
 
 
 @extend_schema_field(field={"example": random.uniform(0, 1000)})
-class FloatField(ExampleMixin, fields.FloatField):
+class FloatField(ExampleMixin, FieldLinkMixin, fields.FloatField):
     pass
 
 
-class RegexField(ExampleMixin, fields.RegexField):
+class RegexField(ExampleMixin, FieldLinkMixin, fields.RegexField):
     def __init__(self, regex, **kwargs):
         if "example" not in kwargs:
             kwargs["example"] = str(exrex.getone(regex))
         super().__init__(regex, **kwargs)
 
 
-class MACAddressField(ExampleMixin, fields.CharField):
+class MACAddressField(ExampleMixin, FieldLinkMixin, fields.CharField):
     def __init__(self, **kwargs):
         self.regex = "^([0-9A-F]{2}:){5}([0-9A-F]{2})|([0-9A-F]{2}-){5}([0-9A-F]{2})$"
         self.validarors = [validators.RegexValidator(self.regex)]
@@ -51,12 +54,12 @@ class MACAddressField(ExampleMixin, fields.CharField):
 
 
 @extend_schema_field(OpenApiTypes.DATE)
-class DateField(ExampleMixin, fields.DateField):
+class DateField(ExampleMixin, FieldLinkMixin, fields.DateField):
     pass
 
 
 @extend_schema_field(OpenApiTypes.TIME)
-class TimeField(ExampleMixin, fields.TimeField):
+class TimeField(ExampleMixin, FieldLinkMixin, fields.TimeField):
     pass
 
 
@@ -70,10 +73,10 @@ class TimeField(ExampleMixin, fields.TimeField):
         ),
     }
 )
-class IPAddressField(ExampleMixin, fields.IPAddressField):
+class IPAddressField(ExampleMixin, FieldLinkMixin, fields.IPAddressField):
     pass
 
 
 @extend_schema_field(field={"format": "tel", "example": "+1 8888888822"})
-class PhoneNumberField(ExampleMixin, serializerfields.PhoneNumberField):
+class PhoneNumberField(ExampleMixin, FieldLinkMixin, serializerfields.PhoneNumberField):
     pass

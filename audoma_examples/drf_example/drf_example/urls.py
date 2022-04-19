@@ -17,6 +17,7 @@ from audoma_api.views import (
     ExampleFileUploadViewSet,
     ExampleFiltersetClassViewset,
     ExampleFiltersetFieldsViewset,
+    ExampleForeignKeyViewSet,
     ExampleModelViewSet,
     ExampleRelatedModelsViewSet,
     ExampleViewSet,
@@ -37,6 +38,11 @@ router.register(r"examples", ExampleViewSet, basename="examples")
 router.register(r"model_examples", ExampleModelViewSet, basename="model_examples")
 router.register(
     r"file-upload-example", ExampleFileUploadViewSet, basename="file-upload-example"
+)
+router.register(
+    r"example_foreign_key_viewset",
+    ExampleForeignKeyViewSet,
+    basename="example_foreign_key_viewset",
 )
 router.register(
     r"example_related_model_viewset",

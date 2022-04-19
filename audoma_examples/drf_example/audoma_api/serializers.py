@@ -52,6 +52,7 @@ class ExampleModelSerializer(serializers.ModelSerializer):
     phone_number = serializers.SerializerMethodField()
 
     class Meta:
+
         model = ExampleModel
         fields = "__all__"
 
@@ -63,7 +64,9 @@ class ExampleModelSerializer(serializers.ModelSerializer):
 class ExampleFileModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExampleFileModel
-class ExampleForeignKeyModelNestedSerializer(serializers.ModelSerializer):
+
+
+class ExampleForeignKeyModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExampleForeignKeyModel
         fields = "__all__"
@@ -71,7 +74,13 @@ class ExampleForeignKeyModelNestedSerializer(serializers.ModelSerializer):
 
 class ExampleDependedModelSerializer(serializers.ModelSerializer):
 
-    foreign_key = ExampleForeignKeyModelNestedSerializer()
+    foreign_key = serializers.IntegerField(
+        choices_link={
+            "viewname": "example_foreign_key_viewset-list",
+            "method": "get",
+            "sources": {"foreign_key": "id"},
+        }
+    )
 
     class Meta:
         model = ExampleDependedModel

@@ -1,1 +1,1 @@
-import audoma.schema
+import audoma.schema  # noqa F401

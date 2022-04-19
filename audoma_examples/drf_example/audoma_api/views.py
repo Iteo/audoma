@@ -1,6 +1,7 @@
 from audoma_api.models import (
     ExampleFileModel,
     ExampleDependedModel,
+    ExampleForeignKeyModel,
     ExampleModel,
 )
 from audoma_api.permissions import (
@@ -13,6 +14,7 @@ from audoma_api.permissions import (
 from audoma_api.serializers import (
     ExampleFileModelSerializer,
     ExampleDependedModelSerializer,
+    ExampleForeignKeyModelSerializer,
     ExampleModelSerializer,
     ExampleSerializer,
 )
@@ -23,7 +25,6 @@ from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from audoma.decorators import register_audoma_field_link
 from audoma.drf import (
     mixins,
     viewsets,
@@ -99,14 +100,6 @@ class ExampleModelViewSet(
     serializer_class = ExampleModelSerializer
     queryset = ExampleModel.objects.all()
 
-    @register_audoma_field_link(
-        viewname="model_examples-detail-action",
-        view_kwargs={"pk": 1},
-        description="The source of detail object id",
-        parameters={"pk": "$response.body#/id"},
-        status_code=200,
-        method="get",
-    )
     def list(self, request):
         return Response({})
 
@@ -158,6 +151,11 @@ class ExampleFiltersetFieldsViewset(
     ]
     serializer_class = ExampleModelSerializer
     queryset = ExampleModel.objects.all()
+
+
+class ExampleForeignKeyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = ExampleForeignKeyModel.objects.none()
+    serializer_class = ExampleForeignKeyModelSerializer
 
 
 class ExampleRelatedModelsViewSet(

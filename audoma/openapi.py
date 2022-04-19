@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import typing
+from inspect import isclass
 
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import error
 from rest_framework.generics import GenericAPIView
+from rest_framework.serializers import BaseSerializer
 from rest_framework.views import APIView
 
 from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
+from audoma.links import AudomaOptionsLinkSchemaGenerator
 from audoma.openapi_helpers import get_permissions_description
 
 
@@ -18,28 +21,34 @@ class AudomaAutoSchema(AutoSchema):
         description += get_permissions_description(view)
         return description
 
+    def _add_link_to_response_schema(
+        self, schema: dict, serializer: BaseSerializer, status_code: str
+    ):
+        generator = AudomaOptionsLinkSchemaGenerator(serializer)
+        links_schema = generator.generate_schema()
+        schema[status_code]["links"] = links_schema
+        return schema
+
     def _get_response_bodies(self):
         schema = super()._get_response_bodies()
-        action_name = getattr(self.view, "action", None)
-        if not action_name:
-            return schema
-        action_function = getattr(self.view, action_name, None)
-        if not action_function:
-            return schema
 
-        _audoma_choices_links = getattr(action_function, "_audoma_choices_links", [])
-
-        for link in _audoma_choices_links:
-            if link.status_code:
-                if not str(link.status_code) in schema:
-                    continue
-                status_code = str(link.status_code)
-            else:
-                status_code = list(schema.keys())[0]
-            schema[status_code]["links"] = schema[status_code].get("links", {})
-            schema[status_code]["links"][link.link_name] = link.get_link_data(
-                self.path_prefix, self.path_regex
+        serializer = self._get_serializer(serializer_type="result")
+        if not (isinstance(serializer, BaseSerializer) or isinstance(serializer, dict)):
+            return schema
+        if isinstance(serializer, BaseSerializer):
+            # get serializer instance
+            if isclass(serializer):
+                serializer = serializer()
+            schema = self._add_link_to_response_schema(
+                schema, serializer, list(schema.keys())[0]
             )
+        elif isinstance(serializer, dict):
+            serializers = serializer
+            for key, serializer in serializers:
+                if isclass(serializer):
+                    serializer = serializer()
+                schema = self._add_link_to_response_schema(schema, serializer, key)
+
         return schema
 
     def _get_serializer(self, serializer_type="collect"):  # noqa: C901
