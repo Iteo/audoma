@@ -13,10 +13,8 @@ class AudomaOptionsLink:
     viewname: str
     sources: Dict[str, str] = None
     destinations: Dict[str, str] = None
-    detail: bool = True
     view_kwargs: dict = None
     description: str = ""
-    method: str = "get"
 
     def _format_param_field(self, fieldname):
         if "$" in fieldname:
@@ -42,10 +40,7 @@ class AudomaOptionsLink:
         }
 
     def get_reversed_link(self) -> str:
-        view_kwargs = self.view_kwargs
-        view_kwargs.update(
-            {key: "{" + value + "}" for key, value in self.destinations.items()}
-        )
+        view_kwargs = {key: f"{{{value}}}" for key, value in self.view_kwargs.items()}
 
         return reverse(self.viewname, kwargs=view_kwargs)
 

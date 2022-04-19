@@ -67,6 +67,14 @@ class ExampleFileModelSerializer(serializers.ModelSerializer):
 
 
 class ExampleForeignKeyModelSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(
+        choices_link={
+            "viewname": "related_model_viewset-detail",
+            "destinations": {"id": "foreign_key"},
+            "view_kwargs": {"pk": "id"},
+        }
+    )
+
     class Meta:
         model = ExampleForeignKeyModel
         fields = "__all__"
@@ -77,7 +85,6 @@ class ExampleDependedModelSerializer(serializers.ModelSerializer):
     foreign_key = serializers.IntegerField(
         choices_link={
             "viewname": "example_foreign_key_viewset-list",
-            "method": "get",
             "sources": {"foreign_key": "id"},
         }
     )

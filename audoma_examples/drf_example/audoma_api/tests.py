@@ -131,7 +131,7 @@ class AudomaTests(SimpleTestCase):
         self.assertEqual(search_docs_data["name"], "search")
         self.assertEqual(search_docs_data["description"], expected_search_description)
 
-    def test_links_in_schema_list(self):
+    def test_list_link_in_schema_list(self):
         schema_part = self.schema["paths"]["/example_related_model_viewset/"]["get"][
             "responses"
         ]["200"]["links"]
@@ -142,7 +142,7 @@ class AudomaTests(SimpleTestCase):
         self.assertEqual(details["operationRef"], "/example_foreign_key_viewset/")
         self.assertEqual(details["parameters"], {"foreign_key": "$response.body#/id"})
 
-    def test_links_in_schema_detail(self):
+    def test_list_link_in_schema_detail(self):
         schema_part = self.schema["paths"]["/example_related_model_viewset/{id}/"][
             "get"
         ]["responses"]["200"]["links"]
@@ -152,3 +152,16 @@ class AudomaTests(SimpleTestCase):
         self.assertEqual(details["description"], "")
         self.assertEqual(details["operationRef"], "/example_foreign_key_viewset/")
         self.assertEqual(details["parameters"], {"foreign_key": "$response.body#/id"})
+
+    def test_detail_link_in_schema_list(self):
+        schema_part = self.schema["paths"]["/example_foreign_key_viewset/"]["get"][
+            "responses"
+        ]["200"]["links"]
+        self.assertEqual(type(schema_part["Related Model Viewset Detail"]), dict)
+
+        details = schema_part["Related Model Viewset Detail"]
+        self.assertEqual(details["description"], "")
+        self.assertEqual(
+            details["operationRef"], "/example_related_model_viewset/{id}/"
+        )
+        self.assertEqual(details["parameters"], {"id": "$response.body#/foreign_key"})
