@@ -1,0 +1,9 @@
+FROM python:3.9-buster
+
+RUN mkdir audoma
+WORKDIR /audoma
+COPY ./requirements.txt /audoma/requirements.txt
+COPY ./requirements_dev.txt /audoma/requirements_dev.txt
+RUN pip install --upgrade pip
+RUN pip install -r /audoma/requirements.txt
+RUN pip install -r /audoma/requirements_dev.txt
