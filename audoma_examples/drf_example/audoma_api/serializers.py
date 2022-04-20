@@ -16,7 +16,7 @@ class NestedExampleSerializer(serializers.Serializer):
 
 class ExampleSerializer(serializers.Serializer):
     charfield_nolimits = serializers.CharField()
-    charfield_min_max = serializers.CharField(min_length=5, max_length=20)
+    charfield_min_max = serializers.CharField(min_length=10, max_length=20)
     phone_number = serializers.PhoneNumberField()
     phone_number_example = serializers.PhoneNumberField(example="+48 123 456 789")
     email = serializers.EmailField()

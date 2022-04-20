@@ -11,6 +11,7 @@ from rest_framework.fields import *  # noqa: F403, F401
 
 from django.core import validators
 
+from audoma.example_generators import generate_lorem_ipsum
 from audoma.mixins import (
     ExampleMixin,
     NumericExampleMixin,
@@ -21,7 +22,6 @@ from audoma.mixins import (
 field_names = [
     "BooleanField",
     "NullBooleanField",
-    "CharField",
     "EmailField",
     "SlugField",
     "URLField",
@@ -112,4 +112,15 @@ class PhoneNumberField(ExampleMixin, serializerfields.PhoneNumberField):
         if example is None:
             number = phonenumbers.example_number(None)
             example = str(to_python(number))
+        super().__init__(*args, example=example, **kwargs)
+
+
+class CharField(ExampleMixin, fields.CharField):
+    def __init__(self, *args, **kwargs):
+        example = kwargs.pop("example", None)
+        min_length = kwargs.get("min_length", 20)
+        max_length = kwargs.get("max_length", 80)
+        if not example:
+            example = generate_lorem_ipsum(min_length=min_length, max_length=max_length)
+
         super().__init__(*args, example=example, **kwargs)

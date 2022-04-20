@@ -11,6 +11,8 @@ from django.db.models.fields import (  # noqa: F401
     __all__,
 )
 
+from audoma.example_generators import generate_lorem_ipsum
+
 from .mixins import ModelExampleMixin
 
 
@@ -37,3 +39,18 @@ class PhoneNumberField(ModelExampleMixin, PhoneNumberField):
         if not kwargs.get("example", None):
             number = phonenumbers.example_number(region)
             self.example = str(to_python(number))
+
+
+class CharField(ModelExampleMixin, models.CharField):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        max_length = kwargs.get("max_length", 80)
+        if not kwargs.get("example", None) and max_length:
+            self.example = generate_lorem_ipsum(max_length=max_length)
+
+
+class TextField(ModelExampleMixin, models.TextField):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not kwargs.get("example", None):
+            self.example = generate_lorem_ipsum()
