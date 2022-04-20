@@ -172,10 +172,21 @@ class ExampleMixin:
         super().__init__(*args, **kwargs)
         example = self.audoma_example.get_value()
         if example is not DEFAULT:
+            has_annotation = (
+                hasattr(self, "_spectacular_annotation")
+                and "field" in self._spectacular_annotation
+                and isinstance(self._spectacular_annotation["field"], dict)
+            )
+            example_representation = self.audoma_example.to_representation(example)
+            field = {"example": example_representation}
+            if has_annotation:
+                field = self._spectacular_annotation["field"].copy()
+                field["example"] = example_representation
+
             set_override(
                 self,
                 "field",
-                {"example": self.audoma_example.to_representation(example)},
+                field,
             )
 
 
