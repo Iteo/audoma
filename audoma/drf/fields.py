@@ -2,6 +2,7 @@ import sys
 
 import exrex
 import phonenumbers
+from djmoney.contrib.django_rest_framework import MoneyField
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from phonenumber_field import serializerfields
@@ -124,3 +125,7 @@ class CharField(ExampleMixin, fields.CharField):
             example = generate_lorem_ipsum(min_length=min_length, max_length=max_length)
 
         super().__init__(*args, example=example, **kwargs)
+
+
+class MoneyField(ExampleMixin, MoneyField):
+    pass

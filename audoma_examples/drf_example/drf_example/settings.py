@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "audoma_api",
+    "djmoney",
     "drf_spectacular",
     "rest_framework",
     "django_filters",
@@ -140,4 +141,5 @@ SPECTACULAR_SETTINGS = {
     "COMPONENT_SPLIT_REQUEST": True,
 }
 
+CURRENCIES = ("USD", "EUR")
 PHONENUMBER_DEFAULT_FORMAT = "INTERNATIONAL"

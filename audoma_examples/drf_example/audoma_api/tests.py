@@ -16,6 +16,7 @@ from drf_spectacular.generators import SchemaGenerator
 from phonenumber_field.phonenumber import to_python
 from rest_framework.permissions import BasePermission
 
+from django.conf import settings
 from django.test import (
     SimpleTestCase,
     override_settings,
@@ -185,6 +186,16 @@ class AudomaTests(SimpleTestCase):
         ]["content"]
         self.assertEqual(len(example_schema.keys()), 1)
         self.assertEqual(list(example_schema.keys())[0], "multipart/form-data")
+
+    def test_example_money_currency_with_default_currency(self):
+        currency = self.redoc_schemas["ExamplePersonModel"]["properties"][
+            "savings_currency"
+        ]
+        self.assertEqual("PLN", currency["example"])
+
+    def test_example_money_currency_with_currency_from_settings(self):
+        currency = self.redoc_schemas["ExampleModel"]["properties"]["money_currency"]
+        self.assertIn(currency["example"], settings.CURRENCIES)
 
     def test_charfield_example_limits(self):
         charfield_redoc = self.redoc_schemas["Example"]["properties"][

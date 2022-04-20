@@ -42,6 +42,7 @@ class ExampleModel(models.Model):
     duration = models.DurationField()
     choices = models.IntegerField(choices=EXAMPLE_CHOICES.get_choices())
     json = JSONField()
+    money = models.MoneyField(decimal_places=2, max_digits=10)
 
 
 example_countries = cycle(["United States", "Canada", "France", "Poland", "Italy"])
@@ -67,6 +68,7 @@ class ExamplePerson(models.Model):
     )
     has_valid_account = models.BooleanField()
     ip_address = models.GenericIPAddressField()
+    savings = models.MoneyField(max_digits=14, decimal_places=2, default_currency="PLN")
     phone_number = models.PhoneNumberField(region="IT")
 
 
