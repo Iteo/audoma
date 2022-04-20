@@ -7,10 +7,7 @@ from django.utils.functional import lazy
 
 from audoma.choices import make_choices
 from audoma.django.db import models
-from audoma.django_modelfields import (
-    MACAddressField,
-    PhoneNumberField,
-)
+from audoma.django_modelfields import MACAddressField
 
 
 # Create your models here.
@@ -25,7 +22,8 @@ class ExampleModel(models.Model):
         ),
     )
     char_field = models.CharField(max_length=255)
-    phone_number = PhoneNumberField()
+    phone_number = models.PhoneNumberField()
+    phone_number_example = models.PhoneNumberField(example="+123456789")
     email = models.EmailField()
     url = models.URLField()
     boolean = models.BooleanField()
@@ -68,6 +66,7 @@ class ExamplePerson(models.Model):
     )
     has_valid_account = models.BooleanField()
     ip_address = models.GenericIPAddressField()
+    phone_number = models.PhoneNumberField(region="IT")
 
 
 class ExampleFileModel(models.Model):

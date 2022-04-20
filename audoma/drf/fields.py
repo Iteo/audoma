@@ -1,15 +1,17 @@
 import sys
 
 import exrex
+import phonenumbers
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from phonenumber_field import serializerfields
+from phonenumber_field.phonenumber import to_python
 from rest_framework import fields
 from rest_framework.fields import *  # noqa: F403, F401
 
 from django.core import validators
 
-from audoma.drf.mixins import (
+from audoma.mixins import (
     ExampleMixin,
     NumericExampleMixin,
     RegexExampleMixin,
@@ -103,6 +105,11 @@ class IPAddressField(ExampleMixin, fields.IPAddressField):
     pass
 
 
-@extend_schema_field(field={"format": "tel", "example": "+1-202-555-0140"})
+@extend_schema_field(field={"format": "tel"})
 class PhoneNumberField(ExampleMixin, serializerfields.PhoneNumberField):
-    pass
+    def __init__(self, *args, **kwargs):
+        example = kwargs.pop("example", None)
+        if example is None:
+            number = phonenumbers.example_number(None)
+            example = str(to_python(number))
+        super().__init__(*args, example=example, **kwargs)
