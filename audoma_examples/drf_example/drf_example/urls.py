@@ -26,6 +26,7 @@ from drf_spectacular.views import (
 )
 from rest_framework import routers
 
+from django.contrib import admin
 from django.urls import re_path
 
 
@@ -43,6 +44,7 @@ router.register(
 urlpatterns = router.urls
 
 urlpatterns += [
+    re_path("admin/", admin.site.urls),
     re_path(r"^api/schema/$", SpectacularAPIView.as_view(), name="schema"),
     re_path(
         r"^swagger-ui/$",

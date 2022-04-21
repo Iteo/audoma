@@ -128,6 +128,14 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
 }
 
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "db.sqlite3",
+        "TEST_NAME": "test_db.sqlite3",
+    }
+}
+
 # Use it if you want to create schema only based on paths that starts with specific keyword
 # and then add "PREPROCESSING_HOOKS" to SPECTACULAR_SETTINGS as commented below
 # SCHEMA_PATTERN_PREFIX = 'api'
@@ -141,5 +149,5 @@ SPECTACULAR_SETTINGS = {
     "COMPONENT_SPLIT_REQUEST": True,
 }
 
-CURRENCIES = ("USD", "EUR")
+# CURRENCIES = ("USD", "EUR")
 PHONENUMBER_DEFAULT_FORMAT = "INTERNATIONAL"

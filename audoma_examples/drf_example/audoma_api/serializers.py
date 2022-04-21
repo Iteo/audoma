@@ -38,6 +38,7 @@ class ExampleSerializer(serializers.Serializer):
     date = serializers.DateField(example=str(date.today()))
     time = serializers.TimeField(example="12:34:56.000000")
     duration = serializers.DurationField()
+    money = serializers.MoneyField(max_digits=10, decimal_places=2)
     choice = serializers.ChoiceField({1: "One", 2: "Two", 3: "Three"})
     # multiple_choice = serializers.MultipleChoiceField({1: "One", 2: "Two", 3: "Three"})
     list_of_emails = serializers.ListField(child=serializers.EmailField())
