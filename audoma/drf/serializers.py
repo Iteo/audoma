@@ -8,6 +8,7 @@ from audoma import (
     django_modelfields,
     settings,
 )
+from audoma.django.db.models import MoneyField as ModelMoneyField
 
 
 from audoma.drf.fields import (  # NOQA # isort:skip
@@ -43,6 +44,7 @@ from audoma.drf.fields import (  # NOQA # isort:skip
     UUIDField,
     MACAddressField,
     PhoneNumberField,
+    MoneyField,
 )
 
 
@@ -115,6 +117,7 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
         django_modelfields.PhoneNumberField: PhoneNumberField,
         django_modelfields.MACAddressField: MACAddressField,
         jsonfield.JSONField: JSONField,
+        ModelMoneyField: MoneyField,
     }
 
     def build_standard_field(self, field_name, model_field):

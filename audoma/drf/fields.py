@@ -127,5 +127,5 @@ class CharField(ExampleMixin, fields.CharField):
         super().__init__(*args, example=example, **kwargs)
 
 
-class MoneyField(ExampleMixin, MoneyField):
+class MoneyField(NumericExampleMixin, MoneyField):
     pass

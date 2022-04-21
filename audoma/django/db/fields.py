@@ -1,4 +1,3 @@
-import random
 import sys
 
 import phonenumbers
@@ -29,27 +28,18 @@ for field_name in __all__:
     if field_name in ["BLANK_CHOICE_DASH", "NOT_PROVIDED"]:
         continue
 
-    class Field(ModelExampleMixin, getattr(models, field_name)):
-        pass
-
-    Field.__name__ = field_name
-    setattr(this, field_name, Field)
+    setattr(
+        this,
+        field_name,
+        type(field_name, (ModelExampleMixin, getattr(models, field_name)), {}),
+    )
 
 
 __all__.extend(["MoneyField", "CurrencyField", "PhoneNumberField"])
 
 
 class CurrencyField(ModelExampleMixin, CurrencyField):
-    def __init__(self, *args, **kwargs):
-
-        default = kwargs.get("default", None)
-        if default and str(default) != "XYZ":
-            self.example = default
-        elif kwargs.get("choices", None):
-            self.example = random.choice(kwargs["choices"])[0]
-        else:
-            self.example = "XYZ"
-        super().__init__(*args, **kwargs)
+    pass
 
 
 class MoneyField(ModelExampleMixin, MoneyField):
@@ -65,7 +55,6 @@ class MoneyField(ModelExampleMixin, MoneyField):
             price_field=self,
             max_length=self.currency_max_length,
             default=self.default_currency,
-            editable=False,
             choices=self.currency_choices,
             null=self.default_currency is None,
         )
