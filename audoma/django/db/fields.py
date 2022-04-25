@@ -16,6 +16,7 @@ from django.db.models.fields import (  # noqa: F401
     __all__,
 )
 
+from audoma.django import forms
 from audoma.example_generators import generate_lorem_ipsum
 
 from .mixins import ModelExampleMixin
@@ -62,6 +63,16 @@ class MoneyField(ModelExampleMixin, MoneyField):
         currency_field_name = get_currency_field_name(name, self)
         cls.add_to_class(currency_field_name, currency_field)
         self._currency_field = currency_field
+
+    def formfield(self, **kwargs):
+        defaults = {
+            "form_class": forms.MoneyField,
+            "decimal_places": self.decimal_places,
+        }
+        defaults.update(kwargs)
+        if self._has_default:
+            defaults["default_amount"] = self.default.amount
+        return super().formfield(**defaults)
 
 
 class PhoneNumberField(ModelExampleMixin, PhoneNumberField):
