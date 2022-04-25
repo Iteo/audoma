@@ -31,7 +31,7 @@ class AudomaAutoSchema(AutoSchema):
         if serializer_type == "collect":
             action_serializers = self.response_creator.extract_collectors(view)
         else:
-            action_serializers = self.response_creator.extract_responses(view)
+            action_serializers = self.response_creator.extract_results(view)
 
         if action_serializers:
             if (

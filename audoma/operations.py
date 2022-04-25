@@ -1,19 +1,18 @@
 from dataclasses import dataclass
 from inspect import isclass
 from typing import (
+    Iterable,
     List,
     Type,
     Union,
 )
 
 from rest_framework.exceptions import APIException
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
 
-from django.db.models import (
-    Model,
-    QuerySet,
-)
+from django.db.models import Model
 from django.views import View
 
 
@@ -21,10 +20,12 @@ from django.views import View
 class OperationExtractor:
 
     collectors: Union[dict, BaseSerializer]
-    responses: Union[dict, BaseSerializer]
+    results: Union[dict, BaseSerializer]
     errors: List[Union[APIException, Type[APIException]]]
 
-    def extract_operation(self, request, code=None, operation_category="response"):
+    def extract_operation(
+        self, request: Request, code=None, operation_category="response"
+    ):
         if operation_category == "response":
             return self._extract_response_operation(request, code)
         elif operation_category == "collect":
@@ -42,20 +43,20 @@ class OperationExtractor:
             }
             return self._create_exception(error_kwargs)
 
-        if not self.responses or (
-            isclass(self.responses) and issubclass(self.responses, BaseSerializer)
+        if not self.results or (
+            isclass(self.results) and issubclass(self.results, BaseSerializer)
         ):
-            return self.responses
+            return self.results
 
-        if isinstance(list(self.responses.keys())[0], str) and request:
+        if isinstance(list(self.results.keys())[0], str) and request:
             method = request.method.lower()
-            response = self.responses.get(method)
+            response = self.results.get(method)
             if code and isinstance(response, dict):
                 response = response.get(code)
             return response
 
-        elif isinstance(list(self.responses.keys())[0], int) and code:
-            response = self.responses.get(code)
+        elif isinstance(list(self.results.keys())[0], int) and code:
+            response = self.results.get(code)
             return response
 
         return None
@@ -78,7 +79,7 @@ class OperationExtractor:
 
 def apply_response_operation(
     operation: Union[str, APIException, BaseSerializer],
-    instance: Union[QuerySet, str, dict, Model],
+    instance: Union[Iterable, str, APIException, Model],
     code: int,
     view: View,
     many: bool,
@@ -95,17 +96,19 @@ def apply_response_operation(
     serializer_class = operation
 
     if instance:
-        if isinstance(instance, QuerySet):
-            serializer_kwargs = {"data": instance, "many": many}
+        if isinstance(instance, Iterable) and not isinstance(instance, dict):
+            serializer_kwargs = {"data": instance, "many": True}
         else:
             serializer_kwargs = {"instance": instance, "many": False}
     else:
         serializer_kwargs = {"many": many}
+
     return_serializer = (
         serializer_class(**serializer_kwargs)
         if serializer_class
         else view.get_result_serializer(**serializer_kwargs)
     )
+
     headers = view.get_success_headers(return_serializer.data)
 
     return Response(return_serializer.data, status=code, headers=headers)

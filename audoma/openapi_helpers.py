@@ -99,14 +99,14 @@ class AudomaApiResponseCreator:
         collectors = getattr(_audoma, "collectors", None)
         return self._parse_action_serializers(collectors)
 
-    def extract_responses(self, view):
+    def extract_results(self, view):
         action_function = self._extract_action(view)
         _audoma = getattr(action_function, "_audoma", None)
-        responses = self._parse_action_serializers(getattr(_audoma, "responses", None))
+        results = self._parse_action_serializers(getattr(_audoma, "results", None))
         errors = self._parse_action_errors(getattr(_audoma, "errors", []))
-        if responses:
-            responses.update(errors)
-            return responses
+        if results:
+            results.update(errors)
+            return results
 
         return errors
 

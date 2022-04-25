@@ -70,8 +70,38 @@ class ExampleModelCreateSerializer(serializers.ModelSerializer):
         model = ExampleModel
         fields = "__all__"
 
+    def update(self):
+        for key, item in self.validated_data.items():
+            setattr(self.instance, key, item)
+        return self.instance
+
+    def create(self):
+        return ExampleModel(
+            char_field=self.validated_data["char_field"],
+            phone_number=self.validated_data["phone_number"],
+            email=self.validated_data["email"],
+            url=self.validated_data["url"],
+            boolean=self.validated_data["boolean"],
+            nullboolean=self.validated_data["nullboolean"],
+            mac_adress=self.validated_data["mac_adress"],
+            slug=self.validated_data["slug"],
+            uuid=self.validated_data["uuid"],
+            ip_address=self.validated_data["ip_address"],
+            integer=self.validated_data["integer"],
+            _float=self.validated_data["_float"],
+            decimal=self.validated_data["decimal"],
+            datetime=self.validated_data["datetime"],
+            date=self.validated_data["date"],
+            time=self.validated_data["time"],
+            duration=self.validated_data["duration"],
+            choices=self.validated_data["choices"],
+            json=self.validated_data["json"],
+        )
+
     def save(self, **kwargs):
-        return ExampleModel(**self.validated_data)
+        if self.instance:
+            return self.update()
+        return self.create()
 
 
 class ExampleOneFieldSerializer(serializers.Serializer):

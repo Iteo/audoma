@@ -23,6 +23,7 @@ from django.test import (
     override_settings,
 )
 
+from audoma.decorators import AudomaActionException
 from audoma.drf.viewsets import AudomaPagination
 
 
@@ -289,7 +290,7 @@ class AudomaViewsTestCase(SimpleTestCase):
             view.improperly_defined_exception_example(request)
 
         except Exception as e:
-            self.assertEqual(type(e), AssertionError)
+            self.assertEqual(type(e), AudomaActionException)
             self.assertIn(
                 "<class 'audoma_api.exceptions.CustomBadRequestException'>", str(e)
             )
@@ -303,3 +304,28 @@ class AudomaViewsTestCase(SimpleTestCase):
         self.assertEqual(response.status_code, 400)
         data = response.json()
         self.assertEqual(data["errors"]["detail"], "Custom Bad Request Exception")
+
+    def test_example_update_action_patch(self):
+        response = self.client.patch(
+            reverse(
+                "permissionless-model-examples-example-update-action", kwargs={"pk": 0}
+            ),
+            {"char_field": "TESTChar2", "email": "changetest@iteo.com"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(json.loads(response.content)["char_field"], "TESTChar2")
+        self.assertEqual(json.loads(response.content)["email"], "changetest@iteo.com")
+
+    def test_example_update_action_put(self):
+        data = self.data
+        data["char_field"] = "TESTChar2"
+        response = self.client.put(
+            reverse(
+                "permissionless-model-examples-example-update-action", kwargs={"pk": 0}
+            ),
+            data,
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(json.loads(response.content)["char_field"], "TESTChar2")
