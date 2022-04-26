@@ -1,13 +1,7 @@
 from djmoney.forms.fields import MoneyField
-from djmoney.settings import (
-    CURRENCY_CHOICES,
-    DECIMAL_PLACES,
-)
+from djmoney.settings import DECIMAL_PLACES
 
-from django.forms import (
-    ChoiceField,
-    DecimalField,
-)
+from django.forms import DecimalField
 
 from audoma.django.forms.widgets import MoneyWidget
 

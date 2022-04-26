@@ -1,4 +1,3 @@
-from djmoney.forms import MoneyWidget
 from djmoney.settings import CURRENCY_CHOICES
 
 from django.forms import (
