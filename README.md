@@ -118,15 +118,16 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
         ...
     ```
 
-* `AudomaAction` decorator - this is a wrapper for standrad drfs' action decorator. It also handles documenting the action. In this decorator this is possible to pass:
-    * **collectors** - collect serializers, those are being used to process users input, collectors may be passed as a serializer class which inherits from serializers.BaseSerializer, it may also be passed as a dict with given structure: {'http_method1': Serializer1Class, 'http_method2': Serializer2Class}.
-    If collectors won't be passed to the AudomaAction decorator and request method will allow to use collect serializer, decorator will try to retrieve collect serializer from view.
+* `audoma_action` decorator - this is a wrapper for standrad drfs' action decorator. It also handles documenting the action. In this decorator this is possible to pass:
+    * **collectors** - collect serializers, those are being used to process users input, collectors may be
+     passed as a serializer class which inherits from `serializers.BaseSerializer`, it may also be passed as a dict with given structure: {'http_method1': Serializer1Class, 'http_method2': Serializer2Class}.
+    If collectors won't be passed to the audoma_action decorator and request method will allow to use collect serializer, decorator will try to retrieve collect serializer from view.
 
-    **WARNING**  - if passed methods does not allow to define collectors (methods are "safe methods", so they can only read data), there will be ImproperlyConfigured exception raised.
-     \
-    Examples:
+        **WARNING**  - if passed methods does not allow to define collectors (methods are "safe methods", so they can only read data), there will be ImproperlyConfigured exception raised.
+        \
+        Examples:
         ``` py
-        @AudomaAction(
+        @audoma_action(
             detail=True,
             methods=["post"],
             collectors={"post": ExampleModelCreateSerializer},
@@ -137,7 +138,7 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
         def detail_action(self, request, collect_serializer, pk=None):
             ...
         ...
-        @AudomaAction(
+        @audoma_action(
             detail=False,
             methods=["post"],
             results=ExampleOneFieldSerializer,
@@ -146,9 +147,9 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
         def rate_create_action(self, request, collect_serializer):
             ...
         ```
-        In case there are no collectors defined and http method is not a safe method, then AudomaAction will try to fallback to standard way of retrieving collect serializer from view.
+        In case there are no collectors defined and http method is not a safe method, then audoma_action will try to fallback to standard way of retrieving collect serializer from view.
 
-    If audomat_action will extract proper collector, it'll be validated and passed into action method as parameter.
+        If audoma_action will extract proper collector, it'll be validated and passed into action method as parameter.
 
     * **results** - allow to define custom results for each method, and returned status_code. results may be given in three different dictionary forms:
         * {'http_method1': Serializer1Class or string, 'http_method2': Serializer2Class or string}
@@ -159,89 +160,87 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
         * results=Serializer1Class
      \
     Examples:
-    ``` py
-    @AudomaAction(
-        detail=True,
-        methods=["post"],
-        collectors={"post": ExampleModelCreateSerializer},za
-        results={
-            "post": {201: ExampleModelSerializer, 202: ExampleOneFieldSerializer}
-        },
-    )
-    def detail_action(self, request, collect_serializer, pk=None):
-        ...
+        ``` py
+        @audoma_action(
+            detail=True,
+            methods=["post"],
+            collectors={"post": ExampleModelCreateSerializer},za
+            results={
+                "post": {201: ExampleModelSerializer, 202: ExampleOneFieldSerializer}
+            },
+        )
+        def detail_action(self, request, collect_serializer, pk=None):
+            ...
 
-    @AudomaAction(
-        detail=False, methods=["get"], results={"get": "This is a test view"}
-    )
-    def non_detail_action(self, request):
-        ...
+        @audoma_action(
+            detail=False, methods=["get"], results={"get": "This is a test view"}
+        )
+        def non_detail_action(self, request):
+            ...
 
-    @AudomaAction(
-        detail=False,
-        methods=["post"],
-        results=ExampleOneFieldSerializer,
-        collectors=ExampleOneFieldSerializer,
-    )
-    def rate_create_action(self, request, collect_serializer):
-        ...
-    ```
-    In case there are no results defined AudomaAction will try to fallback to standard way of retrieving serializer from view.
-
-    * **errors** - a list of classes or instances which inherits from base Exception class. Exceptions defined in this list may be thrown in the action method. If you would like to accept all exceptions of given class simply pass exception class to the list, otherwise pass precise exception instance, than the exception content will also be verified. If you passed exception instance, if DEBUG=True, and the raised exception content won't match the exception defined in decorator, this will cause rising AssertionError, if DEBUG=False then there'll only appear logger exception, but your exception will be risen. If you'll try to rise exception which is not gently handled by django (for example ValueError), than also if DEBUG=True you'll get ImproperlyConfiguredError, otherwise, there will appear logger exception, but exception will be risen.
-     \
-    Examples:
-    ```py
-    @AudomaAction(
-        detail=False,
-        methods=["get"],
-        results=ExampleOneFieldSerializer,
-        errors=[CustomBadRequestException(), CustomConflictException()],
-    )
-    def properly_defined_exception_example(self, request):
-        raise CustomConflictException
+        @audoma_action(
+            detail=False,
+            methods=["post"],
+            results=ExampleOneFieldSerializer,
+            collectors=ExampleOneFieldSerializer,
+        )
+        def rate_create_action(self, request, collect_serializer):
+            ...
+        ```
+        In case there are no results defined audoma_action will try to fallback to standard way of retrieving serializer from view.
 
 
-    @AudomaAction(
-        detail=False,
-        methods=["get"],
-        results=ExampleOneFieldSerializer,
-    )
-    def improperly_defined_exception_example(self, request):
-        raise CustomBadRequestException
-    ```
-    By default Audoma accepts exceptions:
-    * NotFound
-    * NotAuthenticated
-    * NotAuthenticated
-    * AuthenticationFailed
-    * ParseError
-    * PermissionDenied
-    * NotAcceptable
-     \
-    If you want to add more common exceptions for your API, you should add exception objects or classes in COMMON_API_ERRORS list in your project settings
-    Example:
-    ```py
-        from rest_framework import exceptions
-        ...
-        COMMON_API_ERRORS = [
-            exceptions.NotFound(),
-            exceptions.ValidationError(),
-        ]
-    ```
+    * **errors** - a list of classes or instances which inherits from base Exception class. Exceptions defined in this list may be thrown in the action method. If you would like to accept all exceptions of given class simply pass exception class to the list, otherwise pass precise exception instance, than the exception content will also be verified. If you passed exception instance, if DEBUG=True, and the raised exception content won't match the exception defined in decorator, this will cause rising AudomaActionException, if DEBUG=False then there'll only appear logger exception, but your exception will be risen. If you'll try to rise exception which is not gently handled by django (for example ValueError), than also if DEBUG=True you'll get AudomaActionException, otherwise, there will appear logger exception, but exception will not be risen.
+        \
+        Examples:
+        ```py
+        @audoma_action(
+            detail=False,
+            methods=["get"],
+            results=ExampleOneFieldSerializer,
+            errors=[CustomBadRequestException(), CustomConflictException()],
+        )
+        def properly_defined_exception_example(self, request):
+            raise CustomConflictException
 
-    **NOTE: this is not possible to define exceptions with extra required params as classes.**
 
-    * validate_collector - boolean variable which tells AudomaAction either collect serializers should be validated or not.
-    * ignore_view_collectors - boolean variable which tells if AudomaAction should fallback to default way
-    of retrieving collector from view, if collector has not been passed and action uses method which allows collect serializer usage.
+        @audoma_action(
+            detail=False,
+            methods=["get"],
+            results=ExampleOneFieldSerializer,
+        )
+        def improperly_defined_exception_example(self, request):
+            raise CustomBadRequestException
+        ```
+        By default Audoma accepts exceptions:
+        * NotFound
+        * NotAuthenticated
+        * AuthenticationFailed
+        * ParseError
+        * PermissionDenied
+        * NotAcceptable
+        * ValidationError
+        \
+        If you want to add more common exceptions for your API, you should add exception objects or classes in COMMON_API_ERRORS list in your project settings
+        Example:
+        ```py
+            ...
+            COMMON_API_ERRORS = [
+                myexceptions.SomeException
+            ]
+        ```
+
+        **NOTE: this is not possible to define exceptions with extra required params as classes.**
+
+    * **validate_collector** - boolean variable which tells audoma_action either collect serializers should be validated or not.
+    * **ignore_view_collectors** - boolean variable which tells if audoma_action should fallback to default way of retrieving collector from view, if collector has not been passed and action uses method which allows collect serializer usage.
     \
-    While using `AudomaAction` custom decorator, your action method should not return the response. To allow `AudomaAction` to work properly you should return the instance and the status code as a tuple.
+    While using `audoma_action` custom decorator, your action method should not return the response. To allow `audoma_action` to work properly you should return the instance and the status code as a tuple.
     \
     Examples for serializers:
     * With collect serializer defined
         ```py
-        @AudomaAction(
+        @audoma_action(
             detail=False,
             methods=["post"],
             results=ExampleOneFieldSerializer,
@@ -252,14 +251,14 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
         ```
     * Without collect serializer defined
         ```py
-        @AudomaAction(detail=True, methods=["get"], results=ExampleOneFieldSerializer)
+        @audoma_action(detail=True, methods=["get"], results=ExampleOneFieldSerializer)
         def specific_rate(self, request, pk=None):
             return {"rate": 1}, 200
         ```
 
     * Example for string messages:
         ```py
-        @AudomaAction(
+        @audoma_action(
             detail=False, methods=["get"], results={"get": "This is a test view"}
         )
         def non_detail_action(self, request):

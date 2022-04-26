@@ -17,6 +17,7 @@ COMMON_API_ERRORS = [
     exceptions.PermissionDenied,
     exceptions.NotAcceptable,
     exceptions.ValidationError,
+    exceptions.Throttled,
 ]
 
 settings.SPECTACULAR_SETTINGS["POSTPROCESSING_HOOKS"] = [

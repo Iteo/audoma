@@ -58,9 +58,11 @@ class audoma_action:
         self, _errors: List[Union[Exception, Type[Exception]]]
     ) -> List[Union[Exception, Type[Exception]]]:
         """ "
-        This methods sanitizes passed errors list.
+        This method sanitizes passed errors list.
         This prevents defining Exception Type and same Type instance in errors list.
-        It also invokes method which validates if all erors in list are possible to handle by current handler.
+
+        Args:
+            * errors - list of error to be sanitazed
         """
         if not _errors:
             return _errors
@@ -144,6 +146,12 @@ class audoma_action:
             logger.exception("audoma_action has been improperly configured.")
 
     def _get_error_instance_and_class(self, error: Union[Exception, Type[Exception]]):
+        """
+        This is an internal helper method.
+        Beacuse we accept errors as instances and classes
+        it helps to determine which one is passed.
+        It returns the instance and the class of the passed error.
+        """
         if isclass(error):
             error_class = error
             error_instance = error()
@@ -157,6 +165,14 @@ class audoma_action:
         errors: List[Union[Exception, Type[Exception]]],
         processed_error_class: Type[Exception],
     ) -> List[Union[Exception, Type[Exception]]]:
+        """
+        This helper function extracts all errors which are
+        of the same type as the processed error.
+        It simply returns a list of those errors.
+        Args:
+            * errors - list of errors, allowed to be risen in decorated view
+            * processed_error_class
+        """
         type_matched_exceptions = []
         for error in errors:
             error_instance, error_class = self._get_error_instance_and_class(error)
@@ -176,6 +192,15 @@ class audoma_action:
     def _compare_errors_content(
         self, raised_error: Exception, catched_error: Exception, view: APIView
     ) -> bool:
+        """
+        This is a helper function which checks if both raised and catched error are the same.
+        To ensure that errors are the same it checks if both errors, have the same content.
+
+        Args:
+            * raised_error - error which has been risen
+            * catched_error - TODO consider this name
+            * view - APIView object
+        """
         handler = view.get_exception_handler()
         handler_context = view.get_exception_handler_context()
         raised_error_result = handler(raised_error, handler_context)
@@ -193,20 +218,23 @@ class audoma_action:
             for attr in ["status_code", "data", "headers"]
         )
 
-    def _get_error_match(
-        self,
-        type_matched_exceptions: List[Union[Exception, Type[Exception]]],
-        processed_error_instance: Exception,
-        view: APIView,
-    ) -> Exception:
-        ...
-
     def _process_error(
         self,
         processed_error: Union[Exception, Type[Exception]],
         errors: List[Union[Exception, Type[Exception]]],
         view: APIView,
     ) -> None:
+        """
+        This function processes the risen error.
+        It checks if such error should be risen.
+        If such error has not been defined/handler is unable to handle it.
+        There will be additioanla exception raised or logged, depends on the DEBUG setting.
+
+        Args:
+            * processed_error - the error which has been risen
+            * errors - list of errors which may be raised in decorated method
+            * view - APIView object
+        """
         (
             processed_error_instance,
             processed_error_class,
@@ -245,6 +273,17 @@ class audoma_action:
     def _retrieve_collect_serializer_class_with_config(
         self, request: Request, func: Callable, view: APIView
     ) -> Tuple[Type[BaseSerializer], bool, Any]:
+        """
+        Retrieves collecotr serializer class and it's config variables.
+        Args:
+            * request - request object
+            * func - decorated function
+            * view - view object, which action func belongs to
+
+        Config variables:
+            * partial - says if serializer update should be partial or not.
+            * view_instance - instance retrieved from view
+        """
         collect_serializer_class = None
         partial = False
         view_instance = None
@@ -271,6 +310,16 @@ class audoma_action:
         instance: Union[Iterable, str, APIException, Model],
         response_operation: Union[str, APIException, BaseSerializer],
     ) -> None:
+        """
+        Perform additional checks for variables returned by view action method.
+
+        Args:
+            * code - status code of the response, returned as an int
+            * instance - instance which will be passed to the response serializer
+            * response_operation - serializer class, APIException or string instance which
+                        will be used to create the response
+        """
+
         if code is None:
             raise AudomaActionException(
                 "Status code has not been returned to audoma action."

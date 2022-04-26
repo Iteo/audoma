@@ -16,6 +16,7 @@ from django.db.models import Model
 from django.views import View
 
 
+# TODO - fix typing
 @dataclass
 class OperationExtractor:
 
@@ -24,7 +25,7 @@ class OperationExtractor:
     errors: List[Union[APIException, Type[APIException]]]
 
     def extract_operation(
-        self, request: Request, code=None, operation_category="response"
+        self, request: Request, code: int = None, operation_category="response"
     ):
         if operation_category == "response":
             return self._extract_response_operation(request, code)
