@@ -16,6 +16,7 @@ from drf_spectacular.generators import SchemaGenerator
 from phonenumber_field.phonenumber import to_python
 from rest_framework.permissions import BasePermission
 
+from django.conf import settings
 from django.test import (
     SimpleTestCase,
     override_settings,
@@ -218,3 +219,13 @@ class AudomaTests(SimpleTestCase):
         self.assertLessEqual(len(short_lorem_example), 5)
         self.assertGreaterEqual(len(long_lorem_example), 100)
         self.assertLessEqual(len(long_lorem_example), 200)
+
+    def test_example_money_currency_with_currency_from_settings(self):
+        currency = self.redoc_schemas["ExampleModel"]["properties"]["money_currency"]
+        self.assertIn(currency["example"], settings.CURRENCIES)
+
+    def test_example_money_currency_with_default_currency(self):
+        currency = self.redoc_schemas["ExamplePersonModel"]["properties"][
+            "savings_currency"
+        ]
+        self.assertEqual("PLN", currency["example"])

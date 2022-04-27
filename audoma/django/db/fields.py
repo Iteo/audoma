@@ -1,3 +1,4 @@
+import random
 import sys
 
 import phonenumbers
@@ -40,7 +41,15 @@ __all__.extend(["MoneyField", "CurrencyField", "PhoneNumberField"])
 
 
 class CurrencyField(ModelExampleMixin, CurrencyField):
-    pass
+    def __init__(self, *args, **kwargs):
+        default = kwargs.get("default", None)
+        if default and str(default) != "XYZ":
+            self.example = default
+        elif kwargs.get("choices", None):
+            self.example = random.choice(kwargs["choices"])[0]
+        else:
+            self.example = "XYZ"
+        super().__init__(*args, **kwargs)
 
 
 class MoneyField(ModelExampleMixin, MoneyField):
