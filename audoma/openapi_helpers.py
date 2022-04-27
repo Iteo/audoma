@@ -28,7 +28,7 @@ def get_permissions_description(view) -> str:  # noqa: C901
         permission_class: Union[OperandHolder, SingleOperandHolder, BasePermission],
         operations: list,
         current_operation: Type = AND,
-    ):
+    ) -> dict:
         permissions = {}
 
         if isinstance(permission_class, OperandHolder):
