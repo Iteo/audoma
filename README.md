@@ -132,10 +132,13 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
 
 Testing and example application
 ------------
-You can test audoma functionalities with our example applicaiton. From root folder,
-go to `audoma_examples/drf_examples` and create virtualenv there. Then, install audoma
-and run django application. You can easily explore possibilities of audoma documentation maker
-as it shows all functionalities. To run tests simply run `python manage.py test` command.
+ #### Running example application
+You can easily test audoma functionalities with our example applicaiton.
+From root folder, go to `docker/` and run `docker-compose up example_app`.
+You can explore possibilities of audoma documentation maker as it shows all functionalities.
+#### Runing tests
+Go to `docker/` and run
+`docker-compose run --rm example_app bash -c "cd audoma_examples/drf_example && python manage.py test"`
 
 
 Development
