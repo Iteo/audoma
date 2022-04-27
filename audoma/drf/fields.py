@@ -35,14 +35,14 @@ class FloatField(ExampleMixin, fields.FloatField):
 
 
 class RegexField(ExampleMixin, fields.RegexField):
-    def __init__(self, regex, **kwargs):
+    def __init__(self, regex: str, **kwargs) -> None:
         if "example" not in kwargs:
             kwargs["example"] = str(exrex.getone(regex))
         super().__init__(regex, **kwargs)
 
 
 class MACAddressField(ExampleMixin, fields.CharField):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self.regex = "^([0-9A-F]{2}:){5}([0-9A-F]{2})|([0-9A-F]{2}-){5}([0-9A-F]{2})$"
         self.validarors = [validators.RegexValidator(self.regex)]
         if "example" not in kwargs:
