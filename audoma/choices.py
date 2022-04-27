@@ -1,4 +1,10 @@
-def make_choices(name, choices_tuple):
+from typing import (
+    Any,
+    Tuple,
+)
+
+
+def make_choices(name: str, choices_tuple: Tuple[Any, Any, Any]):
     from collections import namedtuple
 
     """Factory function for quickly making a namedtuple suitable for use in a

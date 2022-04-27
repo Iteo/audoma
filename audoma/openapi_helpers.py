@@ -1,6 +1,10 @@
 from copy import deepcopy
 from inspect import isclass
-from typing import List
+from typing import (
+    Type,
+    Union,
+    List
+)
 
 from drf_spectacular.utils import (
     OpenApiExample,
@@ -9,17 +13,22 @@ from drf_spectacular.utils import (
 from rest_framework.permissions import (
     AND,
     OR,
+    BasePermission,
     OperandHolder,
     SingleOperandHolder,
 )
 from rest_framework.serializers import BaseSerializer
 
 
-def get_permissions_description(view):  # noqa: C901
-    def _render_permission_item(name, doc_str):
+def get_permissions_description(view) -> str:  # noqa: C901
+    def _render_permission_item(name: str, doc_str: str) -> str:
         return f"+ `{name}`: *{doc_str}*"
 
-    def _handle_permission(permission_class, operations, current_operation=AND):
+    def _handle_permission(
+        permission_class: Union[OperandHolder, SingleOperandHolder, BasePermission],
+        operations: list,
+        current_operation: Type = AND,
+    ):
         permissions = {}
 
         if isinstance(permission_class, OperandHolder):
@@ -72,7 +81,7 @@ def get_permissions_description(view):  # noqa: C901
 
         return permissions
 
-    def _gather_permissions():
+    def _gather_permissions() -> str:
         items = {}
         operations = []
 

@@ -1,3 +1,8 @@
+from typing import (
+    Any,
+    Type,
+)
+
 import jsonfield
 from rest_framework import serializers
 from rest_framework.serializers import *  # noqa: F403, F401
@@ -52,11 +57,13 @@ embeded_serializer_classes = {}
 
 
 class Result:
-    def __init__(self, result):
+    def __init__(self, result: Any) -> None:
         self.result = result
 
 
-def result_serializer_class(SerializerClass):
+def result_serializer_class(
+    SerializerClass: Type[serializers.BaseSerializer],
+) -> Type[serializers.BaseSerializer]:
     if SerializerClass not in embeded_serializer_classes:
         class_name = SerializerClass.__name__
         if class_name.endswith("Serializer"):
@@ -67,7 +74,7 @@ def result_serializer_class(SerializerClass):
         class ResultSerializer(serializers.Serializer):
             result = SerializerClass()
 
-            def __init__(self, instance=None, **kwargs):
+            def __init__(self, instance: Any = None, **kwargs):
                 instance = Result(instance)
                 super().__init__(instance=instance, **kwargs)
 
@@ -80,7 +87,7 @@ class ResultSerializerClassMixin:
     _wrap_result_serializer = settings.WRAP_RESULT_SERIALIZER
 
     @classmethod
-    def get_result_serializer_class(cls):
+    def get_result_serializer_class(cls) -> Type[serializers.BaseSerializer]:
         if cls._wrap_result_serializer:
             return result_serializer_class(cls)
         return cls
@@ -142,11 +149,11 @@ class DisplayNameWritableField(serializers.ChoiceField):
         self.original_choices = self.choices
         self.choices = dict((y, y) for x, y in list(self.original_choices.items()))
 
-    def to_representation(self, value):
+    def to_representation(self, value) -> Any:
         # serializer_field.parentu
         return self.original_choices.get(value, value)
 
-    def to_internal_value(self, data):
+    def to_internal_value(self, data) -> Any:
         try:
             return self.choices_inverted_dict[data.title()]
         except KeyError:

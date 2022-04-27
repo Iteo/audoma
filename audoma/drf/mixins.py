@@ -1,11 +1,18 @@
 import random
 
 import exrex
+from typing import (
+    Any,
+    Dict,
+    List,
+)
+
 from drf_spectacular.drainage import set_override
 from rest_framework import (
     mixins,
     status,
 )
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
@@ -15,12 +22,12 @@ from django.core import validators
 class ActionModelMixin:
     def perform_action(
         self,
-        request,
-        success_status=status.HTTP_200_OK,
-        instance=None,
-        partial=False,
+        request: Request,
+        success_status: int = status.HTTP_200_OK,
+        instance: Any = None,
+        partial: bool = False,
         **kwargs
-    ):
+    ) -> Response:
         if instance:
             serializer = self.get_serializer(
                 data=request.data, instance=instance, partial=partial
@@ -35,15 +42,19 @@ class ActionModelMixin:
         return Response(return_serializer.data, status=success_status, headers=headers)
 
     def retrieve_instance(
-        self, request, instance=None, success_status=status.HTTP_200_OK, **kwargs
-    ):
+        self,
+        request: Request,
+        instance: Any = None,
+        success_status: int = status.HTTP_200_OK,
+        **kwargs
+    ) -> Response:
         if instance is None:
             instance = self.get_object()
         assert instance is not None
         serializer = self.get_result_serializer(instance)
         return Response(serializer.data, status=success_status)
 
-    def get_success_headers(self, data):
+    def get_success_headers(self, data: dict) -> dict:
         try:
             return {"Location": str(data[api_settings.URL_FIELD_NAME])}
         except (TypeError, KeyError):
@@ -51,7 +62,7 @@ class ActionModelMixin:
 
 
 class CreateModelMixin(mixins.CreateModelMixin):
-    def create(self, request, *args, **kwargs):
+    def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -63,7 +74,7 @@ class CreateModelMixin(mixins.CreateModelMixin):
 
 
 class ListModelMixin(mixins.ListModelMixin):
-    def list(self, request, *args, **kwargs):
+    def list(self, request: Request, *args, **kwargs) -> Response:
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
@@ -74,7 +85,7 @@ class ListModelMixin(mixins.ListModelMixin):
         serializer = self.get_result_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    def get_paginated_response(self, data):
+    def get_paginated_response(self, data: List[Dict]) -> Response:
         ret = super().get_paginated_response(data)
         if hasattr(self, "get_list_message"):
             assert callable(self.get_list_message)
@@ -85,14 +96,14 @@ class ListModelMixin(mixins.ListModelMixin):
 
 
 class RetrieveModelMixin(mixins.RetrieveModelMixin):
-    def retrieve(self, request, *args, **kwargs):
+    def retrieve(self, request: Request, *args, **kwargs) -> Response:
         instance = self.get_object()
         serializer = self.get_result_serializer(instance)
         return Response(serializer.data)
 
 
 class UpdateModelMixin(mixins.UpdateModelMixin):
-    def update(self, request, *args, **kwargs):
+    def update(self, request: Request, *args, **kwargs) -> Response:
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
@@ -108,7 +119,7 @@ class UpdateModelMixin(mixins.UpdateModelMixin):
 
 
 class DestroyModelMixin(mixins.DestroyModelMixin):
-    def destroy(self, request, *args, **kwargs):
+    def destroy(self, request: Request, *args, **kwargs) -> Response:
         from rest_framework import serializers
 
         from django.core.exceptions import ValidationError
