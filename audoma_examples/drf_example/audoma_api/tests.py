@@ -16,7 +16,6 @@ from drf_spectacular.generators import SchemaGenerator
 from phonenumber_field.phonenumber import to_python
 from rest_framework.permissions import BasePermission
 
-from django.conf import settings
 from django.test import (
     SimpleTestCase,
     override_settings,
