@@ -129,6 +129,8 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
         ...
     ```
 
+* We also support documentation of `MoneyField` from `django-money` package which allows you to handle money and currency values
+
 
 Testing and example application
 ------------
