@@ -1,8 +1,8 @@
 from datetime import date
 
 from audoma_api.models import (
-    ExampleFileModel,
     ExampleDependedModel,
+    ExampleFileModel,
     ExampleForeignKeyModel,
     ExampleModel,
 )
@@ -64,6 +64,7 @@ class ExampleModelSerializer(serializers.ModelSerializer):
 class ExampleFileModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExampleFileModel
+        fields = "__all__"
 
 
 class ExampleForeignKeyModelSerializer(serializers.ModelSerializer):

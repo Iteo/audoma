@@ -1,6 +1,6 @@
 from audoma_api.models import (
-    ExampleFileModel,
     ExampleDependedModel,
+    ExampleFileModel,
     ExampleForeignKeyModel,
     ExampleModel,
 )
@@ -12,16 +12,16 @@ from audoma_api.permissions import (
     ViewPermission,
 )
 from audoma_api.serializers import (
-    ExampleFileModelSerializer,
     ExampleDependedModelSerializer,
+    ExampleFileModelSerializer,
     ExampleForeignKeyModelSerializer,
     ExampleModelSerializer,
     ExampleSerializer,
 )
 from django_filters import rest_framework as df_filters
 from rest_framework.decorators import action
-from rest_framework.parsers import MultiPartParser
 from rest_framework.filters import SearchFilter
+from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -121,6 +121,8 @@ class ExampleFileUploadViewSet(
     queryset = ExampleFileModel.objects.all()
 
     parser_classes = [MultiPartParser]
+
+
 class ExampleDefaultChoiceFilter(df_filters.FilterSet):
     class Meta:
         model = ExampleModel
