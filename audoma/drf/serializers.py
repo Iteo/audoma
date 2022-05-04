@@ -74,7 +74,7 @@ def result_serializer_class(
         class ResultSerializer(serializers.Serializer):
             result = SerializerClass()
 
-            def __init__(self, instance: Any = None, **kwargs):
+            def __init__(self, instance: Any = None, **kwargs) -> None:
                 instance = Result(instance)
                 super().__init__(instance=instance, **kwargs)
 
@@ -149,11 +149,11 @@ class DisplayNameWritableField(serializers.ChoiceField):
         self.original_choices = self.choices
         self.choices = dict((y, y) for x, y in list(self.original_choices.items()))
 
-    def to_representation(self, value) -> Any:
+    def to_representation(self, value: Any) -> Any:
         # serializer_field.parentu
         return self.original_choices.get(value, value)
 
-    def to_internal_value(self, data) -> Any:
+    def to_internal_value(self, data: str) -> Any:
         try:
             return self.choices_inverted_dict[data.title()]
         except KeyError:
