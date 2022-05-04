@@ -13,6 +13,7 @@ from audoma_api.serializers import (
     ExampleFileModelSerializer,
     ExampleModelSerializer,
     ExampleSerializer,
+    MutuallyExclusiveExampleSerializer,
 )
 from django_filters import rest_framework as df_filters
 from rest_framework.decorators import action
@@ -112,3 +113,12 @@ class ExampleFileUploadViewSet(
     queryset = ExampleFileModel.objects.all()
 
     parser_classes = [MultiPartParser]
+
+
+class MutuallyExclusiveViewSet(
+    mixins.ActionModelMixin,
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    serializer_class = MutuallyExclusiveExampleSerializer

@@ -17,6 +17,7 @@ from audoma_api.views import (
     ExampleFileUploadViewSet,
     ExampleModelViewSet,
     ExampleViewSet,
+    MutuallyExclusiveViewSet,
 )
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -35,7 +36,9 @@ router.register(r"model_examples", ExampleModelViewSet, basename="model-examples
 router.register(
     r"file-upload-example", ExampleFileUploadViewSet, basename="file-upload-example"
 )
-
+router.register(
+    r"mutually-exclusive", MutuallyExclusiveViewSet, basename="mutually-exclusive"
+)
 urlpatterns = router.urls
 
 urlpatterns += [
