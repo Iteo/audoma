@@ -229,3 +229,54 @@ class AudomaTests(SimpleTestCase):
             "savings_currency"
         ]
         self.assertEqual("PLN", currency["example"])
+
+    def test_mutually_exclusive_fields_schemas(self):
+        schema = self.redoc_schemas["MutuallyExclusiveExampleRequest"]
+        default_keys = ["not_exclusive_field", "second_not_exclusive_field"]
+        self.assertEqual(len(schema["oneOf"]), 4)
+        self.assertEqual(
+            list(schema["oneOf"][0]["properties"].keys()),
+            ["second_example_field", "third_example_field", "fourth_example_field"]
+            + default_keys,
+        )
+        self.assertEqual(
+            list(schema["oneOf"][1]["properties"].keys()),
+            ["example_field", "third_example_field", "fourth_example_field"]
+            + default_keys,
+        )
+        self.assertEqual(
+            list(schema["oneOf"][2]["properties"].keys()),
+            ["example_field", "second_example_field", "fourth_example_field"]
+            + default_keys,
+        )
+        self.assertEqual(
+            list(schema["oneOf"][3]["properties"].keys()),
+            ["example_field", "second_example_field", "third_example_field"]
+            + default_keys,
+        )
+
+    def test_mutually_exclusive_fields_examples(self):
+        schema = self.schema["paths"]["/mutually-exclusive/"]["post"]["requestBody"][
+            "content"
+        ]["application/json"]["examples"]
+        default_keys = ["not_exclusive_field", "second_not_exclusive_field"]
+        self.assertEqual(
+            list(schema["Option0"]["value"].keys()),
+            ["second_example_field", "third_example_field", "fourth_example_field"]
+            + default_keys,
+        )
+        self.assertEqual(
+            list(schema["Option1"]["value"].keys()),
+            ["example_field", "third_example_field", "fourth_example_field"]
+            + default_keys,
+        )
+        self.assertEqual(
+            list(schema["Option2"]["value"].keys()),
+            ["example_field", "second_example_field", "fourth_example_field"]
+            + default_keys,
+        )
+        self.assertEqual(
+            list(schema["Option3"]["value"].keys()),
+            ["example_field", "second_example_field", "third_example_field"]
+            + default_keys,
+        )
