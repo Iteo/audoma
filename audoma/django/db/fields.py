@@ -2,10 +2,7 @@ import random
 import sys
 
 import phonenumbers
-from djmoney.models.fields import (
-    CurrencyField,
-    MoneyField,
-)
+from djmoney.models import fields as djmoney_fields
 from djmoney.utils import get_currency_field_name
 from phonenumber_field.modelfields import PhoneNumberField
 from phonenumber_field.phonenumber import to_python
@@ -40,7 +37,7 @@ for field_name in __all__:
 __all__.extend(["MoneyField", "CurrencyField", "PhoneNumberField"])
 
 
-class CurrencyField(ModelExampleMixin, CurrencyField):
+class CurrencyField(ModelExampleMixin, djmoney_fields.CurrencyField):
     def __init__(self, *args, **kwargs):
         default = kwargs.get("default", None)
         if default and str(default) != "XYZ":
@@ -52,7 +49,7 @@ class CurrencyField(ModelExampleMixin, CurrencyField):
         super().__init__(*args, **kwargs)
 
 
-class MoneyField(ModelExampleMixin, MoneyField):
+class MoneyField(ModelExampleMixin, djmoney_fields.MoneyField):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -81,7 +78,7 @@ class MoneyField(ModelExampleMixin, MoneyField):
         defaults.update(kwargs)
         if self._has_default:
             defaults["default_amount"] = self.default.amount
-        return super().formfield(**defaults)
+        return super(djmoney_fields.MoneyField, self).formfield(**defaults)
 
 
 class PhoneNumberField(ModelExampleMixin, PhoneNumberField):
