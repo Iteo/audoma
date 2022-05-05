@@ -106,11 +106,9 @@ class ExampleModelCreateSerializer(serializers.ModelSerializer):
 
 class ExampleOneFieldSerializer(serializers.Serializer):
 
-    RATE_CHOICES = make_choices(
-        "RATE", ((0, "LIKE", "Like"), (1, "DISLIKIE", "Dislike"))
-    )
+    RATES = make_choices("RATE", ((0, "LIKE", "Like"), (1, "DISLIKIE", "Dislike")))
 
-    rate = serializers.ChoiceField(choices=RATE_CHOICES)
+    rate = serializers.ChoiceField(choices=RATES)
 
     def save(self, **kwargs):
         return self.validated_data

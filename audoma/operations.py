@@ -16,25 +16,22 @@ from django.db.models import Model
 from django.views import View
 
 
-# TODO - fix typing
 @dataclass
 class OperationExtractor:
 
     collectors: Union[dict, BaseSerializer]
-    results: Union[dict, BaseSerializer]
+    results: Union[dict, BaseSerializer, str]
     errors: List[Union[APIException, Type[APIException]]]
 
-    def extract_operation(
-        self, request: Request, code: int = None, operation_category="response"
-    ):
-        if operation_category == "response":
-            return self._extract_response_operation(request, code)
-        elif operation_category == "collect":
-            return self._extract_collect_operation(request)
-        else:
-            raise ValueError("Unknown operation_category")
+    def _create_exception(self, options: dict) -> APIException:
+        status_code = options.pop("status_code")
+        exception = APIException(**options)
+        exception.status_code = status_code if status_code else exception.status_code
+        return exception
 
-    def _extract_response_operation(self, request, code):
+    def _extract_response_operation(
+        self, request: Request, code: int
+    ) -> Union[dict, BaseSerializer, str, APIException]:
         if code >= 400:
             error_data = self.errors.get(code, {})
             error_kwargs = {
@@ -62,13 +59,7 @@ class OperationExtractor:
 
         return None
 
-    def _create_exception(self, options):
-        status_code = options.pop("status_code")
-        exception = APIException(**options)
-        exception.status_code = status_code if status_code else exception.status_code
-        return exception
-
-    def _extract_collect_operation(self, request):
+    def _extract_collect_operation(self, request: Request) -> BaseSerializer:
         if not self.collectors or (
             isclass(self.collectors) and issubclass(self.collectors, BaseSerializer)
         ):
@@ -76,6 +67,16 @@ class OperationExtractor:
 
         method = request.method.lower()
         return self.collectors.get(method)
+
+    def extract_operation(
+        self, request: Request, code: int = None, operation_category="response"
+    ) -> Union[dict, BaseSerializer, str, APIException]:
+        if operation_category == "response":
+            return self._extract_response_operation(request, code)
+        elif operation_category == "collect":
+            return self._extract_collect_operation(request)
+        else:
+            raise ValueError("Unknown operation_category")
 
 
 def apply_response_operation(

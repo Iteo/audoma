@@ -198,7 +198,7 @@ class audoma_action:
 
         Args:
             * raised_error - error which has been risen
-            * catched_error - TODO consider this name
+            * catched_error - error catched in try/except block
             * view - APIView object
         """
         handler = view.get_exception_handler()

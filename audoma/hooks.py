@@ -30,8 +30,8 @@ def postprocess_common_errors_section(result, request, **kwargs):
     """
     Postprocessing hook which adds COMMON_API_ERRORS description to the API description.
     """
-    common_exceptions = (
-        audoma_settings.COMMON_API_ERRORS + project_settings.COMMON_API_ERRORS or []
+    common_exceptions = audoma_settings.COMMON_API_ERRORS + getattr(
+        project_settings, "COMMON_API_ERRORS", []
     )
 
     renderer = project_settings.REST_FRAMEWORK.get(

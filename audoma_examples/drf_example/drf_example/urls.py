@@ -31,7 +31,6 @@ from django.urls import re_path
 
 router = routers.DefaultRouter()
 
-# TODO FIX basenames
 router.register(r"examples", ExampleViewSet, basename="examples")
 router.register(r"model_examples", ExampleModelViewSet, basename="model-examples")
 router.register(

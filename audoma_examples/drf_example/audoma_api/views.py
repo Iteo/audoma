@@ -150,7 +150,7 @@ class ExampleModelPermissionLessViewSet(
     def detail_action(self, request, collect_serializer, pk=None):
         if request.data.pop("usertype", None):
             return collect_serializer.save(), 201
-        return {"rate": ExampleOneFieldSerializer.RATE_CHOICES.LIKE}, 202
+        return {"rate": ExampleOneFieldSerializer.RATES.LIKE}, 202
 
     @audoma_action(
         detail=False, methods=["get"], results={"get": "This is a test view"}
@@ -169,7 +169,7 @@ class ExampleModelPermissionLessViewSet(
 
     @audoma_action(detail=True, methods=["get"], results=ExampleOneFieldSerializer)
     def specific_rate(self, request, pk=None):
-        return {"rate": ExampleOneFieldSerializer.RATE_CHOICES.DISLIKIE}, 200
+        return {"rate": ExampleOneFieldSerializer.RATES.DISLIKIE}, 200
 
     @audoma_action(
         detail=False,
