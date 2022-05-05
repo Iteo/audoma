@@ -107,7 +107,7 @@ class AudomaAutoSchema(AutoSchema):
         examples = super()._get_examples(
             serializer, direction, media_type, status_code, extras
         )
-        if not hasattr(serializer, "validators") or direction != "request":
+        if not hasattr(serializer, "validators") or direction == "response":
             return examples
 
         examples = []
