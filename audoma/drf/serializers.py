@@ -1,13 +1,11 @@
-import jsonfield
 from rest_framework import serializers
 from rest_framework.serializers import *  # noqa: F403, F401
-
-from django.db import models
 
 from audoma import (
     django_modelfields,
     settings,
 )
+from audoma.django.db import models
 from audoma.django.db.models import MoneyField as ModelMoneyField
 
 
@@ -116,7 +114,7 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
         models.UUIDField: UUIDField,
         django_modelfields.PhoneNumberField: PhoneNumberField,
         django_modelfields.MACAddressField: MACAddressField,
-        jsonfield.JSONField: JSONField,
+        models.JSONField: JSONField,
         ModelMoneyField: MoneyField,
     }
 

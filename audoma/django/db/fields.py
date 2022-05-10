@@ -20,6 +20,12 @@ from audoma.example_generators import generate_lorem_ipsum
 from .mixins import ModelExampleMixin
 
 
+try:
+    from django.db.models import JSONField
+except ImportError:
+    from jsonfield import JSONField
+
+
 this = sys.modules[__name__]
 
 
@@ -102,3 +108,11 @@ class TextField(ModelExampleMixin, models.TextField):
         super().__init__(*args, **kwargs)
         if not kwargs.get("example", None):
             self.example = generate_lorem_ipsum()
+
+
+class JSONField(ModelExampleMixin, JSONField):
+    pass
+
+
+if "JSONField" not in __all__:
+    __all__.append("JSONField")

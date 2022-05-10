@@ -1,8 +1,6 @@
 import random
 from itertools import cycle
 
-from jsonfield import JSONField
-
 from django.utils.functional import lazy
 
 from audoma.choices import make_choices
@@ -41,7 +39,7 @@ class ExampleModel(models.Model):
     time = models.TimeField()
     duration = models.DurationField()
     choices = models.IntegerField(choices=EXAMPLE_CHOICES.get_choices())
-    json = JSONField()
+    json = models.JSONField()
     money = models.MoneyField(decimal_places=2, max_digits=10)
 
 
