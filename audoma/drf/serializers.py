@@ -1,7 +1,10 @@
 from rest_framework import serializers
 from rest_framework.serializers import *  # noqa: F403, F401
 
-from django.db.models import BigAutoField
+from django.db.models import (
+    AutoField,
+    BigAutoField,
+)
 
 from audoma import settings
 from audoma.django.db import models
@@ -84,6 +87,7 @@ class ResultSerializerClassMixin:
 
 class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
     serializer_field_mapping = {
+        AutoField: IntegerField,
         BigAutoField: IntegerField,
         models.AutoField: IntegerField,
         models.BigIntegerField: IntegerField,
