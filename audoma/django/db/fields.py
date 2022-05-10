@@ -23,7 +23,12 @@ from .mixins import ModelExampleMixin
 try:
     from django.db.models import JSONField
 except ImportError:
-    from jsonfield import JSONField
+    try:
+        from jsonfield import JSONField
+    except ImportError as err:
+        raise ImportError(
+            "You are using old version of Django that doesn't support jsonfield. Please install django-jsonfield"
+        ) from err
 
 
 this = sys.modules[__name__]
