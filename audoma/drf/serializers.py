@@ -1,12 +1,8 @@
 from rest_framework import serializers
 from rest_framework.serializers import *  # noqa: F403, F401
 
-from audoma import (
-    django_modelfields,
-    settings,
-)
+from audoma import settings
 from audoma.django.db import models
-from audoma.django.db.models import MoneyField as ModelMoneyField
 
 
 from audoma.drf.fields import (  # NOQA # isort:skip
@@ -112,10 +108,10 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
         models.GenericIPAddressField: IPAddressField,
         models.FilePathField: FilePathField,
         models.UUIDField: UUIDField,
-        django_modelfields.PhoneNumberField: PhoneNumberField,
-        django_modelfields.MACAddressField: MACAddressField,
+        models.PhoneNumberField: PhoneNumberField,
+        models.MACAddressField: MACAddressField,
         models.JSONField: JSONField,
-        ModelMoneyField: MoneyField,
+        models.MoneyField: MoneyField,
     }
 
     serializer_choice_field = ChoiceField

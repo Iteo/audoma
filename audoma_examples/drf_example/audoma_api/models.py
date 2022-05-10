@@ -5,7 +5,6 @@ from django.utils.functional import lazy
 
 from audoma.choices import make_choices
 from audoma.django.db import models
-from audoma.django_modelfields import MACAddressField
 
 
 # Create your models here.
@@ -27,7 +26,7 @@ class ExampleModel(models.Model):
     url = models.URLField()
     boolean = models.BooleanField()
     nullboolean = models.BooleanField(null=True)
-    mac_adress = MACAddressField()
+    mac_adress = models.MACAddressField()
     slug = models.SlugField()
     uuid = models.UUIDField()
     ip_address = models.GenericIPAddressField()

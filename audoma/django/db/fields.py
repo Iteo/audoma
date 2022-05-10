@@ -4,6 +4,7 @@ import sys
 import phonenumbers
 from djmoney.models import fields as djmoney_fields
 from djmoney.utils import get_currency_field_name
+from macaddress.fields import MACAddressField
 from phonenumber_field.modelfields import PhoneNumberField
 from phonenumber_field.phonenumber import to_python
 
@@ -45,7 +46,7 @@ for field_name in __all__:
     )
 
 
-__all__.extend(["MoneyField", "CurrencyField", "PhoneNumberField"])
+__all__.extend(["MoneyField", "CurrencyField", "PhoneNumberField", "MACAddressField"])
 
 
 class CurrencyField(ModelExampleMixin, djmoney_fields.CurrencyField):
@@ -113,6 +114,10 @@ class TextField(ModelExampleMixin, models.TextField):
         super().__init__(*args, **kwargs)
         if not kwargs.get("example", None):
             self.example = generate_lorem_ipsum()
+
+
+class MACAddressField(ModelExampleMixin, MACAddressField):
+    pass
 
 
 class JSONField(ModelExampleMixin, JSONField):
