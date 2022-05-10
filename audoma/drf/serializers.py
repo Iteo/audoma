@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from rest_framework.serializers import *  # noqa: F403, F401
 
+from django.db.models import BigAutoField
+
 from audoma import settings
 from audoma.django.db import models
 
@@ -82,6 +84,7 @@ class ResultSerializerClassMixin:
 
 class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
     serializer_field_mapping = {
+        BigAutoField: IntegerField,
         models.AutoField: IntegerField,
         models.BigIntegerField: IntegerField,
         models.BooleanField: BooleanField,
@@ -112,6 +115,7 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
         models.MACAddressField: MACAddressField,
         models.JSONField: JSONField,
         models.MoneyField: MoneyField,
+        models.CurrencyField: CharField,
     }
 
     serializer_choice_field = ChoiceField
