@@ -28,7 +28,7 @@ except ImportError:
         from jsonfield import JSONField
     except ImportError as err:
         raise ImportError(
-            "You are using old version of Django that doesn't support jsonfield. Please install django-jsonfield"
+            "You are using old version of Django that doesn't support JSONField. Please install django-jsonfield"
         ) from err
 
 

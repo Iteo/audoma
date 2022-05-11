@@ -1,13 +1,21 @@
 from rest_framework import serializers
 from rest_framework.serializers import *  # noqa: F403, F401
 
-from django.db.models import (
-    AutoField,
-    BigAutoField,
-)
+from django.db import models
 
 from audoma import settings
-from audoma.django.db import models
+from audoma.django.db import models as audoma_models
+
+
+try:
+    from django.db.models import JSONField as ModelJSONField
+except ImportError:
+    try:
+        from jsonfield import JSONField as ModelJSONField
+    except ImportError as err:
+        raise ImportError(
+            "You are using old version of Django that doesn't support JSONField. Please install django-jsonfield"
+        ) from err
 
 
 from audoma.drf.fields import (  # NOQA # isort:skip
@@ -87,8 +95,6 @@ class ResultSerializerClassMixin:
 
 class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
     serializer_field_mapping = {
-        AutoField: IntegerField,
-        BigAutoField: IntegerField,
         models.AutoField: IntegerField,
         models.BigIntegerField: IntegerField,
         models.BooleanField: BooleanField,
@@ -115,11 +121,11 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
         models.GenericIPAddressField: IPAddressField,
         models.FilePathField: FilePathField,
         models.UUIDField: UUIDField,
-        models.PhoneNumberField: PhoneNumberField,
-        models.MACAddressField: MACAddressField,
-        models.JSONField: JSONField,
-        models.MoneyField: MoneyField,
-        models.CurrencyField: CharField,
+        audoma_models.PhoneNumberField: PhoneNumberField,
+        audoma_models.MACAddressField: MACAddressField,
+        audoma_models.MoneyField: MoneyField,
+        audoma_models.CurrencyField: CharField,
+        ModelJSONField: JSONField,
     }
 
     serializer_choice_field = ChoiceField
