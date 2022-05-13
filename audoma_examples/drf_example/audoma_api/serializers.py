@@ -1,9 +1,8 @@
 from datetime import date
 
 from audoma_api.models import (
-    ExampleFileModel,
-    ExampleModel,
-    ExamplePerson,
+    Account,
+    Auction,
 )
 
 from audoma.drf import serializers
@@ -49,26 +48,20 @@ class ExampleSerializer(serializers.Serializer):
     nested = NestedExampleSerializer()
 
 
-class ExampleModelSerializer(serializers.ModelSerializer):
+class AccountModelSerializer(serializers.ModelSerializer):
     phone_number = serializers.SerializerMethodField()
 
     class Meta:
-        model = ExampleModel
+        model = Account
         fields = "__all__"
-        extra_kwargs = {"char_field": {"example": "lorem ipsum"}}
+        # extra_kwargs = {"char_field": {"example": "lorem ipsum"}}
 
     @document_and_format(serializers.PhoneNumberField)
     def get_phone_number(self):
         return self.phone_number
 
 
-class ExamplePersonModelSerializer(serializers.ModelSerializer):
+class AuctionModelSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ExamplePerson
-        fields = "__all__"
-
-
-class ExampleFileModelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ExampleFileModel
+        model = Auction
         fields = "__all__"

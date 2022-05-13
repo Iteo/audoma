@@ -1,12 +1,10 @@
 from django.contrib import admin
 
 from .models import (
-    ExampleFileModel,
-    ExampleModel,
-    ExamplePerson,
+    Account,
+    Auction,
 )
 
 
-admin.site.register(ExamplePerson)
-admin.site.register(ExampleModel)
-admin.site.register(ExampleFileModel)
+admin.site.register(Account)
+admin.site.register(Auction)

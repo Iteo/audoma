@@ -1,7 +1,6 @@
 from audoma_api.models import (
-    ExampleFileModel,
-    ExampleModel,
-    ExamplePerson,
+    Account,
+    Auction,
 )
 from audoma_api.permissions import (
     AlternatePermission1,
@@ -11,9 +10,8 @@ from audoma_api.permissions import (
     ViewPermission,
 )
 from audoma_api.serializers import (
-    ExampleFileModelSerializer,
-    ExampleModelSerializer,
-    ExamplePersonModelSerializer,
+    AccountModelSerializer,
+    AuctionModelSerializer,
     ExampleSerializer,
 )
 from django_filters import rest_framework as df_filters
@@ -57,22 +55,22 @@ class ExampleViewSet(
         return Response({})  # wrong
 
 
-example_choice = DocumentedTypedChoiceFilter(
-    ExampleModel.EXAMPLE_CHOICES, "choice", lookup_expr="exact", field_name="choices"
+account_type_choices = DocumentedTypedChoiceFilter(
+    Account.ACCOUNT_TYPE, "account_type", lookup_expr="exact", field_name="choices"
 )
 
 
-class ExampleChoiceFilter(df_filters.FilterSet):
-    choice = example_choice
+class AccountTypeFilter(df_filters.FilterSet):
+    choice = account_type_choices
 
     class Meta:
-        model = ExampleModel
+        model = Account
         fields = [
             "choice",
         ]
 
 
-class ExampleModelViewSet(
+class AccountViewSet(
     mixins.ActionModelMixin,
     mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
@@ -88,9 +86,9 @@ class ExampleModelViewSet(
         AlternatePermission1 | AlternatePermission2,
     ]
 
-    filterset_class = ExampleChoiceFilter
-    serializer_class = ExampleModelSerializer
-    queryset = ExampleModel.objects.all()
+    filterset_class = AccountTypeFilter
+    serializer_class = AccountModelSerializer
+    queryset = Account.objects.all()
 
     @action(detail=True, methods=["post"])
     def detail_action(self, request, pk=None):
@@ -101,39 +99,12 @@ class ExampleModelViewSet(
         return Response({})  # wron
 
 
-class ExamplePersonModelViewSet(
-    mixins.ActionModelMixin,
-    mixins.CreateModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.DestroyModelMixin,
-    mixins.ListModelMixin,
-    viewsets.GenericViewSet,
-):
-    permission_classes = [
-        IsAuthenticated,
-        ViewAndDetailPermission,
-        DetailPermission,
-        ViewPermission,
-    ]
-
-    serializer_class = ExamplePersonModelSerializer
-    queryset = ExamplePerson.objects.all()
-
-    @action(detail=True, methods=["post"])
-    def detail_action(self, request, pk=None):
-        return Response({})
-
-    @action(detail=False, methods=["post"])
-    def non_detail_action(self, request):
-        return Response({})
-
-
-class ExampleFileUploadViewSet(
+class AuctionViewSet(
     mixins.ActionModelMixin,
     mixins.CreateModelMixin,
     viewsets.GenericViewSet,
 ):
-    serializer_class = ExampleFileModelSerializer
-    queryset = ExampleFileModel.objects.all()
+    serializer_class = AuctionModelSerializer
+    queryset = Auction.objects.all()
 
     parser_classes = [MultiPartParser]
