@@ -76,7 +76,7 @@ class RegexField(RegexExampleMixin, fields.RegexField):
 
 
 class MACAddressField(RegexExampleMixin, fields.CharField):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self.regex = "^([0-9A-F]{2}:){5}([0-9A-F]{2})|([0-9A-F]{2}-){5}([0-9A-F]{2})$"
         self.validators = [validators.RegexValidator(self.regex)]
         super().__init__(**kwargs)

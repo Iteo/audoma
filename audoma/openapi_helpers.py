@@ -1,19 +1,28 @@
 from inspect import isclass
+from typing import (
+    Type,
+    Union,
+)
 
 from drf_spectacular.utils import OpenApiResponse
 from rest_framework.permissions import (
     AND,
     OR,
+    BasePermission,
     OperandHolder,
     SingleOperandHolder,
 )
 
 
-def get_permissions_description(view):  # noqa: C901
-    def _render_permission_item(name, doc_str):
+def get_permissions_description(view) -> str:  # noqa: C901
+    def _render_permission_item(name: str, doc_str: str) -> str:
         return f"+ `{name}`: *{doc_str}*"
 
-    def _handle_permission(permission_class, operations, current_operation=AND):
+    def _handle_permission(
+        permission_class: Union[OperandHolder, SingleOperandHolder, BasePermission],
+        operations: list,
+        current_operation: Type = AND,
+    ) -> dict:
         permissions = {}
 
         if isinstance(permission_class, OperandHolder):
@@ -66,7 +75,7 @@ def get_permissions_description(view):  # noqa: C901
 
         return permissions
 
-    def _gather_permissions():
+    def _gather_permissions() -> str:
         items = {}
         operations = []
 

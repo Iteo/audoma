@@ -1,4 +1,9 @@
 from inspect import isclass
+from typing import (
+    Callable,
+    List,
+    Tuple,
+)
 
 from rest_framework.settings import api_settings
 
@@ -7,7 +12,9 @@ from django.conf import settings as project_settings
 from audoma import settings as audoma_settings
 
 
-def preprocess_include_path_format(endpoints, **kwargs):
+def preprocess_include_path_format(
+    endpoints: Tuple[str, str, str, Callable], **kwargs
+) -> List[Tuple[str, str, str, Callable]]:
     """
     preprocessing hook that filters {format} prefdixed paths, in case
     schema pattern prefix is used and {format} path params are wanted.
