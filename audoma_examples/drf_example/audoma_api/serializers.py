@@ -3,6 +3,8 @@ from datetime import date
 from audoma_api.models import (
     Account,
     Auction,
+    Car,
+    Manufacturer,
 )
 
 from audoma.choices import make_choices
@@ -113,3 +115,26 @@ class RateSerializer(serializers.Serializer):
 
     def save(self, **kwargs):
         return self.validated_data
+
+
+class ManufacturerModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Manufacturer
+        fields = "__all__"
+
+
+class CarModelSerializer(serializers.ModelSerializer):
+
+    choices_options_links = {
+        "manufacturer": {
+            "viewname": "manufacturer_viewset-list",
+            "value_field": "id",
+            "display_field": "name",
+        }
+    }
+
+    manufacturer = serializers.IntegerField()
+
+    class Meta:
+        model = Car
+        fields = "__all__"

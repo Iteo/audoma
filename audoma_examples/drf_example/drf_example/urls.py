@@ -17,7 +17,9 @@ from audoma_api.views import (
     AccountViewSet,
     AnonymousAccountViewSet,
     AuctionViewSet,
+    CarViewSet,
     ExampleViewSet,
+    ManufacturerViewSet,
 )
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -40,10 +42,16 @@ router.register(
     AnonymousAccountViewSet,
     basename="anonymous_accounts_viewset",
 )
-# TODO - add example file upload viewset
-# router.register(
-#     r"file-upload-example", ExampleFileUploadViewSet, basename="file-upload-example"
-# )
+router.register(
+    r"manufacturer_viewset",
+    ManufacturerViewSet,
+    basename="manufacturer_viewset",
+)
+router.register(
+    r"car_viewset",
+    CarViewSet,
+    basename="car_viewset",
+)
 
 urlpatterns = router.urls
 

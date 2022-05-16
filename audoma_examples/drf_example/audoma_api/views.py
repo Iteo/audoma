@@ -8,6 +8,8 @@ from audoma_api.exceptions import (
 from audoma_api.models import (
     Account,
     Auction,
+    Car,
+    Manufacturer,
 )
 from audoma_api.permissions import (
     AlternatePermission1,
@@ -20,12 +22,15 @@ from audoma_api.serializers import (
     AccountCreateSerializer,
     AccountModelSerializer,
     AuctionModelSerializer,
+    CarModelSerializer,
     ExampleSerializer,
+    ManufacturerModelSerializer,
     RateSerializer,
 )
 from django_filters import rest_framework as df_filters
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
+from rest_framework.filters import SearchFilter
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -89,6 +94,7 @@ class AccountViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
+
     permission_classes = [
         IsAuthenticated,
         ViewAndDetailPermission,
@@ -107,8 +113,8 @@ class AccountViewSet(
         collectors={"post": AccountCreateSerializer},
         results={"post": {201: AccountCreateSerializer, 202: RateSerializer}},
     )
-    def detail_action(self, request, pk=None):
-        return Response({})  # wrong
+    def detail_action(self, request):
+        return Response({})
 
     @action(detail=False, methods=["post"])
     def non_detail_action(self, request):
@@ -206,3 +212,34 @@ class AnonymousAccountViewSet(mixins.ActionModelMixin, viewsets.GenericViewSet):
     )
     def update_profile(self, request, collect_serializer, pk=None):
         return collect_serializer.save(), 201
+
+
+class CarChoiceFilter(df_filters.FilterSet):
+    class Meta:
+        model = Car
+        fields = ["engine_size", "body_type"]
+
+
+class ManufacturerViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
+    queryset = Manufacturer.objects.none()
+    serializer_class = ManufacturerModelSerializer
+
+    filter_backends = [SearchFilter, df_filters.DjangoFilterBackend]
+
+    filterset_fields = [
+        "slug_name",
+    ]
+    search_fields = ["=slug_name", "name"]
+
+
+class CarViewSet(
+    mixins.ActionModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = Car.objects.none()
+    serializer_class = CarModelSerializer
+    filterset_class = CarChoiceFilter

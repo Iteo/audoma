@@ -82,7 +82,7 @@ class AudomaTests(SimpleTestCase):
         example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
         self.assertEqual(len(Account._meta.fields), len(example_model_properties))
 
-    def test_filter_params_description_model_viewset(self):
+    def test_filter_params_description_model_viewset_documented_typed(self):
         choices_desc = "Filter by choice \n * `EX_1` - example 1\n * `EX_2` - example 2\n * `EX_3` - example 3\n"
         docs_description = self.schema["paths"]["/model_examples/"]["get"][
             "parameters"
@@ -287,6 +287,41 @@ class AudomaTests(SimpleTestCase):
             ],
             "Custom Validation Error Exception",
         )
+
+    def test_filterset_class_description_in_query_params_schema(self):
+        choices_desc = "Filter by choices \n * `1` - example 1\n * `2` - example 2\n * `3` - example 3\n"
+        docs_description = self.schema["paths"]["/example_filterset_class_viewset/"][
+            "get"
+        ]["parameters"][0]["description"]
+        self.assertEqual(choices_desc, docs_description)
+
+    def test_filterset_fields_description_in_query_paramas_schema(self):
+        choices_desc = "Filter by choices \n * `1` - example 1\n * `2` - example 2\n * `3` - example 3\n"
+        docs_description = self.schema["paths"]["/example_filterset_fields_viewset/"][
+            "get"
+        ]["parameters"][0]["description"]
+        self.assertEqual(choices_desc, docs_description)
+
+    def test_serach_fields_description(self):
+        expected_search_description = (
+            "Search by: \n* `foreign_key` \n\t * `name(Exact matches.)` \n* `name` \n"
+        )
+
+        docs_description = self.schema["paths"]["/example_related_model_viewset/"][
+            "get"
+        ]["parameters"]
+        search_docs_data = docs_description[-1]
+        self.assertEqual(search_docs_data["name"], "search")
+        self.assertEqual(search_docs_data["description"], expected_search_description)
+
+    def test_x_choices_enum_serializer(self):
+        ...
+
+    def test_x_choices_enum_paramteres(self):
+        ...
+
+    def test_x_choices_link_serializer(self):
+        ...
 
 
 class AudomaActionTestCase(SimpleTestCase):
