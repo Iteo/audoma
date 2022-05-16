@@ -1,8 +1,10 @@
 from audoma_api.models import (
+    Car,
     ExampleDependedModel,
     ExampleFileModel,
     ExampleForeignKeyModel,
     ExampleModel,
+    Manufacturer,
 )
 from audoma_api.permissions import (
     AlternatePermission1,
@@ -12,11 +14,11 @@ from audoma_api.permissions import (
     ViewPermission,
 )
 from audoma_api.serializers import (
-    ExampleDependedModelSerializer,
+    CarModelSerializer,
     ExampleFileModelSerializer,
-    ExampleForeignKeyModelSerializer,
     ExampleModelSerializer,
     ExampleSerializer,
+    ManufacturerModelSerializer,
 )
 from django_filters import rest_framework as df_filters
 from rest_framework.decorators import action
@@ -24,6 +26,8 @@ from rest_framework.filters import SearchFilter
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
+from django.utils.decorators import method_decorator
 
 from audoma.drf import (
     mixins,
@@ -155,23 +159,25 @@ class ExampleFiltersetFieldsViewset(
     queryset = ExampleModel.objects.all()
 
 
-class ExampleForeignKeyViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = ExampleForeignKeyModel.objects.none()
-    serializer_class = ExampleForeignKeyModelSerializer
+class ManufacturerViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
+    queryset = Manufacturer.objects.none()
+    serializer_class = ManufacturerModelSerializer
 
 
-class ExampleRelatedModelsViewSet(
+class CarViewSet(
     mixins.ActionModelMixin,
     mixins.RetrieveModelMixin,
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
-
-    queryset = ExampleDependedModel.objects.none()
-    serializer_class = ExampleDependedModelSerializer
+    queryset = Car.objects.none()
+    serializer_class = CarModelSerializer
 
     filter_backends = [SearchFilter, df_filters.DjangoFilterBackend]
+
     filterset_fields = [
-        "foreign_key__name",
+        "engine_size",
     ]
-    search_fields = ["=foreign_key__name", "name"]
+    search_fields = ["=manufacturer", "name"]

@@ -1,5 +1,3 @@
-from typing import List
-
 import jsonfield
 from rest_framework import serializers
 from rest_framework.serializers import *  # noqa: F403, F401
@@ -86,20 +84,7 @@ class ResultSerializerClassMixin:
         return cls
 
 
-class LinkedSerializerMixin:
-    def get_audoma_links(self) -> List[dict]:
-        links = []
-        for field_name, field_instance in self.fields.items():
-            audoma_link = getattr(field_instance, "audoma_link", None)
-            if audoma_link:
-                # NOTE - this may be a tuple
-                links.append({"field_name": field_name, "link": audoma_link})
-        return links
-
-
-class ModelSerializer(
-    ResultSerializerClassMixin, LinkedSerializerMixin, serializers.ModelSerializer
-):
+class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
     serializer_field_mapping = {
         models.AutoField: IntegerField,
         models.BigIntegerField: IntegerField,
@@ -130,11 +115,10 @@ class ModelSerializer(
         django_modelfields.MACAddressField: MACAddressField,
         jsonfield.JSONField: JSONField,
     }
+    serializer_choice_field = ChoiceField
 
 
-class Serializer(
-    ResultSerializerClassMixin, LinkedSerializerMixin, serializers.Serializer
-):
+class Serializer(ResultSerializerClassMixin, serializers.Serializer):
     pass
 
 

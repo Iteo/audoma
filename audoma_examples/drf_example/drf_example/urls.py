@@ -14,13 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from audoma_api.views import (
+    CarViewSet,
     ExampleFileUploadViewSet,
     ExampleFiltersetClassViewset,
     ExampleFiltersetFieldsViewset,
-    ExampleForeignKeyViewSet,
     ExampleModelViewSet,
-    ExampleRelatedModelsViewSet,
     ExampleViewSet,
+    ManufacturerViewSet,
 )
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -40,14 +40,14 @@ router.register(
     r"file-upload-example", ExampleFileUploadViewSet, basename="file-upload-example"
 )
 router.register(
-    r"example_foreign_key_viewset",
-    ExampleForeignKeyViewSet,
-    basename="example_foreign_key_viewset",
+    r"manufacturer_viewset",
+    ManufacturerViewSet,
+    basename="manufacturer_viewset",
 )
 router.register(
-    r"example_related_model_viewset",
-    ExampleRelatedModelsViewSet,
-    basename="related_model_viewset",
+    r"car_viewset",
+    CarViewSet,
+    basename="car_viewset",
 )
 router.register(
     r"example_filterset_class_viewset",

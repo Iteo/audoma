@@ -1,10 +1,12 @@
 from datetime import date
 
 from audoma_api.models import (
+    Car,
     ExampleDependedModel,
     ExampleFileModel,
     ExampleForeignKeyModel,
     ExampleModel,
+    Manufacturer,
 )
 
 from audoma.drf import serializers
@@ -67,29 +69,24 @@ class ExampleFileModelSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class ExampleForeignKeyModelSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(
-        choices_link={
-            "viewname": "related_model_viewset-detail",
-            "destinations": {"id": "foreign_key"},
-            "view_kwargs": {"pk": "id"},
-        }
-    )
-
+class ManufacturerModelSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ExampleForeignKeyModel
+        model = Manufacturer
         fields = "__all__"
 
 
-class ExampleDependedModelSerializer(serializers.ModelSerializer):
+class CarModelSerializer(serializers.ModelSerializer):
 
-    foreign_key = serializers.IntegerField(
-        choices_link={
-            "viewname": "example_foreign_key_viewset-list",
-            "sources": {"foreign_key": "id"},
+    choices_options_links = {
+        "manufacturer": {
+            "viewname": "manufacturer_viewset-list",
+            "value_field": "id",
+            "display_field": "name",
         }
-    )
+    }
+
+    manufacturer = serializers.IntegerField()
 
     class Meta:
-        model = ExampleDependedModel
+        model = Car
         fields = "__all__"

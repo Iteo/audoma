@@ -6,7 +6,7 @@ from rest_framework import (
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
-from audoma.links import AudomaOptionsLink
+from audoma.links import ChoicesOptionsLink
 
 
 class ActionModelMixin:
@@ -125,14 +125,3 @@ class ExampleMixin:
         super().__init__(*args, **kwargs)
         if example:
             set_override(self, "field", {"example": example})
-
-
-class FieldLinkMixin:
-    def __init__(self, *args, **kwargs) -> None:
-        choice_link_kwargs = kwargs.pop("choices_link", {})
-        self.audoma_link = None
-
-        if choice_link_kwargs:
-            self.audoma_link = AudomaOptionsLink(**choice_link_kwargs)
-
-        super().__init__(*args, **kwargs)
