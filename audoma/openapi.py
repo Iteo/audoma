@@ -8,10 +8,15 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 
 from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
-from audoma.openapi_helpers import get_permissions_description
+from audoma.openapi_helpers import (
+    AudomaApiResponseCreator,
+    get_permissions_description,
+)
 
 
 class AudomaAutoSchema(AutoSchema):
+    response_creator = AudomaApiResponseCreator()
+
     def get_description(self):
         view = self.view
         description = super().get_description() or ""
@@ -20,6 +25,24 @@ class AudomaAutoSchema(AutoSchema):
 
     def _get_serializer(self, serializer_type="collect"):  # noqa: C901
         view = self.view
+        method = view.request.method
+
+        # code responsible for documenting AudomaAction decorator
+        if serializer_type == "collect":
+            action_serializers = self.response_creator.extract_collectors(view)
+        else:
+            action_serializers = self.response_creator.extract_results(view)
+
+        if action_serializers:
+            print(action_serializers)
+            if (
+                isinstance(action_serializers, dict)
+                and method.lower() in action_serializers
+            ):
+                return action_serializers[method.lower()]
+            else:
+                return action_serializers
+
         try:
             if isinstance(view, AudomaGenericAPIView):
                 if view.__class__.get_serializer == AudomaGenericAPIView.get_serializer:

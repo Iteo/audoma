@@ -5,6 +5,7 @@ from audoma_api.models import (
     Auction,
 )
 
+from audoma.choices import make_choices
 from audoma.drf import serializers
 from audoma.drf.decorators import document_and_format
 
@@ -57,11 +58,58 @@ class AccountModelSerializer(serializers.ModelSerializer):
         # extra_kwargs = {"char_field": {"example": "lorem ipsum"}}
 
     @document_and_format(serializers.PhoneNumberField)
-    def get_phone_number(self):
-        return self.phone_number
+    def get_phone_number(self, obj):
+        return obj.phone_number
 
 
 class AuctionModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Auction
         fields = "__all__"
+
+
+class AccountCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = "__all__"
+
+    def update(self):
+        for key, item in self.validated_data.items():
+            setattr(self.instance, key, item)
+        return self.instance
+
+    def create(self):
+        return Account(
+            username=self.validated_data["username"],
+            first_name=self.validated_data["first_name"],
+            last_name=self.validated_data["last_name"],
+            phone_number=self.validated_data["phone_number"],
+            nationality=self.validated_data["nationality"],
+            city=self.validated_data["city"],
+            email=self.validated_data["email"],
+            bio=self.validated_data["bio"],
+            is_active=self.validated_data["is_active"],
+            mac_adress=self.validated_data["mac_adress"],
+            ip_address=self.validated_data["ip_address"],
+            age=self.validated_data["age"],
+            _float=self.validated_data["_float"],
+            decimal=self.validated_data["decimal"],
+            duration=self.validated_data["duration"],
+            account_type=self.validated_data["account_type"],
+            account_balance=self.validated_data["account_balance"],
+        )
+
+    def save(self, **kwargs):
+        if self.instance:
+            return self.update()
+        return self.create()
+
+
+class RateSerializer(serializers.Serializer):
+
+    RATES = make_choices("RATE", ((0, "LIKE", "Like"), (1, "DISLIKIE", "Dislike")))
+
+    rate = serializers.ChoiceField(choices=RATES)
+
+    def save(self, **kwargs):
+        return self.validated_data

@@ -15,6 +15,7 @@ Including another URLconf
 """
 from audoma_api.views import (
     AccountViewSet,
+    AnonymousAccountViewSet,
     AuctionViewSet,
     ExampleViewSet,
 )
@@ -32,8 +33,17 @@ from django.urls import re_path
 router = routers.DefaultRouter()
 
 router.register(r"examples", ExampleViewSet, basename="examples")
-router.register(r"accounts", AccountViewSet, basename="model-examples")
-router.register(r"auctions", AuctionViewSet, basename="model-person-example")
+router.register(r"accounts", AccountViewSet, basename="accounts_viewset")
+router.register(r"auctions", AuctionViewSet, basename="auctions_viewset")
+router.register(
+    r"anonymous_accounts",
+    AnonymousAccountViewSet,
+    basename="anonymous_accounts_viewset",
+)
+# TODO - add example file upload viewset
+# router.register(
+#     r"file-upload-example", ExampleFileUploadViewSet, basename="file-upload-example"
+# )
 
 urlpatterns = router.urls
 

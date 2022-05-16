@@ -1,27 +1,38 @@
+import json
 import re
-from datetime import date
+from datetime import (
+    date,
+    timedelta,
+)
 
 import phonenumbers
-from audoma_api.models import ExampleModel
+from audoma_api.models import Account
 from audoma_api.serializers import (
-    ExampleModelSerializer,
+    AccountModelSerializer,
     ExampleSerializer,
 )
 from audoma_api.views import (
-    ExampleModelViewSet,
+    AccountViewSet,
+    AnonymousAccountViewSet,
     ExampleViewSet,
 )
 from drf_example.urls import router
 from drf_spectacular.generators import SchemaGenerator
 from phonenumber_field.phonenumber import to_python
 from rest_framework.permissions import BasePermission
+from rest_framework.test import (
+    APIClient,
+    APIRequestFactory,
+)
 
 from django.conf import settings
+from django.shortcuts import reverse
 from django.test import (
     SimpleTestCase,
     override_settings,
 )
 
+from audoma.decorators import AudomaActionException
 from audoma.django.db import models
 from audoma.drf import serializers
 from audoma.drf.viewsets import AudomaPagination
@@ -69,7 +80,7 @@ class AudomaTests(SimpleTestCase):
 
     def test_model_mapping_all_field_serializer(self):
         example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
-        self.assertEqual(len(ExampleModel._meta.fields), len(example_model_properties))
+        self.assertEqual(len(Account._meta.fields), len(example_model_properties))
 
     def test_filter_params_description_model_viewset(self):
         choices_desc = "Filter by choice \n * `EX_1` - example 1\n * `EX_2` - example 2\n * `EX_3` - example 3\n"
@@ -79,7 +90,7 @@ class AudomaTests(SimpleTestCase):
         self.assertEqual(choices_desc, docs_description)
 
     def test_permission_description_extension_model_viewset(self):
-        expected_permissions = ExampleModelViewSet.permission_classes
+        expected_permissions = AccountViewSet.permission_classes
         description = self.schema["paths"]["/model_examples/"]["get"]["description"]
         for permission in expected_permissions:
             # skip operations
@@ -125,7 +136,7 @@ class AudomaTests(SimpleTestCase):
     def test_override_model_example_in_extra_kwargs(self):
         example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
         char_field = example_model_properties["char_field"]
-        expected_result = ExampleModelSerializer.Meta.extra_kwargs["char_field"][
+        expected_result = AccountModelSerializer.Meta.extra_kwargs["char_field"][
             "example"
         ]
         self.assertEqual(expected_result, char_field["example"])
@@ -186,6 +197,10 @@ class AudomaTests(SimpleTestCase):
         ]["content"]
         self.assertEqual(len(example_schema.keys()), 1)
         self.assertEqual(list(example_schema.keys())[0], "multipart/form-data")
+        example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
+        phone_number = example_model_properties["phone_number"]
+        self.assertEqual("tel", phone_number["format"])
+        self.assertEqual("+1 8888888822", phone_number["example"])
 
     def test_charfield_example_limits(self):
         charfield_redoc = self.redoc_schemas["Example"]["properties"][
@@ -229,3 +244,196 @@ class AudomaTests(SimpleTestCase):
             "savings_currency"
         ]
         self.assertEqual("PLN", currency["example"])
+
+    def test_default_response_in_view_responses(self):
+        docs = self.schema["paths"]["/anonymous_accounts/rate_profile/"]
+        responses_docs = docs["post"]["responses"]
+        self.assertEqual(
+            responses_docs["default"]["content"]["application/json"]["schema"]["$ref"],
+            "#/components/schemas/Rate",
+        )
+
+    def test_custom_responses_in_view_responses(self):
+        docs = self.schema["paths"]["/anonymous_accounts/create_account/"]
+        responses_docs = docs["post"]["responses"]
+        self.assertEqual(
+            responses_docs["201"]["content"]["application/json"]["schema"]["$ref"],
+            "#/components/schemas/AccountModel",
+        )
+        print(responses_docs["202"])
+        self.assertEqual(
+            responses_docs["202"]["content"]["application/json"]["schema"]["$ref"],
+            "#/components/schemas/ExampleOneField",
+        )
+
+    def test_common_errors_in_description(self):
+        expected_error_data = '\n {\n    "detail": "Not found."\n} \n'
+        self.assertIn(expected_error_data, self.schema["info"]["description"])
+        expected_error_data = ' \n {\n    "detail": "Authentication credentials were not provided."\n} \n '
+        self.assertIn(expected_error_data, self.schema["info"]["description"])
+
+    def test_viewset_errors_in_viewset_responses(self):
+        docs = self.schema["paths"][
+            "/permissionless_model_examples/properly_defined_exception_example/"
+        ]
+        responses_docs = docs["get"]["responses"]
+        self.assertEqual(
+            responses_docs["400"]["content"]["application/json"]["schema"]["example"][
+                "detail"
+            ],
+            "Custom Bad Request Exception",
+        )
+        self.assertEqual(
+            responses_docs["409"]["content"]["application/json"]["schema"]["example"][
+                "detail"
+            ],
+            "Conflict has occured",
+        )
+
+
+class AudomaActionTestCase(SimpleTestCase):
+    def setUp(self):
+        super().setUp()
+        self.data = {
+            "username": "Username",
+            "first_name": "First",
+            "last_name": "Last",
+            "phone_number": "+18888888822",
+            "nationality": "SomeNationality",
+            "city": "RandomCity",
+            "email": "test@iteo.com",
+            "bio": "LoremIpsum",
+            "is_active": True,
+            "mac_adress": "96:82:2E:6B:F5:49",
+            "ip_address": "192.168.10.1",
+            "age": 16,
+            "_float": 12.2,
+            "decimal": "13.23",
+            "duration": timedelta(days=1),
+            "account_type": Account.ACCOUNT_TYPE.FACEBOOK,
+            "account_balance": 0,
+        }
+        self.client = APIClient()
+
+    def test_create_account_get(self):
+        response = self.client.get(
+            reverse("anonymous_accounts_viewset-create-account", kwargs={"pk": 0})
+        )
+        self.assertEqual(response.status_code, 405)
+
+    def test_create_account_post_with_proper_username(self):
+        self.data["username"] = "admin"
+        response = self.client.post(
+            reverse("anonymous_accounts_viewset-create-account", kwargs={"pk": 0}),
+            self.data,
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+        response_content = json.loads(response.content)
+        self.assertEqual(self.data["username"], response_content["username"])
+        self.assertEqual(self.data["first_name"], response_content["first_name"])
+        self.assertEqual(self.data["email"], response_content["email"])
+
+    def test_detail_action_post_without_proper_username(self):
+        response = self.client.post(
+            reverse("anonymous_accounts_viewset-create-account", kwargs={"pk": 0}),
+            self.data,
+            format="json",
+        )
+        self.assertEqual(response.status_code, 202)
+        response_content = json.loads(response.content)
+        self.assertEqual(response_content["message"], "This username is not allowed.")
+
+    def test_rate_profile_post_success(self):
+        response = self.client.post(
+            reverse("anonymous_accounts_viewset-rate-profile"),
+            {"rate": 1},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(json.loads(response.content)["rate"], 1)
+
+    def test_rate_profile_post_failure_serializer_validation(self):
+        response = self.client.post(reverse("anonymous_accounts_viewset-rate-profile"))
+        content = json.loads(response.content)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(content["errors"]["rate"], "This field is required.")
+
+    def test_rate_profile_post_wrong_rate_scope(self):
+        response = self.client.post(
+            reverse("anonymous_accounts_viewset-rate-profile"),
+            {"rate": 20},
+            format="json",
+        )
+        content = json.loads(response.content)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(content["errors"]["rate"], '"20" is not a valid choice.')
+
+    def test_rate_profile_post_view_validation(self):
+        response = self.client.post(
+            reverse("anonymous_accounts_viewset-rate-profile"),
+            {"rate": 1, "exception": "test"},
+            format="json",
+        )
+        content = json.loads(response.content)
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(content["errors"]["detail"], "Too many keys")
+
+    def test_specific_rate_get_success(self):
+        response = self.client.get(
+            reverse("anonymous_accounts_viewset-view-specific-rate", kwargs={"pk": 1})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["rate"], 1)
+
+    def test_specific_rate_get_invalid_pk(self):
+        response = self.client.get(
+            reverse("anonymous_accounts_viewset-view-specific-rate", kwargs={"pk": 0})
+        )
+        self.assertEqual(response.status_code, 404)
+
+    @override_settings(DEBUG=True)
+    def test_improperly_defined_exception_example_debug_true(self):
+        try:
+            view = AnonymousAccountViewSet()
+            url = reverse(
+                "anonymous_accounts_viewset-improperly-defined-exception-example"
+            )
+            factory = APIRequestFactory()
+            request = factory.get(url)
+            view.improperly_defined_exception_example(request)
+
+        except Exception as e:
+            self.assertEqual(type(e), AudomaActionException)
+            self.assertIn(
+                "<class 'audoma_api.exceptions.CustomConflictException'>", str(e)
+            )
+
+    def test_improperly_defined_exception_example_debug_false(self):
+        response = self.client.get(
+            reverse("anonymous_accounts_viewset-improperly-defined-exception-example")
+        )
+        self.assertEqual(response.status_code, 409)
+        data = response.json()
+        self.assertEqual(data["errors"]["detail"], "Conflict has occured")
+
+    def test_example_update_profile_patch(self):
+        response = self.client.patch(
+            reverse("anonymous_accounts_viewset-update-profile", kwargs={"pk": 0}),
+            {"username": "Sebastian", "email": "changetest@iteo.com"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(json.loads(response.content)["username"], "Sebastian")
+        self.assertEqual(json.loads(response.content)["email"], "changetest@iteo.com")
+
+    def test_example_update_action_put(self):
+        data = self.data
+        data["username"] = "John"
+        response = self.client.put(
+            reverse("anonymous_accounts_viewset-update-profile", kwargs={"pk": 0}),
+            data,
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(json.loads(response.content)["username"], "John")
