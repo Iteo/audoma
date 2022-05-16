@@ -34,12 +34,15 @@ class AudomaAutoSchema(AutoSchema):
             action_serializers = self.response_creator.extract_results(view)
 
         if action_serializers:
-            print(action_serializers)
             if (
                 isinstance(action_serializers, dict)
                 and method.lower() in action_serializers
             ):
-                return action_serializers[method.lower()]
+                method_serializers = action_serializers[method.lower()]
+                for key in action_serializers:
+                    if isinstance(key, int):
+                        method_serializers[key] = action_serializers[key]
+                return method_serializers
             else:
                 return action_serializers
 

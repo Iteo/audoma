@@ -135,23 +135,27 @@ class AnonymousAccountViewSet(mixins.ActionModelMixin, viewsets.GenericViewSet):
         methods=["post"],
         collectors={"post": AccountCreateSerializer},
         results={
-            "post": {201: AccountModelSerializer, 202: "This username is not allowed."}
+            "post": {201: AccountModelSerializer},
         },
+        errors=[CustomValidationErrorException],
     )
-    def create_account(self, request, collect_serializer, pk=None):
+    def create_account(self, request, collect_serializer):
         # username can't be username
         if request.data.get("username", None).lower() != "username":
             return collect_serializer.save(), 201
-        return None, 202
+        raise CustomValidationErrorException("This username is not allowed.")
 
     @audoma_action(
         detail=False,
-        methods=["post"],
-        results=RateSerializer,
+        methods=["post", "get"],
+        results={"get": {200: AccountModelSerializer}, "post": {201: RateSerializer}},
         collectors=RateSerializer,
         errors=[CustomValidationErrorException, CustomConflictException],
     )
     def rate_profile(self, request, collect_serializer):
+        if request.method.lower() == "get":
+            return Account(), 200
+
         if len(request.data.keys()) > 1:
             raise CustomConflictException("Too many keys")
 
@@ -161,7 +165,7 @@ class AnonymousAccountViewSet(mixins.ActionModelMixin, viewsets.GenericViewSet):
         detail=False,
         methods=["get"],
         results=RateSerializer,
-        errors=[CustomValidationErrorException],
+        errors=[CustomConflictException("Some random conflict exception")],
     )
     def improperly_defined_exception_example(self, request):
         raise CustomConflictException()

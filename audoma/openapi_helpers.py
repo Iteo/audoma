@@ -105,6 +105,8 @@ class AudomaApiResponseCreator:
         results = self._parse_action_serializers(getattr(_audoma, "results", None))
         errors = self._parse_action_errors(getattr(_audoma, "errors", []))
         if results:
+            if isinstance(errors, list):
+                errors = {error.status_code: error for error in errors}
             results.update(errors)
             return results
 

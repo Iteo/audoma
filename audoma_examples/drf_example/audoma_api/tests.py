@@ -273,21 +273,19 @@ class AudomaTests(SimpleTestCase):
         self.assertIn(expected_error_data, self.schema["info"]["description"])
 
     def test_viewset_errors_in_viewset_responses(self):
-        docs = self.schema["paths"][
-            "/permissionless_model_examples/properly_defined_exception_example/"
-        ]
+        docs = self.schema["paths"]["/anonymous_accounts/rate_profile/"]
         responses_docs = docs["get"]["responses"]
-        self.assertEqual(
-            responses_docs["400"]["content"]["application/json"]["schema"]["example"][
-                "detail"
-            ],
-            "Custom Bad Request Exception",
-        )
         self.assertEqual(
             responses_docs["409"]["content"]["application/json"]["schema"]["example"][
                 "detail"
             ],
             "Conflict has occured",
+        )
+        self.assertEqual(
+            responses_docs["400"]["content"]["application/json"]["schema"]["example"][
+                "detail"
+            ],
+            "Custom Validation Error Exception",
         )
 
 
@@ -316,15 +314,13 @@ class AudomaActionTestCase(SimpleTestCase):
         self.client = APIClient()
 
     def test_create_account_get(self):
-        response = self.client.get(
-            reverse("anonymous_accounts_viewset-create-account", kwargs={"pk": 0})
-        )
+        response = self.client.get(reverse("anonymous_accounts_viewset-create-account"))
         self.assertEqual(response.status_code, 405)
 
     def test_create_account_post_with_proper_username(self):
         self.data["username"] = "admin"
         response = self.client.post(
-            reverse("anonymous_accounts_viewset-create-account", kwargs={"pk": 0}),
+            reverse("anonymous_accounts_viewset-create-account"),
             self.data,
             format="json",
         )
@@ -336,13 +332,15 @@ class AudomaActionTestCase(SimpleTestCase):
 
     def test_detail_action_post_without_proper_username(self):
         response = self.client.post(
-            reverse("anonymous_accounts_viewset-create-account", kwargs={"pk": 0}),
+            reverse("anonymous_accounts_viewset-create-account"),
             self.data,
             format="json",
         )
-        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.status_code, 400)
         response_content = json.loads(response.content)
-        self.assertEqual(response_content["message"], "This username is not allowed.")
+        self.assertEqual(
+            response_content["errors"]["detail"], "This username is not allowed."
+        )
 
     def test_rate_profile_post_success(self):
         response = self.client.post(
