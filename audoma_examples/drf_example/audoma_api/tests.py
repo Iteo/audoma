@@ -107,11 +107,6 @@ class AudomaTests(TestCase):
                 continue
             self.assertIn(str(permission.__name__), description)
 
-    def test_document_and_format_example_model_phone_number(self):
-        example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
-        phone_number = example_model_properties["phone_number"]
-        self.assertEqual("tel", phone_number["format"])
-
     def test_custom_paginated_response_schema(self):
         paginated_example = self.redoc_schemas["PaginatedExampleList"]
         paginator = AudomaPagination()
@@ -140,19 +135,15 @@ class AudomaTests(TestCase):
         self.assertEqual(expected_result, first_name["example"])
 
     def test_example_models_custom_examples(self):
-        example_person_properties = self.redoc_schemas["ExamplePersonModel"][
-            "properties"
-        ]
-        first_name = example_person_properties["first_name"]
-        last_name = example_person_properties["last_name"]
+        account_properties = self.redoc_schemas["AccountModel"]["properties"]
+        first_name = account_properties["first_name"]
+        last_name = account_properties["last_name"]
         self.assertEqual("Adam", first_name["example"])
         self.assertEqual("Smith", last_name["example"])
 
     def test_example_with_callable_as_argument(self):
-        example_person_properties = self.redoc_schemas["ExamplePersonModel"][
-            "properties"
-        ]
-        age = example_person_properties["age"]
+        account_properties = self.redoc_schemas["AccountModel"]["properties"]
+        age = account_properties["age"]
         self.assertLessEqual(18, age["example"])
         self.assertGreaterEqual(80, age["example"])
 
@@ -231,13 +222,13 @@ class AudomaTests(TestCase):
         self.assertGreaterEqual(len(long_lorem_example), 100)
         self.assertLessEqual(len(long_lorem_example), 200)
 
-    def test_example_money_currency_with_currency_from_settings(self):
-        currency = self.redoc_schemas["ExampleModel"]["properties"]["money_currency"]
-        self.assertIn(currency["example"], settings.CURRENCIES)
+    # def test_example_money_currency_with_currency_from_settings(self):
+    #     currency = self.redoc_schemas["AccountModel"]["properties"]["account_balance_currency"]
+    #     self.assertIn(currency["example"], settings.CURRENCIES)
 
     def test_example_money_currency_with_default_currency(self):
-        currency = self.redoc_schemas["ExamplePersonModel"]["properties"][
-            "savings_currency"
+        currency = self.redoc_schemas["AccountModel"]["properties"][
+            "account_balance_currency"
         ]
         self.assertEqual("PLN", currency["example"])
 

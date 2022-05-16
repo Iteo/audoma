@@ -52,16 +52,9 @@ class ExampleSerializer(serializers.Serializer):
 
 
 class AccountModelSerializer(serializers.ModelSerializer):
-    phone_number = serializers.SerializerMethodField()
-
     class Meta:
         model = Account
         fields = "__all__"
-        # extra_kwargs = {"char_field": {"example": "lorem ipsum"}}
-
-    @document_and_format(serializers.PhoneNumberField)
-    def get_phone_number(self, obj):
-        return obj.phone_number
 
 
 class AuctionModelSerializer(serializers.ModelSerializer):

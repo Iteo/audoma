@@ -34,7 +34,7 @@ class Account(models.Model):
     first_name = models.CharField(max_length=225, example="Adam")
     last_name = models.CharField(max_length=255, example="Smith")
     # phone_number = models.PhoneNumberField(example="+123456789") - we can add our own example
-    phone_number = models.PhoneNumberField(region="PL")  # generates localized example
+    phone_number = models.PhoneNumberField(region="IT")  # generates localized example
     nationality = models.CharField(max_length=255, example=get_countries)
     city = models.CharField(
         max_length=255, example=lazy(lambda: random.choice(example_cities), str)
@@ -44,7 +44,7 @@ class Account(models.Model):
     is_active = models.BooleanField()
     mac_adress = models.MACAddressField()
     ip_address = models.GenericIPAddressField()
-    age = models.IntegerField()
+    age = models.IntegerField(example=get_random_age)
     _float = models.FloatField()
     decimal = models.DecimalField(decimal_places=2, max_digits=10)
     duration = models.DurationField()
@@ -92,7 +92,6 @@ class Car(models.Model):
 
     name = models.CharField(max_length=255)
     body_type = models.IntegerField(choices=CAR_BODY_TYPES.get_choices())
-
     manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE)
     engine_size = models.FloatField()
     engine_type = models.IntegerField(choices=ENGINE_TYPES.get_choices())
