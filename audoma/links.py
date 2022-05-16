@@ -10,13 +10,26 @@ from typing import (
 from pyparsing import str_type
 from rest_framework.serializers import BaseSerializer
 
+from django.urls import (
+    URLPattern,
+    URLResolver,
+)
 from django.urls.resolvers import get_resolver
 
 
 def get_endpoint_pattern(endpoint_name: str, urlconf=None) -> str:
     resolver = get_resolver(urlconf)
     patterns = resolver.url_patterns
-    possibilities = list(filter(lambda p: p.name == endpoint_name, patterns))
+    new_patterns = []
+    resolvers = []
+
+    for pattern in patterns:
+        if isinstance(pattern, URLResolver):
+            resolvers.append(pattern)
+            continue
+        new_patterns.append(pattern)
+
+    possibilities = list(filter(lambda p: p.name == endpoint_name, new_patterns))
     if not possibilities:
         return
     # TODO - fix this before push

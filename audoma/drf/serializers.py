@@ -129,8 +129,6 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
     }
     serializer_choice_field = ChoiceField
 
-    serializer_choice_field = ChoiceField
-
     def build_standard_field(self, field_name, model_field):
         field_class, field_kwargs = super().build_standard_field(
             field_name, model_field

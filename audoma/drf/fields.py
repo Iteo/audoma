@@ -131,7 +131,7 @@ class MoneyField(NumericExampleMixin, MoneyField):
     pass
 
 
-class ChoiceField(fields.ChoiceField):
+class ChoiceField(ExampleMixin, fields.ChoiceField):
     def __init__(self, choices, **kwargs):
         if isinstance(choices, dict):
             self.original_choices = list(choices.items())

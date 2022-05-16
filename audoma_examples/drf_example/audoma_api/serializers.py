@@ -109,9 +109,9 @@ class AccountCreateSerializer(serializers.ModelSerializer):
 
 class RateSerializer(serializers.Serializer):
 
-    RATES = make_choices("RATE", ((0, "LIKE", "Like"), (1, "DISLIKIE", "Dislike")))
+    RATES = make_choices("RATE", ((0, "LIKE", "Like"), (1, "DISLIKE", "Dislike")))
 
-    rate = serializers.ChoiceField(choices=RATES)
+    rate = serializers.ChoiceField(choices=RATES.get_api_choices())
 
     def save(self, **kwargs):
         return self.validated_data
