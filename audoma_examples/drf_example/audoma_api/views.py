@@ -181,7 +181,7 @@ class AnonymousAccountViewSet(mixins.ActionModelMixin, viewsets.GenericViewSet):
         if int(pk) == 0:
             # Proper usage of common errors
             raise NotFound
-        return {"rate": RateSerializer.RATES.DISLIKIE}, 200
+        return {"rate": RateSerializer.RATES.DISLIKE}, 200
 
     def get_object(self):
         return Account(

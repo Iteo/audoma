@@ -258,7 +258,7 @@ class audoma_action:
                     break
             if not error_match:
                 raise AudomaActionException(
-                    f"Raised error: {processed_error_instance} has not been \
+                    f"Raised error: {processed_error_class} has not been \
                         defined in audoma_action errors."
                 )
 

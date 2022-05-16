@@ -28,7 +28,7 @@ from rest_framework.test import (
 from django.conf import settings
 from django.shortcuts import reverse
 from django.test import (
-    SimpleTestCase,
+    TestCase,
     override_settings,
 )
 
@@ -39,7 +39,7 @@ from audoma.drf.viewsets import AudomaPagination
 from audoma.example_generators import generate_lorem_ipsum
 
 
-class AudomaTests(SimpleTestCase):
+class AudomaTests(TestCase):
     def setUp(self):
         patterns = router.urls
         generator = SchemaGenerator(patterns=patterns)
@@ -79,19 +79,19 @@ class AudomaTests(SimpleTestCase):
         self.assertEqual(expected_uuid_field, uuid_field)
 
     def test_model_mapping_all_field_serializer(self):
-        example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
+        example_model_properties = self.redoc_schemas["AccountModel"]["properties"]
         self.assertEqual(len(Account._meta.fields), len(example_model_properties))
 
     def test_filter_params_description_model_viewset_documented_typed(self):
-        choices_desc = "Filter by choice \n * `EX_1` - example 1\n * `EX_2` - example 2\n * `EX_3` - example 3\n"
-        docs_description = self.schema["paths"]["/model_examples/"]["get"][
-            "parameters"
-        ][0]["description"]
+        choices_desc = "Filter by account_type \n * `FACEBOOK` - facebook\n * `GMAIL` - gmail\n * `OTHER` - other\n"
+        docs_description = self.schema["paths"]["/accounts/"]["get"]["parameters"][0][
+            "description"
+        ]
         self.assertEqual(choices_desc, docs_description)
 
     def test_permission_description_extension_model_viewset(self):
         expected_permissions = AccountViewSet.permission_classes
-        description = self.schema["paths"]["/model_examples/"]["get"]["description"]
+        description = self.schema["paths"]["/accounts/"]["get"]["description"]
         for permission in expected_permissions:
             # skip operations
             if not isinstance(permission, BasePermission):
@@ -134,12 +134,10 @@ class AudomaTests(SimpleTestCase):
         self.assertTrue(bool(regex_pattern.match(example_mac_address["example"])))
 
     def test_override_model_example_in_extra_kwargs(self):
-        example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
-        char_field = example_model_properties["char_field"]
-        expected_result = AccountModelSerializer.Meta.extra_kwargs["char_field"][
-            "example"
-        ]
-        self.assertEqual(expected_result, char_field["example"])
+        example_model_properties = self.redoc_schemas["AccountModel"]["properties"]
+        first_name = example_model_properties["first_name"]
+        expected_result = "Adam"
+        self.assertEqual(expected_result, first_name["example"])
 
     def test_example_models_custom_examples(self):
         example_person_properties = self.redoc_schemas["ExamplePersonModel"][
@@ -159,9 +157,7 @@ class AudomaTests(SimpleTestCase):
         self.assertGreaterEqual(80, age["example"])
 
     def test_model_phonenumber_with_region(self):
-        example_person_properties = self.redoc_schemas["ExamplePersonModel"][
-            "properties"
-        ]
+        example_person_properties = self.redoc_schemas["AccountModel"]["properties"]
         phone_number_field = example_person_properties["phone_number"]
         phone_number_example = phone_number_field["example"]
         generated_france_number = to_python(
@@ -281,12 +277,6 @@ class AudomaTests(SimpleTestCase):
             ],
             "Conflict has occured",
         )
-        self.assertEqual(
-            responses_docs["400"]["content"]["application/json"]["schema"]["example"][
-                "detail"
-            ],
-            "Custom Validation Error Exception",
-        )
 
     def test_filterset_class_description_in_query_params_schema(self):
         choices_desc = "Filter by choices \n * `1` - example 1\n * `2` - example 2\n * `3` - example 3\n"
@@ -304,13 +294,13 @@ class AudomaTests(SimpleTestCase):
 
     def test_serach_fields_description(self):
         expected_search_description = (
-            "Search by: \n* `foreign_key` \n\t * `name(Exact matches.)` \n* `name` \n"
+            "Search by: \n* `slug_name(Exact matches.)` \n* `name` \n"
         )
 
-        docs_description = self.schema["paths"]["/example_related_model_viewset/"][
-            "get"
-        ]["parameters"]
-        search_docs_data = docs_description[-1]
+        docs_description = self.schema["paths"]["/manufacturer_viewset/"]["get"][
+            "parameters"
+        ]
+        search_docs_data = docs_description[-2]
         self.assertEqual(search_docs_data["name"], "search")
         self.assertEqual(search_docs_data["description"], expected_search_description)
 
@@ -324,7 +314,7 @@ class AudomaTests(SimpleTestCase):
         ...
 
 
-class AudomaActionTestCase(SimpleTestCase):
+class AudomaActionTestCase(TestCase):
     def setUp(self):
         super().setUp()
         self.data = {
@@ -380,11 +370,11 @@ class AudomaActionTestCase(SimpleTestCase):
     def test_rate_profile_post_success(self):
         response = self.client.post(
             reverse("anonymous_accounts_viewset-rate-profile"),
-            {"rate": 1},
+            {"rate": "LIKE"},
             format="json",
         )
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(json.loads(response.content)["rate"], 1)
+        self.assertEqual(json.loads(response.content)["rate"], "LIKE")
 
     def test_rate_profile_post_failure_serializer_validation(self):
         response = self.client.post(reverse("anonymous_accounts_viewset-rate-profile"))
@@ -395,20 +385,21 @@ class AudomaActionTestCase(SimpleTestCase):
     def test_rate_profile_post_wrong_rate_scope(self):
         response = self.client.post(
             reverse("anonymous_accounts_viewset-rate-profile"),
-            {"rate": 20},
+            {"rate": "TEST"},
             format="json",
         )
         content = json.loads(response.content)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(content["errors"]["rate"], '"20" is not a valid choice.')
+        self.assertEqual(content["errors"]["rate"], '"TEST" is not a valid choice.')
 
     def test_rate_profile_post_view_validation(self):
         response = self.client.post(
             reverse("anonymous_accounts_viewset-rate-profile"),
-            {"rate": 1, "exception": "test"},
+            {"rate": "LIKE", "exception": "test"},
             format="json",
         )
         content = json.loads(response.content)
+        print(response, content)
         self.assertEqual(response.status_code, 409)
         self.assertEqual(content["errors"]["detail"], "Too many keys")
 
