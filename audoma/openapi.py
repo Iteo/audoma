@@ -50,7 +50,11 @@ class AudomaAutoSchema(AutoSchema):
 
     def _get_serializer(  # noqa: C901
         self, serializer_type="collect"
-    ) -> typing.Union[BaseSerializer, typing.Type[BaseSerializer]]:
+    ) -> typing.Union[
+        BaseSerializer,
+        typing.Type[BaseSerializer],
+        typing.Dict[typing.Any, BaseSerializer],
+    ]:
         view = self.view
         method = view.request.method
 
