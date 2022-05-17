@@ -2,14 +2,19 @@ from __future__ import annotations
 
 import typing
 
+from drf_spectacular.drainage import get_override
+from drf_spectacular.extensions import OpenApiSerializerExtension
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import (
     build_array_type,
+    build_examples_list,
     build_media_type_object,
     error,
     force_instance,
     modify_media_types_for_versioning,
+    sanitize_specification_extensions,
 )
+from drf_spectacular.types import OpenApiTypes
 from rest_framework.fields import Field
 from rest_framework.generics import GenericAPIView
 from rest_framework.serializers import BaseSerializer
@@ -19,12 +24,15 @@ from django.utils.translation import gettext_lazy as _
 
 from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
 from audoma.drf.serializers import BulkSerializerMixin
+from audoma.drf.validators import ExclusiveFieldsValidator
 from audoma.links import (
     ChoicesOptionsLink,
     ChoicesOptionsLinkSchemaGenerator,
 )
 from audoma.openapi_helpers import (
     AudomaApiResponseCreator,
+    build_exclusive_fields_examples,
+    build_exclusive_fields_schema,
     get_permissions_description,
 )
 
@@ -210,3 +218,61 @@ class AudomaAutoSchema(AutoSchema):
             }
 
         return super()._get_response_for_code(serializer, status_code, media_types)
+
+    def _get_examples(
+        self,
+        serializer,
+        direction: str,
+        media_type: str,
+        status_code: str = None,
+        extras: list = None,
+    ) -> typing.List[dict]:
+        serializer = force_instance(serializer)
+        examples = super()._get_examples(
+            serializer, direction, media_type, status_code, extras
+        )
+        if not hasattr(serializer, "validators") or direction == "response":
+            return examples
+
+        examples = []
+        for validator in serializer.get_validators():
+            if isinstance(validator, ExclusiveFieldsValidator):
+                examples += build_exclusive_fields_examples(
+                    serializer, validator.fields, examples
+                )
+        if examples:
+            examples = build_examples_list(examples)
+        return examples
+
+    def _map_serializer(
+        self,
+        serializer: typing.Union[
+            OpenApiTypes, BaseSerializer, typing.Type[BaseSerializer]
+        ],
+        direction: str,
+        bypass_extensions: bool = False,
+    ) -> dict:
+        serializer = force_instance(serializer)
+        serializer_extension = OpenApiSerializerExtension.get_match(serializer)
+
+        if serializer_extension and not bypass_extensions:
+            schema = serializer_extension.map_serializer(self, direction)
+        else:
+            schema = self._map_basic_serializer(serializer, direction)
+
+        if hasattr(serializer, "validators") and direction == "request":
+            subschemas = []
+            for validator in serializer.get_validators():
+                if isinstance(validator, ExclusiveFieldsValidator):
+                    subschemas += build_exclusive_fields_schema(
+                        schema, validator.fields
+                    )
+
+            if subschemas:
+                schema = {"oneOf": subschemas}
+
+        extensions = get_override(serializer, "extensions", {})
+        if extensions:
+            schema.update(sanitize_specification_extensions(extensions))
+
+        return self._postprocess_serializer_schema(schema, serializer, direction)

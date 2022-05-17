@@ -21,6 +21,7 @@ from audoma_api.views import (
     ExampleSimpleModelViewSet,
     ExampleViewSet,
     ManufacturerViewSet,
+    MutuallyExclusiveViewSet,
 )
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -58,7 +59,13 @@ router.register(
     basename="car_viewset",
 )
 
+router.register(
+    r"mutually-exclusive", MutuallyExclusiveViewSet, basename="mutually-exclusive"
+)
+
 urlpatterns = router.urls + bulk_router.urls
+
+urlpatterns = router.urls
 
 urlpatterns += [
     re_path("admin/", admin.site.urls),
