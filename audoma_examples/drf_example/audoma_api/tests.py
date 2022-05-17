@@ -107,6 +107,11 @@ class AudomaTests(TestCase):
                 continue
             self.assertIn(str(permission.__name__), description)
 
+    def test_document_and_format_example_model_phone_number(self):
+        example_model_properties = self.redoc_schemas["AccountModel"]["properties"]
+        phone_number = example_model_properties["phone_number"]
+        self.assertEqual("tel", phone_number["format"])
+
     def test_custom_paginated_response_schema(self):
         paginated_example = self.redoc_schemas["PaginatedExampleList"]
         paginator = AudomaPagination()
@@ -135,15 +140,15 @@ class AudomaTests(TestCase):
         self.assertEqual(expected_result, first_name["example"])
 
     def test_example_models_custom_examples(self):
-        account_properties = self.redoc_schemas["AccountModel"]["properties"]
-        first_name = account_properties["first_name"]
-        last_name = account_properties["last_name"]
+        example_person_properties = self.redoc_schemas["AccountModel"]["properties"]
+        first_name = example_person_properties["first_name"]
+        last_name = example_person_properties["last_name"]
         self.assertEqual("Adam", first_name["example"])
         self.assertEqual("Smith", last_name["example"])
 
     def test_example_with_callable_as_argument(self):
-        account_properties = self.redoc_schemas["AccountModel"]["properties"]
-        age = account_properties["age"]
+        example_person_properties = self.redoc_schemas["AccountModel"]["properties"]
+        age = example_person_properties["age"]
         self.assertLessEqual(18, age["example"])
         self.assertGreaterEqual(80, age["example"])
 
@@ -179,15 +184,11 @@ class AudomaTests(TestCase):
         self.assertEqual(expected_example, pn.example)
 
     def test_file_upload_view_parsers(self):
-        example_schema = self.schema["paths"]["/file-upload-example/"]["post"][
-            "requestBody"
-        ]["content"]
+        example_schema = self.schema["paths"]["/auctions/"]["post"]["requestBody"][
+            "content"
+        ]
         self.assertEqual(len(example_schema.keys()), 1)
         self.assertEqual(list(example_schema.keys())[0], "multipart/form-data")
-        example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
-        phone_number = example_model_properties["phone_number"]
-        self.assertEqual("tel", phone_number["format"])
-        self.assertEqual("+1 8888888822", phone_number["example"])
 
     def test_charfield_example_limits(self):
         charfield_redoc = self.redoc_schemas["Example"]["properties"][
@@ -222,10 +223,6 @@ class AudomaTests(TestCase):
         self.assertGreaterEqual(len(long_lorem_example), 100)
         self.assertLessEqual(len(long_lorem_example), 200)
 
-    # def test_example_money_currency_with_currency_from_settings(self):
-    #     currency = self.redoc_schemas["AccountModel"]["properties"]["account_balance_currency"]
-    #     self.assertIn(currency["example"], settings.CURRENCIES)
-
     def test_example_money_currency_with_default_currency(self):
         currency = self.redoc_schemas["AccountModel"]["properties"][
             "account_balance_currency"
@@ -233,8 +230,10 @@ class AudomaTests(TestCase):
         self.assertEqual("PLN", currency["example"])
 
     def test_default_response_in_view_responses(self):
-        docs = self.schema["paths"]["/anonymous_accounts/rate_profile/"]
-        responses_docs = docs["post"]["responses"]
+        docs = self.schema["paths"][
+            "/anonymous_accounts/improperly_defined_exception_example/"
+        ]
+        responses_docs = docs["get"]["responses"]
         self.assertEqual(
             responses_docs["default"]["content"]["application/json"]["schema"]["$ref"],
             "#/components/schemas/Rate",
@@ -246,11 +245,6 @@ class AudomaTests(TestCase):
         self.assertEqual(
             responses_docs["201"]["content"]["application/json"]["schema"]["$ref"],
             "#/components/schemas/AccountModel",
-        )
-        print(responses_docs["202"])
-        self.assertEqual(
-            responses_docs["202"]["content"]["application/json"]["schema"]["$ref"],
-            "#/components/schemas/ExampleOneField",
         )
 
     def test_common_errors_in_description(self):
@@ -270,17 +264,10 @@ class AudomaTests(TestCase):
         )
 
     def test_filterset_class_description_in_query_params_schema(self):
-        choices_desc = "Filter by choices \n * `1` - example 1\n * `2` - example 2\n * `3` - example 3\n"
-        docs_description = self.schema["paths"]["/example_filterset_class_viewset/"][
-            "get"
-        ]["parameters"][0]["description"]
-        self.assertEqual(choices_desc, docs_description)
-
-    def test_filterset_fields_description_in_query_paramas_schema(self):
-        choices_desc = "Filter by choices \n * `1` - example 1\n * `2` - example 2\n * `3` - example 3\n"
-        docs_description = self.schema["paths"]["/example_filterset_fields_viewset/"][
-            "get"
-        ]["parameters"][0]["description"]
+        choices_desc = "Filter by body_type \n * `1` - Sedan\n * `2` - Coupe\n * `3` - Hatchback\n * `4` - Pickup Truck\n"
+        docs_description = self.schema["paths"]["/car_viewset/"]["get"]["parameters"][
+            0
+        ]["description"]
         self.assertEqual(choices_desc, docs_description)
 
     def test_serach_fields_description(self):
