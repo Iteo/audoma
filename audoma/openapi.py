@@ -15,8 +15,6 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.serializers import BaseSerializer
 from rest_framework.views import APIView
 
-from django.utils.translation import gettext_lazy as _
-
 from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
 from audoma.drf.serializers import BulkSerializerMixin
 from audoma.links import (

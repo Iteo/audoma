@@ -7,13 +7,9 @@ from typing import (
     Union,
 )
 
-from pyparsing import str_type
 from rest_framework.serializers import BaseSerializer
 
-from django.urls import (
-    URLPattern,
-    URLResolver,
-)
+from django.urls import URLResolver
 from django.urls.resolvers import get_resolver
 
 

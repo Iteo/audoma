@@ -7,10 +7,7 @@ from datetime import (
 
 import phonenumbers
 from audoma_api.models import Account
-from audoma_api.serializers import (
-    AccountModelSerializer,
-    ExampleSerializer,
-)
+from audoma_api.serializers import ExampleSerializer
 from audoma_api.views import (
     AccountViewSet,
     AnonymousAccountViewSet,
@@ -25,7 +22,6 @@ from rest_framework.test import (
     APIRequestFactory,
 )
 
-from django.conf import settings
 from django.shortcuts import reverse
 from django.test import (
     TestCase,
@@ -264,11 +260,11 @@ class AudomaTests(TestCase):
         )
 
     def test_filterset_class_description_in_query_params_schema(self):
-        choices_desc = "Filter by body_type \n * `1` - Sedan\n * `2` - Coupe\n * `3` - Hatchback\n * `4` - Pickup Truck\n"
+        choices = "Filter by body_type \n * `1` - Sedan\n * `2` - Coupe\n * `3` - Hatchback\n * `4` - Pickup Truck\n"
         docs_description = self.schema["paths"]["/car_viewset/"]["get"]["parameters"][
             0
         ]["description"]
-        self.assertEqual(choices_desc, docs_description)
+        self.assertEqual(choices, docs_description)
 
     def test_serach_fields_description(self):
         expected_search_description = (

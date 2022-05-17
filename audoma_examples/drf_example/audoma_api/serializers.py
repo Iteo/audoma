@@ -5,13 +5,11 @@ from audoma_api.models import (
     Auction,
     Car,
     ExampleSimpleModel,
-    ExampleTagModel,
     Manufacturer,
 )
 
 from audoma.choices import make_choices
 from audoma.drf import serializers
-from audoma.drf.decorators import document_and_format
 
 
 class NestedExampleSerializer(serializers.Serializer):
