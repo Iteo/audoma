@@ -18,6 +18,7 @@ from audoma_api.views import (
     AnonymousAccountViewSet,
     AuctionViewSet,
     CarViewSet,
+    ExampleSimpleModelViewSet,
     ExampleViewSet,
     ManufacturerViewSet,
 )
@@ -31,9 +32,13 @@ from rest_framework import routers
 from django.contrib import admin
 from django.urls import re_path
 
+from audoma.drf.routes import BulkRouter
 
+
+bulk_router = BulkRouter()
 router = routers.DefaultRouter()
 
+bulk_router.register(r"bulk_endpoint", ExampleSimpleModelViewSet, "bulk-example")
 router.register(r"examples", ExampleViewSet, basename="examples")
 router.register(r"accounts", AccountViewSet, basename="accounts_viewset")
 router.register(r"auctions", AuctionViewSet, basename="auctions_viewset")
@@ -53,7 +58,7 @@ router.register(
     basename="car_viewset",
 )
 
-urlpatterns = router.urls
+urlpatterns = router.urls + bulk_router.urls
 
 urlpatterns += [
     re_path("admin/", admin.site.urls),

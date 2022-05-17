@@ -9,6 +9,7 @@ from audoma_api.models import (
     Account,
     Auction,
     Car,
+    ExampleSimpleModel,
     Manufacturer,
 )
 from audoma_api.permissions import (
@@ -24,6 +25,7 @@ from audoma_api.serializers import (
     AuctionModelSerializer,
     CarModelSerializer,
     ExampleSerializer,
+    ExampleSimpleModelSerializer,
     ManufacturerModelSerializer,
     RateSerializer,
 )
@@ -243,3 +245,20 @@ class CarViewSet(
     queryset = Car.objects.none()
     serializer_class = CarModelSerializer
     filterset_class = CarChoiceFilter
+
+
+class ExampleSimpleModelViewSet(
+    mixins.ListModelMixin,
+    mixins.BulkCreateModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.BulkUpdateModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
+    serializer_class = ExampleSimpleModelSerializer
+
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return ExampleSimpleModel.objects.all()

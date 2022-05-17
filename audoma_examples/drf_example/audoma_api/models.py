@@ -95,3 +95,15 @@ class Car(models.Model):
     manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE)
     engine_size = models.FloatField()
     engine_type = models.IntegerField(choices=ENGINE_TYPES.get_choices())
+
+
+class ExampleSimpleModel(models.Model):
+    name = models.CharField(max_length=64, null=False)
+    value = models.IntegerField(default=0, null=True)
+
+
+class ExampleTagModel(models.Model):
+    name = models.CharField(max_length=32)
+    item = models.ForeignKey(
+        ExampleSimpleModel, on_delete=models.CASCADE, related_name="tags"
+    )

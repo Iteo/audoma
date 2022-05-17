@@ -4,6 +4,8 @@ from audoma_api.models import (
     Account,
     Auction,
     Car,
+    ExampleSimpleModel,
+    ExampleTagModel,
     Manufacturer,
 )
 
@@ -131,3 +133,12 @@ class CarModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Car
         fields = "__all__"
+
+
+class ExampleSimpleModelSerializer(
+    serializers.ModelSerializer, serializers.BulkSerializerMixin
+):
+    class Meta:
+        model = ExampleSimpleModel
+        fields = "__all__"
+        list_serializer_class = serializers.BulkListSerializer

@@ -6,9 +6,11 @@ from rest_framework.serializers import BaseSerializer
 
 class GenericAPIView(generics.GenericAPIView):
     def get_serializer(self, *args, **kwargs) -> BaseSerializer:
+        many = kwargs.get("many", False)
         serializer_type = kwargs.pop("serializer_type", "collect")
         serializer_class = kwargs.pop(
-            "serializer_class", self.get_serializer_class(type=serializer_type)
+            "serializer_class",
+            self.get_serializer_class(type=serializer_type, many=many),
         )
         kwargs["context"] = self.get_serializer_context()
         return serializer_class(*args, **kwargs)
@@ -17,7 +19,7 @@ class GenericAPIView(generics.GenericAPIView):
     def get_result_serializer(self, *args, **kwargs) -> BaseSerializer:
         return self.get_serializer(*args, serializer_type="result", **kwargs)
 
-    def get_serializer_class(self, type: str = "collect") -> Type[BaseSerializer]:
+    def get_serializer_class(self, type="collect", many=False) -> Type[BaseSerializer]:
         assert self.action not in [
             "post",
             "put",
@@ -59,6 +61,6 @@ class GenericAPIView(generics.GenericAPIView):
             and hasattr(serializer_class, "get_result_serializer_class")
         ):
             assert callable(serializer_class.get_result_serializer_class)
-            serializer_class = serializer_class.get_result_serializer_class()
+            serializer_class = serializer_class.get_result_serializer_class(many=many)
 
         return serializer_class
