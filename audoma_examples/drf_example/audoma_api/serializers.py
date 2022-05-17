@@ -10,6 +10,7 @@ from audoma_api.models import (
 
 from audoma.choices import make_choices
 from audoma.drf import serializers
+from audoma.drf.validators import ExclusiveFieldsValidator
 
 
 class NestedExampleSerializer(serializers.Serializer):
@@ -140,3 +141,29 @@ class ExampleSimpleModelSerializer(
         model = ExampleSimpleModel
         fields = "__all__"
         list_serializer_class = serializers.BulkListSerializer
+
+
+class MutuallyExclusiveExampleSerializer(serializers.Serializer):
+    class Meta:
+        validators = [
+            ExclusiveFieldsValidator(
+                fields=[
+                    "example_field",
+                    "second_example_field",
+                ]
+            ),
+            ExclusiveFieldsValidator(
+                fields=[
+                    "third_example_field",
+                    "fourth_example_field",
+                ]
+            ),
+        ]
+
+    example_field = serializers.CharField(required=False)
+    second_example_field = serializers.CharField(required=False)
+    third_example_field = serializers.CharField(required=False)
+    fourth_example_field = serializers.CharField(required=False)
+
+    not_exclusive_field = serializers.CharField(required=False)
+    second_not_exclusive_field = serializers.CharField(required=False)

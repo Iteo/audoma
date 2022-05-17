@@ -27,6 +27,7 @@ from audoma_api.serializers import (
     ExampleSerializer,
     ExampleSimpleModelSerializer,
     ManufacturerModelSerializer,
+    MutuallyExclusiveExampleSerializer,
     RateSerializer,
 )
 from django_filters import rest_framework as df_filters
@@ -262,3 +263,12 @@ class ExampleSimpleModelViewSet(
 
     def get_queryset(self):
         return ExampleSimpleModel.objects.all()
+
+
+class MutuallyExclusiveViewSet(
+    mixins.ActionModelMixin,
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    serializer_class = MutuallyExclusiveExampleSerializer
