@@ -57,8 +57,8 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
         pass
     ```
 
-* `ExampleMixin` allows you to add example documentation value to a serializer field. To use it you just need to inherit
-    from `ExampleMixin`, like below and initialize object with example
+* `ExampleMixin` allows you to add example documentation value to a serializer field. To use it you just need to use fields defined in
+    `audoma.drf.fields` or inherit from `ExampleMixin` or use fields defined in `audoma.drf.fields`, like below and initialize object with example
 
     ```python
     class FloatField(ExampleMixin, fields.FloatField):
@@ -76,6 +76,17 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
     "float_field": 23.45
     }
     ```
+
+    You can also add example directly to model fields. It works the same way as in serializers, just inherit from `ModelExampleMixin`, or
+    use audoma's fields defined in `audoma.django.db` and initialize model field with example like shown below.
+
+    ```python
+    from audoma.django.db import models
+
+    class Person(models.Model):
+        first_name = models.CharField(max_length=255, example="Tom")
+    ```
+
 
 * `DocumentedTypedChoiceFilter` is a wrapper to `df.filters.TypedChoiceFilter` that makes creating documentation easier. It goes out of the box with
     our `make_choices` function for quickly making a namedtuple suitable for use in a django model as a choices attribute on a field that will preserve order.
@@ -117,6 +128,8 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
     class ExampleModelViewSet():
         ...
     ```
+
+* We also support documentation of `MoneyField` from `django-money` package which allows you to handle money and currency values
 
 
 Testing and example application

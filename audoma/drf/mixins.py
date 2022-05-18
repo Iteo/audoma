@@ -1,3 +1,6 @@
+import random
+
+import exrex
 from drf_spectacular.drainage import set_override
 from rest_framework import (
     mixins,
@@ -5,6 +8,8 @@ from rest_framework import (
 )
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
+
+from django.core import validators
 
 
 class ActionModelMixin:
@@ -116,10 +121,78 @@ class DestroyModelMixin(mixins.DestroyModelMixin):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ExampleMixin:
-    def __init__(self, *args, **kwargs):
+class DEFAULT:
+    pass
 
-        example = kwargs.pop("example", None)
+
+class Example:
+    def __init__(self, field, example=DEFAULT):
+        self.field = field
+        self.example = example
+
+    def generate_value(self):
+        return DEFAULT
+
+    def get_value(self):
+        if self.example is not DEFAULT:
+            if callable(self.example):
+                return self.example()
+            return self.example
+        return self.generate_value()
+
+    def to_representation(self, value):
+        return self.field.to_representation(value)
+
+
+class NumericExample(Example):
+    def generate_value(self):
+        min_val = getattr(self.field, "min_value", 1) or 1
+        max_val = getattr(self.field, "max_value", 1000) or 1000
+        return random.uniform(min_val, max_val)
+
+
+class RegexExample(Example):
+    def generate_value(self):
+        regex_validators = [
+            validator
+            for validator in self.field.validators
+            if isinstance(validator, validators.RegexValidator)
+        ]
+        if regex_validators:
+            regex_validator = regex_validators[0]
+            return exrex.getone(regex_validator.regex.pattern)
+        return None
+
+
+class ExampleMixin:
+    audoma_example_class = Example
+
+    def __init__(self, *args, example=DEFAULT, **kwargs):
+        self.audoma_example = self.audoma_example_class(self, example)
         super().__init__(*args, **kwargs)
-        if example:
-            set_override(self, "field", {"example": example})
+        example = self.audoma_example.get_value()
+        if example is not DEFAULT:
+            has_annotation = (
+                hasattr(self, "_spectacular_annotation")
+                and "field" in self._spectacular_annotation
+                and isinstance(self._spectacular_annotation["field"], dict)
+            )
+            example_representation = self.audoma_example.to_representation(example)
+            field = {"example": example_representation}
+            if has_annotation:
+                field = self._spectacular_annotation["field"].copy()
+                field["example"] = example_representation
+
+            set_override(
+                self,
+                "field",
+                field,
+            )
+
+
+class NumericExampleMixin(ExampleMixin):
+    audoma_example_class = NumericExample
+
+
+class RegexExampleMixin(ExampleMixin):
+    audoma_example_class = RegexExample

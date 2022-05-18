@@ -1,21 +1,60 @@
-import random
+import sys
 
 import exrex
+import phonenumbers
+from djmoney.contrib.django_rest_framework import MoneyField
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from phonenumber_field import serializerfields
+from phonenumber_field.phonenumber import to_python
 from rest_framework import fields
 from rest_framework.fields import *  # noqa: F403, F401
 
 from django.core import validators
 
-from audoma.drf.mixins import ExampleMixin
-
-
-@extend_schema_field(
-    field={"type": "number", "example": round(random.uniform(0, 1000), 2)}
+from audoma.example_generators import generate_lorem_ipsum
+from audoma.mixins import (
+    ExampleMixin,
+    NumericExampleMixin,
+    RegexExampleMixin,
 )
-class DecimalField(ExampleMixin, fields.DecimalField):
+
+
+field_names = [
+    "BooleanField",
+    "NullBooleanField",
+    "EmailField",
+    "SlugField",
+    "URLField",
+    "DateTimeField",
+    "DurationField",
+    "ChoiceField",
+    "MultipleChoiceField",
+    "FilePathField",
+    "FileField",
+    "ImageField",
+    "ListField",
+    "DictField",
+    "HStoreField",
+    "JSONField",
+    "ReadOnlyField",
+    "SerializerMethodField",
+]
+
+
+this = sys.modules[__name__]
+
+
+for field_name in field_names:
+
+    class Field(ExampleMixin, getattr(fields, field_name)):
+        pass
+
+    Field.__name__ = field_name
+    setattr(this, field_name, Field)
+
+
+class DecimalField(NumericExampleMixin, fields.DecimalField):
     pass
 
 
@@ -24,29 +63,22 @@ class UUIDField(ExampleMixin, fields.UUIDField):
     pass
 
 
-@extend_schema_field(field={"example": random.randint(1, 1000)})
-class IntegerField(ExampleMixin, fields.IntegerField):
+class IntegerField(NumericExampleMixin, fields.IntegerField):
     pass
 
 
-@extend_schema_field(field={"example": random.uniform(0, 1000)})
-class FloatField(ExampleMixin, fields.FloatField):
+class FloatField(NumericExampleMixin, fields.FloatField):
     pass
 
 
-class RegexField(ExampleMixin, fields.RegexField):
-    def __init__(self, regex, **kwargs):
-        if "example" not in kwargs:
-            kwargs["example"] = str(exrex.getone(regex))
-        super().__init__(regex, **kwargs)
+class RegexField(RegexExampleMixin, fields.RegexField):
+    pass
 
 
-class MACAddressField(ExampleMixin, fields.CharField):
+class MACAddressField(RegexExampleMixin, fields.CharField):
     def __init__(self, **kwargs):
         self.regex = "^([0-9A-F]{2}:){5}([0-9A-F]{2})|([0-9A-F]{2}-){5}([0-9A-F]{2})$"
-        self.validarors = [validators.RegexValidator(self.regex)]
-        if "example" not in kwargs:
-            kwargs["example"] = str(exrex.getone(self.regex))
+        self.validators = [validators.RegexValidator(self.regex)]
         super().__init__(**kwargs)
 
 
@@ -74,6 +106,26 @@ class IPAddressField(ExampleMixin, fields.IPAddressField):
     pass
 
 
-@extend_schema_field(field={"format": "tel", "example": "+1 8888888822"})
+@extend_schema_field(field={"format": "tel"})
 class PhoneNumberField(ExampleMixin, serializerfields.PhoneNumberField):
+    def __init__(self, *args, **kwargs):
+        example = kwargs.pop("example", None)
+        if example is None:
+            number = phonenumbers.example_number(None)
+            example = str(to_python(number))
+        super().__init__(*args, example=example, **kwargs)
+
+
+class CharField(ExampleMixin, fields.CharField):
+    def __init__(self, *args, **kwargs):
+        example = kwargs.pop("example", None)
+        min_length = kwargs.get("min_length", 20)
+        max_length = kwargs.get("max_length", 80)
+        if not example:
+            example = generate_lorem_ipsum(min_length=min_length, max_length=max_length)
+
+        super().__init__(*args, example=example, **kwargs)
+
+
+class MoneyField(NumericExampleMixin, MoneyField):
     pass

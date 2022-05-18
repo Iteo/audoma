@@ -1,16 +1,31 @@
+import re
 from datetime import date
 
+import phonenumbers
+from audoma_api.models import ExampleModel
+from audoma_api.serializers import (
+    ExampleModelSerializer,
+    ExampleSerializer,
+)
 from audoma_api.views import (
     ExampleModelViewSet,
     ExampleViewSet,
 )
 from drf_example.urls import router
 from drf_spectacular.generators import SchemaGenerator
+from phonenumber_field.phonenumber import to_python
 from rest_framework.permissions import BasePermission
 
-from django.test import SimpleTestCase
+from django.conf import settings
+from django.test import (
+    SimpleTestCase,
+    override_settings,
+)
 
+from audoma.django.db import models
+from audoma.drf import serializers
 from audoma.drf.viewsets import AudomaPagination
+from audoma.example_generators import generate_lorem_ipsum
 
 
 class AudomaTests(SimpleTestCase):
@@ -20,17 +35,15 @@ class AudomaTests(SimpleTestCase):
         self.schema = generator.get_schema(request=None, public=True)
         self.redoc_schemas = self.schema["components"]["schemas"]
 
-    def test_extend_schema_fields_with_example(self):
-        phone_number_field = self.redoc_schemas["Example"]["properties"]["phone_number"]
-        mac_address_field = self.redoc_schemas["Example"]["properties"]["mac_address"]
-        regex_field = self.redoc_schemas["Example"]["properties"]["regex_mac_address"]
+    def test_extend_schema_field_with_example_not_override_format(self):
+        phone_number_field = self.redoc_schemas["Example"]["properties"][
+            "phone_number_example"
+        ]
         expected_phone_number_field = {
             "type": "string",
             "format": "tel",
-            "example": "+1 8888888822",
+            "example": "+48 123 456 789",
         }
-        self.assertTrue("example" in mac_address_field and "type" in mac_address_field)
-        self.assertTrue("example" in regex_field and "type" in regex_field)
         self.assertEqual(expected_phone_number_field, phone_number_field)
 
     def test_extend_schema_field_with_example_as_init(self):
@@ -56,7 +69,7 @@ class AudomaTests(SimpleTestCase):
 
     def test_model_mapping_all_field_serializer(self):
         example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
-        self.assertEqual(20, len(example_model_properties))
+        self.assertEqual(len(ExampleModel._meta.fields), len(example_model_properties))
 
     def test_filter_params_description_model_viewset(self):
         choices_desc = "Filter by choice \n * `EX_1` - example 1\n * `EX_2` - example 2\n * `EX_3` - example 3\n"
@@ -87,7 +100,6 @@ class AudomaTests(SimpleTestCase):
         example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
         phone_number = example_model_properties["phone_number"]
         self.assertEqual("tel", phone_number["format"])
-        self.assertEqual("+1 8888888822", phone_number["example"])
 
     def test_custom_paginated_response_schema(self):
         paginated_example = self.redoc_schemas["PaginatedExampleList"]
@@ -98,9 +110,122 @@ class AudomaTests(SimpleTestCase):
             expected_pagination["properties"].keys(),
         )
 
+    def test_example_float_field_with_range(self):
+        float_field = self.redoc_schemas["Example"]["properties"]["float"]
+        self.assertLessEqual(float_field["minimum"], float_field["example"])
+        self.assertGreaterEqual(float_field["maximum"], float_field["example"])
+
+    def test_example_mac_address_field_with_regex_mixin(self):
+        example_mac_address = self.redoc_schemas["Example"]["properties"]["mac_address"]
+        mac_address = serializers.MACAddressField()
+        regex_pattern = re.compile(mac_address.regex)
+        self.assertEqual(mac_address.regex, example_mac_address["pattern"])
+        self.assertTrue(bool(regex_pattern.match(example_mac_address["example"])))
+
+    def test_override_model_example_in_extra_kwargs(self):
+        example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
+        char_field = example_model_properties["char_field"]
+        expected_result = ExampleModelSerializer.Meta.extra_kwargs["char_field"][
+            "example"
+        ]
+        self.assertEqual(expected_result, char_field["example"])
+
+    def test_example_models_custom_examples(self):
+        example_person_properties = self.redoc_schemas["ExamplePersonModel"][
+            "properties"
+        ]
+        first_name = example_person_properties["first_name"]
+        last_name = example_person_properties["last_name"]
+        self.assertEqual("Adam", first_name["example"])
+        self.assertEqual("Smith", last_name["example"])
+
+    def test_example_with_callable_as_argument(self):
+        example_person_properties = self.redoc_schemas["ExamplePersonModel"][
+            "properties"
+        ]
+        age = example_person_properties["age"]
+        self.assertLessEqual(18, age["example"])
+        self.assertGreaterEqual(80, age["example"])
+
+    def test_model_phonenumber_with_region(self):
+        example_person_properties = self.redoc_schemas["ExamplePersonModel"][
+            "properties"
+        ]
+        phone_number_field = example_person_properties["phone_number"]
+        phone_number_example = phone_number_field["example"]
+        generated_france_number = to_python(
+            phonenumbers.example_number("IT")
+        ).as_international
+        self.assertEqual(generated_france_number, phone_number_example)
+
+    def test_phonenubber_example_region_international_format(self):
+
+        pn = models.PhoneNumberField(region="PL")
+
+        expected_example = to_python(phonenumbers.example_number("PL")).as_international
+        self.assertEqual(expected_example, pn.example)
+
+    @override_settings(PHONENUMBER_DEFAULT_FORMAT="NATIONAL")
+    def test_phonenumber_example_region_national_format(self):
+        pn = models.PhoneNumberField(region="PL")
+
+        expected_example = to_python(phonenumbers.example_number("PL")).as_national
+        self.assertEqual(expected_example, pn.example)
+
+    @override_settings(PHONENUMBER_DEFAULT_FORMAT="E164")
+    def test_phonenumber_example_region_e164_format(self):
+
+        pn = models.PhoneNumberField(region="PL")
+
+        expected_example = to_python(phonenumbers.example_number("PL")).as_e164
+        self.assertEqual(expected_example, pn.example)
+
     def test_file_upload_view_parsers(self):
         example_schema = self.schema["paths"]["/file-upload-example/"]["post"][
             "requestBody"
         ]["content"]
         self.assertEqual(len(example_schema.keys()), 1)
         self.assertEqual(list(example_schema.keys())[0], "multipart/form-data")
+
+    def test_charfield_example_limits(self):
+        charfield_redoc = self.redoc_schemas["Example"]["properties"][
+            "charfield_min_max"
+        ]
+        charfield_example = charfield_redoc["example"]
+        charfield = ExampleSerializer.__dict__["_declared_fields"]["charfield_min_max"]
+        min_length = charfield.min_length
+        max_length = charfield.max_length
+        self.assertLessEqual(min_length, len(charfield_example))
+        self.assertGreaterEqual(max_length, len(charfield_example))
+
+    def test_generate_lorem_ipsum_only_min_length(self):
+        short_lorem_example = generate_lorem_ipsum(min_length=60)
+        long_lorem_example = generate_lorem_ipsum(min_length=1024)
+        self.assertGreaterEqual(len(short_lorem_example), 60)
+        self.assertLessEqual(len(short_lorem_example), 80)
+        self.assertGreaterEqual(len(long_lorem_example), 1024)
+
+    def test_generate_lorem_ipsum_only_max_length(self):
+        short_lorem_example = generate_lorem_ipsum(max_length=10)
+        long_lorem_example = generate_lorem_ipsum(max_length=1024)
+        self.assertLessEqual(len(short_lorem_example), 10)
+        self.assertGreaterEqual(len(long_lorem_example), 20)
+        self.assertLessEqual(len(long_lorem_example), 1024)
+
+    def test_generate_lorem_ipsum_max_min(self):
+        short_lorem_example = generate_lorem_ipsum(min_length=1, max_length=5)
+        long_lorem_example = generate_lorem_ipsum(min_length=100, max_length=200)
+        self.assertGreaterEqual(len(short_lorem_example), 1)
+        self.assertLessEqual(len(short_lorem_example), 5)
+        self.assertGreaterEqual(len(long_lorem_example), 100)
+        self.assertLessEqual(len(long_lorem_example), 200)
+
+    def test_example_money_currency_with_currency_from_settings(self):
+        currency = self.redoc_schemas["ExampleModel"]["properties"]["money_currency"]
+        self.assertIn(currency["example"], settings.CURRENCIES)
+
+    def test_example_money_currency_with_default_currency(self):
+        currency = self.redoc_schemas["ExamplePersonModel"]["properties"][
+            "savings_currency"
+        ]
+        self.assertEqual("PLN", currency["example"])
