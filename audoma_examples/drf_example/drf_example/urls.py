@@ -16,6 +16,7 @@ Including another URLconf
 from audoma_api.views import (
     ExampleFileUploadViewSet,
     ExampleModelViewSet,
+    ExamplePersonModelViewSet,
     ExampleSimpleModelViewSet,
     ExampleViewSet,
 )
@@ -26,6 +27,7 @@ from drf_spectacular.views import (
 )
 from rest_framework import routers
 
+from django.contrib import admin
 from django.urls import re_path
 
 # special router to handle PATCH/PUT requests on list endpoints
@@ -40,12 +42,16 @@ bulk_router.register(r"bulk_endpoint", ExampleSimpleModelViewSet, "bulk-example"
 router.register(r"examples", ExampleViewSet, basename="examples")
 router.register(r"model_examples", ExampleModelViewSet, basename="model-examples")
 router.register(
+    r"model_person_example", ExamplePersonModelViewSet, basename="model-person-example"
+)
+router.register(
     r"file-upload-example", ExampleFileUploadViewSet, basename="file-upload-example"
 )
 
-urlpatterns = router.urls
+urlpatterns = router.urls + bulk_router.urls
 
 urlpatterns += [
+    re_path("admin/", admin.site.urls),
     re_path(r"^api/schema/$", SpectacularAPIView.as_view(), name="schema"),
     re_path(
         r"^swagger-ui/$",
@@ -54,5 +60,3 @@ urlpatterns += [
     ),
     re_path(r"^redoc/$", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
 ]
-
-urlpatterns += bulk_router.urls

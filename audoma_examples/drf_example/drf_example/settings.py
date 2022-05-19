@@ -26,13 +26,14 @@ SECRET_KEY = "django-insecure-+37#%@+#3j18rkpq-w9u&s5s5hl$vt#+4we2697_7aupm8n96p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
     "audoma_api",
+    "djmoney",
     "drf_spectacular",
     "rest_framework",
     "django_filters",
@@ -127,6 +128,14 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
 }
 
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "db.sqlite3",
+        "TEST_NAME": "test_db.sqlite3",
+    }
+}
+
 # Use it if you want to create schema only based on paths that starts with specific keyword
 # and then add "PREPROCESSING_HOOKS" to SPECTACULAR_SETTINGS as commented below
 # SCHEMA_PATTERN_PREFIX = 'api'
@@ -140,10 +149,5 @@ SPECTACULAR_SETTINGS = {
     "COMPONENT_SPLIT_REQUEST": True,
 }
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "db.sqlite3",
-        "TEST_NAME": "test_db.sqlite3",
-    }
-}
+CURRENCIES = ("USD", "EUR", "GBP", "JPY", "CNY", "INR", "AUD", "NZD", "CHF")
+PHONENUMBER_DEFAULT_FORMAT = "INTERNATIONAL"

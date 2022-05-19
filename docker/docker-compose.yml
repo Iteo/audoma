@@ -7,3 +7,25 @@ services:
       context: ../
       dockerfile: ./docker/Dockerfile
     command: tox
+
+  sqlite3:
+    image: nouchka/sqlite3:latest
+    volumes:
+      - ../sqlite/db:/var/lib/sqlite/db
+    environment:
+      - SQLITE_DB=db/db.sqlite3
+
+  example_app:
+    image: example_app
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile.local
+    volumes:
+      - ..:/audoma
+    stdin_open: true
+    tty: true
+    ports:
+      - 8000:8000
+    command: bash -c "cd audoma_examples/drf_example && python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      - sqlite3

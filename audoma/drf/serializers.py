@@ -4,12 +4,14 @@ import jsonfield
 from rest_framework import serializers
 from rest_framework.serializers import *  # noqa: F403, F401
 
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from audoma import (
     django_modelfields,
     settings,
 )
+from audoma.django.db.models import MoneyField as ModelMoneyField
 
 
 from audoma.drf.fields import (  # NOQA # isort:skip
@@ -45,6 +47,7 @@ from audoma.drf.fields import (  # NOQA # isort:skip
     UUIDField,
     MACAddressField,
     PhoneNumberField,
+    MoneyField,
 )
 
 
@@ -115,6 +118,7 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
         models.DateField: DateField,
         models.DateTimeField: DateTimeField,
         models.DecimalField: DecimalField,
+        models.DurationField: DurationField,
         models.EmailField: EmailField,
         models.Field: ModelField,
         models.FileField: FileField,
@@ -135,7 +139,18 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
         django_modelfields.PhoneNumberField: PhoneNumberField,
         django_modelfields.MACAddressField: MACAddressField,
         jsonfield.JSONField: JSONField,
+        ModelMoneyField: MoneyField,
     }
+
+    serializer_choice_field = ChoiceField
+
+    def build_standard_field(self, field_name, model_field):
+        field_class, field_kwargs = super().build_standard_field(
+            field_name, model_field
+        )
+        if hasattr(model_field, "example") and model_field.example:
+            field_kwargs["example"] = model_field.example
+        return field_class, field_kwargs
 
 
 class Serializer(ResultSerializerClassMixin, serializers.Serializer):
