@@ -1,3 +1,15 @@
+from datetime import (
+    date,
+    datetime,
+    time,
+    timedelta,
+)
+from decimal import Decimal
+
+from audoma_api.exceptions import (
+    CustomBadRequestException,
+    CustomConflictException,
+)
 from audoma_api.models import (
     ExampleFileModel,
     ExampleModel,
@@ -12,17 +24,21 @@ from audoma_api.permissions import (
 )
 from audoma_api.serializers import (
     ExampleFileModelSerializer,
+    ExampleModelCreateSerializer,
     ExampleModelSerializer,
+    ExampleOneFieldSerializer,
     ExamplePersonModelSerializer,
     ExampleSerializer,
     MutuallyExclusiveExampleSerializer,
 )
 from django_filters import rest_framework as df_filters
 from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from audoma.decorators import audoma_action
 from audoma.drf import (
     mixins,
     viewsets,
@@ -93,7 +109,12 @@ class ExampleModelViewSet(
     serializer_class = ExampleModelSerializer
     queryset = ExampleModel.objects.all()
 
-    @action(detail=True, methods=["post"])
+    @audoma_action(
+        detail=True,
+        methods=["get"],
+        results={"get": "GET method is not allowed"},
+        collectors=None,
+    )
     def detail_action(self, request, pk=None):
         return Response({})  # wrong
 
@@ -147,3 +168,95 @@ class MutuallyExclusiveViewSet(
     viewsets.GenericViewSet,
 ):
     serializer_class = MutuallyExclusiveExampleSerializer
+
+
+class ExampleModelPermissionLessViewSet(
+    mixins.ActionModelMixin, viewsets.GenericViewSet
+):
+    serializer_class = ExampleModelSerializer
+    queryset = ExampleModel.objects.all()
+
+    @audoma_action(
+        detail=True,
+        methods=["post"],
+        collectors={"post": ExampleModelCreateSerializer},
+        results={"post": {201: ExampleModelSerializer, 202: ExampleOneFieldSerializer}},
+    )
+    def detail_action(self, request, collect_serializer, pk=None):
+        if request.data.pop("usertype", None):
+            return collect_serializer.save(), 201
+        return {"rate": ExampleOneFieldSerializer.RATES.LIKE}, 202
+
+    @audoma_action(
+        detail=False,
+        methods=["get"],
+        results={"get": {200: "This is a test view", 404: "Not found"}},
+    )
+    def non_detail_action(self, request):
+        return None, 200
+
+    @audoma_action(
+        detail=False,
+        methods=["post"],
+        results=ExampleOneFieldSerializer,
+        collectors=ExampleOneFieldSerializer,
+    )
+    def rate_create_action(self, request, collect_serializer):
+        return collect_serializer.save(), 201
+
+    @audoma_action(detail=True, methods=["get"], results=ExampleOneFieldSerializer)
+    def specific_rate(self, request, pk=None):
+        return {"rate": ExampleOneFieldSerializer.RATES.DISLIKIE}, 200
+
+    @audoma_action(
+        detail=False,
+        methods=["get"],
+        results=ExampleOneFieldSerializer,
+        errors=[CustomBadRequestException(), CustomConflictException],
+    )
+    def properly_defined_exception_example(self, request):
+        raise CustomConflictException("Some custom message, that should be accepted")
+
+    @audoma_action(detail=False, methods=["get"])
+    def proper_usage_of_common_errors(self, request):
+        raise NotFound
+
+    @audoma_action(
+        detail=False,
+        methods=["get"],
+        results=ExampleOneFieldSerializer,
+    )
+    def improperly_defined_exception_example(self, request):
+        raise CustomBadRequestException
+
+    def get_object(self):
+        return ExampleModel(
+            char_field="TESTChar",
+            phone_number="+18888888822",
+            email="test@iteo.com",
+            url="http://localhost:8000/redoc/",
+            boolean=False,
+            nullboolean=None,
+            mac_adress="96:82:2E:6B:F5:49",
+            slug="tst",
+            uuid="14aefe15-7c96-49b6-9637-7019c58c25d2",
+            ip_address="192.168.10.1",
+            integer=16,
+            _float=12.2,
+            decimal=Decimal("13.23"),
+            datetime=datetime(2009, 11, 13, 10, 39, 35),
+            date=date(2009, 11, 13),
+            time=time(10, 39, 35),
+            duration=timedelta(days=1),
+            choices=1,
+            json="",
+        )
+
+    @audoma_action(
+        detail=True,
+        methods=["put", "patch"],
+        collectors=ExampleModelCreateSerializer,
+        results=ExampleModelSerializer,
+    )
+    def example_update_action(self, request, collect_serializer, pk=None):
+        return collect_serializer.save(), 201

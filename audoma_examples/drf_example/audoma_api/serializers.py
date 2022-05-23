@@ -6,6 +6,7 @@ from audoma_api.models import (
     ExamplePerson,
 )
 
+from audoma.choices import make_choices
 from audoma.drf import serializers
 from audoma.drf.decorators import document_and_format
 from audoma.drf.validators import ExclusiveFieldsValidator
@@ -59,8 +60,8 @@ class ExampleModelSerializer(serializers.ModelSerializer):
         extra_kwargs = {"char_field": {"example": "lorem ipsum"}}
 
     @document_and_format(serializers.PhoneNumberField)
-    def get_phone_number(self):
-        return self.phone_number
+    def get_phone_number(self, obj):
+        return obj.phone_number
 
 
 class ExamplePersonModelSerializer(serializers.ModelSerializer):
@@ -99,3 +100,52 @@ class MutuallyExclusiveExampleSerializer(serializers.Serializer):
 
     not_exclusive_field = serializers.CharField(required=False)
     second_not_exclusive_field = serializers.CharField(required=False)
+
+
+class ExampleModelCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExampleModel
+        fields = "__all__"
+
+    def update(self):
+        for key, item in self.validated_data.items():
+            setattr(self.instance, key, item)
+        return self.instance
+
+    def create(self):
+        return ExampleModel(
+            char_field=self.validated_data["char_field"],
+            phone_number=self.validated_data["phone_number"],
+            email=self.validated_data["email"],
+            url=self.validated_data["url"],
+            boolean=self.validated_data["boolean"],
+            nullboolean=self.validated_data["nullboolean"],
+            mac_adress=self.validated_data["mac_adress"],
+            slug=self.validated_data["slug"],
+            uuid=self.validated_data["uuid"],
+            ip_address=self.validated_data["ip_address"],
+            integer=self.validated_data["integer"],
+            _float=self.validated_data["_float"],
+            decimal=self.validated_data["decimal"],
+            datetime=self.validated_data["datetime"],
+            date=self.validated_data["date"],
+            time=self.validated_data["time"],
+            duration=self.validated_data["duration"],
+            choices=self.validated_data["choices"],
+            json=self.validated_data["json"],
+        )
+
+    def save(self, **kwargs):
+        if self.instance:
+            return self.update()
+        return self.create()
+
+
+class ExampleOneFieldSerializer(serializers.Serializer):
+
+    RATES = make_choices("RATE", ((0, "LIKE", "Like"), (1, "DISLIKIE", "Dislike")))
+
+    rate = serializers.ChoiceField(choices=RATES)
+
+    def save(self, **kwargs):
+        return self.validated_data

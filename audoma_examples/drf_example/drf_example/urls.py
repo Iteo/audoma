@@ -15,6 +15,7 @@ Including another URLconf
 """
 from audoma_api.views import (
     ExampleFileUploadViewSet,
+    ExampleModelPermissionLessViewSet,
     ExampleModelViewSet,
     ExamplePersonModelViewSet,
     ExampleViewSet,
@@ -44,6 +45,12 @@ router.register(
 router.register(
     r"mutually-exclusive", MutuallyExclusiveViewSet, basename="mutually-exclusive"
 )
+router.register(
+    r"permissionless_model_examples",
+    ExampleModelPermissionLessViewSet,
+    basename="permissionless-model-examples",
+)
+
 urlpatterns = router.urls
 
 urlpatterns += [
