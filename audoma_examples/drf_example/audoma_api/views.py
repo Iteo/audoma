@@ -153,7 +153,9 @@ class ExampleModelPermissionLessViewSet(
         return {"rate": ExampleOneFieldSerializer.RATES.LIKE}, 202
 
     @audoma_action(
-        detail=False, methods=["get"], results={"get": "This is a test view"}
+        detail=False,
+        methods=["get"],
+        results={"get": {200: "This is a test view", 404: "Not found"}},
     )
     def non_detail_action(self, request):
         return None, 200

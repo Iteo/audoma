@@ -1,3 +1,4 @@
+from copy import deepcopy
 from inspect import isclass
 
 from drf_spectacular.utils import OpenApiResponse
@@ -127,7 +128,7 @@ class AudomaApiResponseCreator:
         if not isinstance(action_serializers, dict):
             return {"default": action_serializers}
 
-        parsed_action_serializers = action_serializers.copy()
+        parsed_action_serializers = deepcopy(action_serializers)
 
         for method, method_serializers in action_serializers.items():
             if isinstance(method_serializers, str):
@@ -138,8 +139,9 @@ class AudomaApiResponseCreator:
                 for code, item in method_serializers.items():
                     if isinstance(item, str):
                         parsed_action_serializers[method][code] = OpenApiResponse(
-                            description=method_serializers
+                            description=item
                         )
+
         return parsed_action_serializers
 
     def _parse_action_errors(self, action_errors):
