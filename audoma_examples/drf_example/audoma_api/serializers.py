@@ -8,6 +8,7 @@ from audoma_api.models import (
 
 from audoma.drf import serializers
 from audoma.drf.decorators import document_and_format
+from audoma.drf.validators import ExclusiveFieldsValidator
 
 
 class NestedExampleSerializer(serializers.Serializer):
@@ -72,3 +73,29 @@ class ExampleFileModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExampleFileModel
         fields = "__all__"
+
+
+class MutuallyExclusiveExampleSerializer(serializers.Serializer):
+    class Meta:
+        validators = [
+            ExclusiveFieldsValidator(
+                fields=[
+                    "example_field",
+                    "second_example_field",
+                ]
+            ),
+            ExclusiveFieldsValidator(
+                fields=[
+                    "third_example_field",
+                    "fourth_example_field",
+                ]
+            ),
+        ]
+
+    example_field = serializers.CharField(required=False)
+    second_example_field = serializers.CharField(required=False)
+    third_example_field = serializers.CharField(required=False)
+    fourth_example_field = serializers.CharField(required=False)
+
+    not_exclusive_field = serializers.CharField(required=False)
+    second_not_exclusive_field = serializers.CharField(required=False)
