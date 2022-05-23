@@ -1,12 +1,11 @@
 import random
-
-import exrex
 from typing import (
     Any,
     Dict,
     List,
 )
 
+import exrex
 from drf_spectacular.drainage import set_override
 from rest_framework import (
     mixins,
