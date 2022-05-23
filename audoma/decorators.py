@@ -99,7 +99,6 @@ class audoma_action:
         collectors: Union[dict, BaseSerializer] = None,
         results: Union[dict, BaseSerializer, str] = None,
         errors: List[Union[Exception, Type[Exception]]] = None,
-        validate_collector: bool = True,
         ignore_view_collectors: bool = False,
         **kwargs,
     ) -> None:
@@ -120,14 +119,11 @@ class audoma_action:
                         or just as a serializer_class
             * errors - list of exception objects, list of exceptions which may be raised in decorated method.
                         'audoma_action' will not allow raising any other exceptions than those
-            * validate_collector - by default set to True, it specifies if collectors serializer
-                        should be validated in the decorator, or not.
             * ignore_view_collectors - If set to True, decorator is ignoring view collect serializers.
                         May be useful if we don't want to falback to default view collect serializer retrieval.
         """
         self.collectors = collectors or {}
         self.results = results or {}
-        self.validate_collector = validate_collector
         self.ignore_view_collectors = ignore_view_collectors
 
         try:
@@ -353,10 +349,12 @@ class audoma_action:
             try:
                 if collect_serializer_class:
                     collect_serializer = collect_serializer_class(
-                        view_instance, data=request.data, partial=partial
+                        view_instance,
+                        data=request.data,
+                        partial=partial,
+                        context={"request": request},
                     )
-                    if self.validate_collector:
-                        collect_serializer.is_valid(raise_exception=True)
+                    collect_serializer.is_valid(raise_exception=True)
                     kwargs["collect_serializer"] = collect_serializer
 
                 instance, code = func(view, request, *args, **kwargs)

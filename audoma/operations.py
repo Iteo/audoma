@@ -104,6 +104,7 @@ def apply_response_operation(
             serializer_kwargs = {"instance": instance, "many": False}
     else:
         serializer_kwargs = {"many": many}
+    serializer_kwargs.update({"context": {"request": view.request}})
 
     return_serializer = (
         serializer_class(**serializer_kwargs)
