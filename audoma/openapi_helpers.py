@@ -2,10 +2,6 @@ from copy import deepcopy
 from inspect import isclass
 from typing import List
 
-from drf_spectacular.drainage import (
-    get_override,
-    has_override,
-)
 from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiResponse,
