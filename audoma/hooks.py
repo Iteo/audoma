@@ -1,15 +1,15 @@
 from inspect import isclass
+from typing import (
+    Callable,
+    List,
+    Tuple,
+)
 
 from rest_framework.settings import api_settings
 
 from django.conf import settings as project_settings
 
 from audoma import settings as audoma_settings
-from typing import (
-    Callable,
-    List,
-    Tuple,
-)
 
 
 def preprocess_include_path_format(
@@ -19,23 +19,17 @@ def preprocess_include_path_format(
     preprocessing hook that filters {format} prefdixed paths, in case
     schema pattern prefix is used and {format} path params are wanted.
     """
+    format_path = project_settings.SCHEMA_PATTERN_PREFIX
 
-
-<< << << < HEAD
-format_path = project_settings.SCHEMA_PATTERN_PREFIX
-
-== == == =
-format_path = settings.SCHEMA_PATTERN_PREFIX
->>>>>> > PINT-30: added typing to audoma
-return [
-    (path, path_regex, method, callback)
-    for path, path_regex, method, callback in endpoints
-    if (
-        path.startswith(format_path)
-        or path.startswith(format_path + "/")
-        or path.startswith("/" + format_path)
-    )
-]
+    return [
+        (path, path_regex, method, callback)
+        for path, path_regex, method, callback in endpoints
+        if (
+            path.startswith(format_path)
+            or path.startswith(format_path + "/")
+            or path.startswith("/" + format_path)
+        )
+    ]
 
 
 def postprocess_common_errors_section(result, request, **kwargs):

@@ -1,9 +1,9 @@
 from copy import deepcopy
 from inspect import isclass
 from typing import (
+    List,
     Type,
     Union,
-    List
 )
 
 from drf_spectacular.utils import (
