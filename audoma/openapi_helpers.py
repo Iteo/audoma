@@ -121,9 +121,8 @@ def build_exclusive_fields_examples(
     # first generate fields with values
     fields_with_examples = {}
     for field_name, field in serializer.fields.items():
-        if has_override(field, "field"):
-            schema = get_override(field, "field")
-            example = schema.get("example")
+        if hasattr(field, "audoma_example"):
+            example = field.audoma_example.example
         else:
             example = type(field_name).__name__
         fields_with_examples[field_name] = example
