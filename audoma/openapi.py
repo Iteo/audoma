@@ -2,10 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from drf_spectacular.drainage import (
-    get_override,
-    has_override,
-)
+from drf_spectacular.drainage import get_override
 from drf_spectacular.extensions import OpenApiSerializerExtension
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import (
@@ -18,7 +15,6 @@ from drf_spectacular.plumbing import (
     sanitize_specification_extensions,
 )
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiExample
 from rest_framework.generics import GenericAPIView
 from rest_framework.serializers import BaseSerializer
 from rest_framework.views import APIView
@@ -28,6 +24,7 @@ from audoma.drf.serializers import BulkSerializerMixin
 from audoma.drf.validators import ExclusiveFieldsValidator
 from audoma.openapi_helpers import (
     AudomaApiResponseCreator,
+    build_bulk_type_examples,
     build_exclusive_fields_examples,
     build_exclusive_fields_schema,
     get_permissions_description,
@@ -190,23 +187,7 @@ class AudomaAutoSchema(AutoSchema):
                 )
 
         if isinstance(serializer, BulkSerializerMixin) and self.view.action != "list":
-            fields_with_examples = {}
-            for field_name, field in serializer.fields.items():
-                if has_override(field, "field"):
-                    schema = get_override(field, "field")
-                    example = schema.get("example")
-                else:
-                    example = field.audoma_example.to_representation(
-                        field.audoma_example.get_value()
-                    )
-                fields_with_examples[field_name] = example
-            examples = [
-                OpenApiExample(value=fields_with_examples, name="Non-bulk example"),
-                OpenApiExample(
-                    value=build_array_type([fields_with_examples]),
-                    name="Bulk example",
-                ),
-            ]
+            examples = build_bulk_type_examples(serializer)
 
         if examples:
             examples = build_examples_list(examples)

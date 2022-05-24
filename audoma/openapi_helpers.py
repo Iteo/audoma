@@ -2,6 +2,7 @@ from copy import deepcopy
 from inspect import isclass
 from typing import List
 
+from drf_spectacular.plumbing import build_array_type
 from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiResponse,
@@ -133,6 +134,29 @@ def build_exclusive_fields_examples(
         )
         serializer_examples.append(serializer_example)
     return serializer_examples
+
+
+def build_bulk_type_examples(serializer: BaseSerializer) -> List[OpenApiExample]:
+
+    fields_with_examples = {}
+    for field_name, field in serializer.fields.items():
+        if hasattr(field, "audoma_example"):
+            example = field.audoma_example.to_representation(
+                field.audoma_example.get_value()
+            )
+        else:
+            example = type(field_name).__name__
+        fields_with_examples[field_name] = example
+
+    examples = [
+        OpenApiExample(value=fields_with_examples, name="Non-bulk example"),
+        OpenApiExample(
+            value=build_array_type([fields_with_examples]),
+            name="Bulk example",
+        ),
+    ]
+
+    return examples
 
 
 class AudomaApiResponseCreator:

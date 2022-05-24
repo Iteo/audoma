@@ -32,7 +32,6 @@ from django.test import (
     SimpleTestCase,
     override_settings,
 )
-from django.urls import reverse
 
 from audoma.decorators import AudomaActionException
 from audoma.django.db import models
