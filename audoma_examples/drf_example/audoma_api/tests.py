@@ -1,5 +1,9 @@
+import json
 import re
-from datetime import date
+from datetime import (
+    date,
+    timedelta,
+)
 
 import phonenumbers
 from audoma_api.models import ExampleModel
@@ -8,6 +12,7 @@ from audoma_api.serializers import (
     ExampleSerializer,
 )
 from audoma_api.views import (
+    ExampleModelPermissionLessViewSet,
     ExampleModelViewSet,
     ExampleViewSet,
 )
@@ -15,15 +20,21 @@ from drf_example.urls import router
 from drf_spectacular.generators import SchemaGenerator
 from phonenumber_field.phonenumber import to_python
 from rest_framework.permissions import BasePermission
-from rest_framework.test import APITestCase
+from rest_framework.test import (
+    APIClient,
+    APIRequestFactory,
+    APITestCase,
+)
 
 from django.conf import settings
+from django.shortcuts import reverse
 from django.test import (
     SimpleTestCase,
     override_settings,
 )
 from django.urls import reverse
 
+from audoma.decorators import AudomaActionException
 from audoma.django.db import models
 from audoma.drf import serializers
 from audoma.drf.viewsets import AudomaPagination
@@ -232,6 +243,105 @@ class AudomaTests(SimpleTestCase):
         ]
         self.assertEqual("PLN", currency["example"])
 
+    def test_mutually_exclusive_fields_schemas(self):
+        schema = self.redoc_schemas["MutuallyExclusiveExampleRequest"]
+        default_keys = ["not_exclusive_field", "second_not_exclusive_field"]
+        self.assertEqual(len(schema["oneOf"]), 4)
+        self.assertEqual(
+            list(schema["oneOf"][0]["properties"].keys()),
+            ["second_example_field", "third_example_field", "fourth_example_field"]
+            + default_keys,
+        )
+        self.assertEqual(
+            list(schema["oneOf"][1]["properties"].keys()),
+            ["example_field", "third_example_field", "fourth_example_field"]
+            + default_keys,
+        )
+        self.assertEqual(
+            list(schema["oneOf"][2]["properties"].keys()),
+            ["example_field", "second_example_field", "fourth_example_field"]
+            + default_keys,
+        )
+        self.assertEqual(
+            list(schema["oneOf"][3]["properties"].keys()),
+            ["example_field", "second_example_field", "third_example_field"]
+            + default_keys,
+        )
+
+    def test_mutually_exclusive_fields_examples(self):
+        schema = self.schema["paths"]["/mutually-exclusive/"]["post"]["requestBody"][
+            "content"
+        ]["application/json"]["examples"]
+        default_keys = ["not_exclusive_field", "second_not_exclusive_field"]
+        self.assertEqual(
+            list(schema["Option0"]["value"].keys()),
+            ["second_example_field", "third_example_field", "fourth_example_field"]
+            + default_keys,
+        )
+        self.assertEqual(
+            list(schema["Option1"]["value"].keys()),
+            ["example_field", "third_example_field", "fourth_example_field"]
+            + default_keys,
+        )
+        self.assertEqual(
+            list(schema["Option2"]["value"].keys()),
+            ["example_field", "second_example_field", "fourth_example_field"]
+            + default_keys,
+        )
+        self.assertEqual(
+            list(schema["Option3"]["value"].keys()),
+            ["example_field", "second_example_field", "third_example_field"]
+            + default_keys,
+        )
+
+    def test_default_response_in_view_responses(self):
+        docs = self.schema["paths"][
+            "/permissionless_model_examples/properly_defined_exception_example/"
+        ]
+        responses_docs = docs["get"]["responses"]
+        self.assertEqual(
+            responses_docs["default"]["content"]["application/json"]["schema"]["$ref"],
+            "#/components/schemas/ExampleOneField",
+        )
+
+    def test_custom_responses_in_view_responses(self):
+        docs = self.schema["paths"][
+            "/permissionless_model_examples/{id}/detail_action/"
+        ]
+        responses_docs = docs["post"]["responses"]
+        self.assertEqual(
+            responses_docs["201"]["content"]["application/json"]["schema"]["$ref"],
+            "#/components/schemas/ExampleModel",
+        )
+        self.assertEqual(
+            responses_docs["202"]["content"]["application/json"]["schema"]["$ref"],
+            "#/components/schemas/ExampleOneField",
+        )
+
+    def test_common_errors_in_description(self):
+        expected_error_data = '\n {\n    "detail": "Not found."\n} \n'
+        self.assertIn(expected_error_data, self.schema["info"]["description"])
+        expected_error_data = ' \n {\n    "detail": "Authentication credentials were not provided."\n} \n '
+        self.assertIn(expected_error_data, self.schema["info"]["description"])
+
+    def test_viewset_errors_in_viewset_responses(self):
+        docs = self.schema["paths"][
+            "/permissionless_model_examples/properly_defined_exception_example/"
+        ]
+        responses_docs = docs["get"]["responses"]
+        self.assertEqual(
+            responses_docs["400"]["content"]["application/json"]["schema"]["example"][
+                "detail"
+            ],
+            "Custom Bad Request Exception",
+        )
+        self.assertEqual(
+            responses_docs["409"]["content"]["application/json"]["schema"]["example"][
+                "detail"
+            ],
+            "Conflict has occured",
+        )
+
 
 class AudomaBulkOperationsTest(APITestCase):
     def setUp(self):
@@ -257,3 +367,165 @@ class AudomaBulkOperationsTest(APITestCase):
 
         qs = ExampleSimpleModel.objects.all()
         self.assertEqual(qs.count(), 2)
+
+
+class AudomaViewsTestCase(SimpleTestCase):
+    def setUp(self):
+        super().setUp()
+        self.data = {
+            "char_field": "TESTChar",
+            "phone_number": "+18888888822",
+            "phone_number_example": "+18888888822",
+            "email": "test@iteo.com",
+            "url": "http://localhost:8000/redoc/",
+            "boolean": False,
+            "nullboolean": None,
+            "mac_adress": "96:82:2E:6B:F5:49",
+            "slug": "tst",
+            "uuid": "14aefe15-7c96-49b6-9637-7019c58c25d2",
+            "ip_address": "192.168.10.1",
+            "integer": 16,
+            "_float": 12.2,
+            "decimal": "13.23",
+            "datetime": "2009-11-13T10:39:35Z",
+            "date": "2009-11-13",
+            "time": "10:39:35",
+            "duration": timedelta(days=1),
+            "choices": 1,
+            "json": "",
+            "money": "12.23",
+            "text_field": "TESTText",
+        }
+        self.client = APIClient()
+
+    def test_detail_action_get(self):
+        response = self.client.get(
+            reverse("permissionless-model-examples-detail-action", kwargs={"pk": 0})
+        )
+        self.assertEqual(response.status_code, 405)
+
+    def test_detail_action_post_with_usertype(self):
+        self.data["usertype"] = "admin"
+        response = self.client.post(
+            reverse("permissionless-model-examples-detail-action", kwargs={"pk": 0}),
+            self.data,
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+        response_content = json.loads(response.content)
+        self.assertEqual(self.data["char_field"], response_content["char_field"])
+        self.assertEqual(self.data["mac_adress"], response_content["mac_adress"])
+        self.assertEqual(self.data["uuid"], response_content["uuid"])
+
+    def test_detail_action_post_without_usertype(self):
+        response = self.client.post(
+            reverse("permissionless-model-examples-detail-action", kwargs={"pk": 0}),
+            self.data,
+            format="json",
+        )
+        self.assertEqual(response.status_code, 202)
+        response_content = json.loads(response.content)
+        self.assertEqual(response_content["rate"], 0)
+
+    def test_non_detail_action_get(self):
+        response = self.client.get(
+            reverse("permissionless-model-examples-non-detail-action")
+        )
+        content = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(content["message"], "This is a test view")
+
+    def test_rate_create_action_post_success(self):
+        response = self.client.post(
+            reverse("permissionless-model-examples-rate-create-action"),
+            {"rate": 1},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(json.loads(response.content)["rate"], 1)
+
+    def test_rate_create_action_post_failure(self):
+        response = self.client.post(
+            reverse("permissionless-model-examples-rate-create-action")
+        )
+        content = json.loads(response.content)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(content["errors"]["rate"], "This field is required.")
+
+    def test_specific_rate_get_success(self):
+        response = self.client.get(
+            reverse("permissionless-model-examples-specific-rate", kwargs={"pk": 1})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["rate"], 1)
+
+    @override_settings(DEBUG=True)
+    def test_properly_defined_exception_example(self):
+        response = self.client.get(
+            reverse("permissionless-model-examples-properly-defined-exception-example")
+        )
+        self.assertEqual(response.status_code, 409)
+        content = json.loads(response.content)
+        self.assertEqual(
+            content["errors"]["detail"], "Some custom message, that should be accepted"
+        )
+
+    def test_proper_usage_of_common_errors(self):
+        response = self.client.get(
+            reverse("permissionless-model-examples-proper-usage-of-common-errors")
+        )
+        self.assertEqual(response.status_code, 404)
+        content = json.loads(response.content)
+        self.assertEqual(content["errors"]["detail"], "Not found.")
+
+    @override_settings(DEBUG=True)
+    def test_improperly_defined_exception_example_debug_true(self):
+        try:
+            view = ExampleModelPermissionLessViewSet()
+            url = reverse(
+                "permissionless-model-examples-improperly-defined-exception-example"
+            )
+            factory = APIRequestFactory()
+            request = factory.get(url)
+            view.improperly_defined_exception_example(request)
+
+        except Exception as e:
+            self.assertEqual(type(e), AudomaActionException)
+            self.assertIn(
+                "<class 'audoma_api.exceptions.CustomBadRequestException'>", str(e)
+            )
+
+    def test_improperly_defined_exception_example_debug_false(self):
+        response = self.client.get(
+            reverse(
+                "permissionless-model-examples-improperly-defined-exception-example"
+            )
+        )
+        self.assertEqual(response.status_code, 400)
+        data = response.json()
+        self.assertEqual(data["errors"]["detail"], "Custom Bad Request Exception")
+
+    def test_example_update_action_patch(self):
+        response = self.client.patch(
+            reverse(
+                "permissionless-model-examples-example-update-action", kwargs={"pk": 0}
+            ),
+            {"char_field": "TESTChar2", "email": "changetest@iteo.com"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(json.loads(response.content)["char_field"], "TESTChar2")
+        self.assertEqual(json.loads(response.content)["email"], "changetest@iteo.com")
+
+    def test_example_update_action_put(self):
+        data = self.data
+        data["char_field"] = "TESTChar2"
+        response = self.client.put(
+            reverse(
+                "permissionless-model-examples-example-update-action", kwargs={"pk": 0}
+            ),
+            data,
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(json.loads(response.content)["char_field"], "TESTChar2")
