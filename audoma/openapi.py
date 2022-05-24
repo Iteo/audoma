@@ -2,14 +2,20 @@ from __future__ import annotations
 
 import typing
 
+from drf_spectacular.drainage import (
+    get_override,
+    has_override,
+)
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import (
     build_array_type,
+    build_examples_list,
     build_media_type_object,
     error,
     force_instance,
     modify_media_types_for_versioning,
 )
+from drf_spectacular.utils import OpenApiExample
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 
@@ -130,3 +136,40 @@ class AudomaAutoSchema(AutoSchema):
             }
 
         return super()._get_response_for_code(serializer, status_code, media_types)
+
+    def _get_examples(
+        self,
+        serializer,
+        direction: str,
+        media_type: str,
+        status_code: str = None,
+        extras: list = None,
+    ) -> typing.List[dict]:
+        examples = super()._get_examples(
+            serializer, direction, media_type, status_code, extras
+        )
+
+        if isinstance(serializer, BulkSerializerMixin) and self.view.action != "list":
+            fields_with_examples = {}
+            for field_name, field in serializer.fields.items():
+                if has_override(field, "field"):
+                    schema = get_override(field, "field")
+                    example = schema.get("example")
+                else:
+                    example = field.audoma_example.to_representation(
+                        field.audoma_example.get_value()
+                    )
+                fields_with_examples[field_name] = example
+            examples = [
+                OpenApiExample(value=fields_with_examples, name="Non-bulk example"),
+                OpenApiExample(
+                    value=build_array_type(
+                        [fields_with_examples, fields_with_examples]
+                    ),
+                    name="Bulk example",
+                ),
+            ]
+
+        if examples:
+            examples = build_examples_list(examples)
+        return examples
