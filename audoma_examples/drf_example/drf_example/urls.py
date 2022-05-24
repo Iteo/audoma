@@ -15,9 +15,11 @@ Including another URLconf
 """
 from audoma_api.views import (
     ExampleFileUploadViewSet,
+    ExampleModelPermissionLessViewSet,
     ExampleModelViewSet,
     ExamplePersonModelViewSet,
     ExampleViewSet,
+    MutuallyExclusiveViewSet,
 )
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -39,6 +41,14 @@ router.register(
 )
 router.register(
     r"file-upload-example", ExampleFileUploadViewSet, basename="file-upload-example"
+)
+router.register(
+    r"mutually-exclusive", MutuallyExclusiveViewSet, basename="mutually-exclusive"
+)
+router.register(
+    r"permissionless_model_examples",
+    ExampleModelPermissionLessViewSet,
+    basename="permissionless-model-examples",
 )
 
 urlpatterns = router.urls
