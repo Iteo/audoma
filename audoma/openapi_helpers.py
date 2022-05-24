@@ -1,6 +1,7 @@
 from copy import deepcopy
 from inspect import isclass
 from typing import (
+    Callable,
     List,
     Type,
     Union,
@@ -145,13 +146,13 @@ def build_exclusive_fields_examples(
 
 
 class AudomaApiResponseCreator:
-    def extract_collectors(self, view):
+    def extract_collectors(self, view) -> dict:
         action_function = self._extract_action(view)
         _audoma = getattr(action_function, "_audoma", None)
         collectors = getattr(_audoma, "collectors", None)
         return self._parse_action_serializers(collectors)
 
-    def extract_results(self, view):
+    def extract_results(self, view) -> dict:
         action_function = self._extract_action(view)
         _audoma = getattr(action_function, "_audoma", None)
         results = self._parse_action_serializers(getattr(_audoma, "results", None))
@@ -162,14 +163,14 @@ class AudomaApiResponseCreator:
 
         return errors
 
-    def _extract_action(self, view):
+    def _extract_action(self, view) -> Callable:
         action = getattr(view, "action", None)
         if not action:
             return
 
         return getattr(view, action, None)
 
-    def _parse_action_serializers(self, action_serializers):
+    def _parse_action_serializers(self, action_serializers) -> dict:
         if not action_serializers:
             return action_serializers
 
@@ -195,7 +196,7 @@ class AudomaApiResponseCreator:
 
         return parsed_action_serializers
 
-    def _parse_action_errors(self, action_errors):
+    def _parse_action_errors(self, action_errors) -> dict:
         if not action_errors:
             return action_errors
 

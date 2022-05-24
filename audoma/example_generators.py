@@ -3,7 +3,7 @@ import random
 import lorem
 
 
-def generate_lorem_ipsum(min_length=20, max_length=80):
+def generate_lorem_ipsum(min_length=20, max_length=80) -> str:
     random_lorem = lorem.text()
     if len(random_lorem) < min_length:
         random_lorem += lorem.text()

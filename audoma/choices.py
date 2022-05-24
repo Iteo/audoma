@@ -2,10 +2,14 @@ from typing import (
     Any,
     List,
     Tuple,
+    TypeVar,
 )
 
 
-def make_choices(name: str, choices_tuple: Tuple[Any, str, str]):
+_T = TypeVar("_T")
+
+
+def make_choices(name: str, choices_tuple: Tuple[Any, str, str]) -> _T:
     from collections import namedtuple
 
     """Factory function for quickly making a namedtuple suitable for use in a

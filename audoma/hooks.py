@@ -32,7 +32,7 @@ def preprocess_include_path_format(
     ]
 
 
-def postprocess_common_errors_section(result, request, **kwargs):
+def postprocess_common_errors_section(result: dict, request, **kwargs) -> dict:
     """
     Postprocessing hook which adds COMMON_API_ERRORS description to the API description.
     """

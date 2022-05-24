@@ -1,6 +1,8 @@
 from typing import (
     Any,
+    Tuple,
     Type,
+    Union,
 )
 
 import jsonfield
@@ -129,7 +131,9 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
 
     serializer_choice_field = ChoiceField
 
-    def build_standard_field(self, field_name, model_field):
+    def build_standard_field(
+        self, field_name, model_field
+    ) -> Tuple[Union[Type[Field], dict]]:
         field_class, field_kwargs = super().build_standard_field(
             field_name, model_field
         )
@@ -143,7 +147,7 @@ class Serializer(ResultSerializerClassMixin, serializers.Serializer):
 
 
 class DisplayNameWritableField(serializers.ChoiceField):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.choices_inverted_dict = dict((y, x) for x, y in list(self.choices.items()))
         self.original_choices = self.choices

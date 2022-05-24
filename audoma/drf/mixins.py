@@ -3,6 +3,7 @@ from typing import (
     Any,
     Dict,
     List,
+    Type,
 )
 
 import exrex
@@ -140,10 +141,10 @@ class Example:
         self.field = field
         self.example = example
 
-    def generate_value(self):
+    def generate_value(self) -> Type[DEFAULT]:
         return DEFAULT
 
-    def get_value(self):
+    def get_value(self) -> Any:
         if self.example is not DEFAULT:
             if callable(self.example):
                 return self.example()
@@ -155,14 +156,14 @@ class Example:
 
 
 class NumericExample(Example):
-    def generate_value(self):
+    def generate_value(self) -> float:
         min_val = getattr(self.field, "min_value", 1) or 1
         max_val = getattr(self.field, "max_value", 1000) or 1000
         return random.uniform(min_val, max_val)
 
 
 class RegexExample(Example):
-    def generate_value(self):
+    def generate_value(self) -> str:
         regex_validators = [
             validator
             for validator in self.field.validators
