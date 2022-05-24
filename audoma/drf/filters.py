@@ -1,10 +1,12 @@
+from typing import NamedTuple
+
 from django_filters import rest_framework as df_filters
 
 
 class DocumentedTypedChoiceFilter(df_filters.TypedChoiceFilter):
     """Extended TypedChoiceFilter to generate documentation automatically"""
 
-    def __init__(self, full_choices, parameter_name, **kwargs):
+    def __init__(self, full_choices: NamedTuple, parameter_name: str, **kwargs) -> None:
         super().__init__(
             coerce=lambda value: full_choices.get_value_by_name(value),
             choices=full_choices.get_api_choices(),
@@ -16,7 +18,7 @@ class DocumentedTypedChoiceFilter(df_filters.TypedChoiceFilter):
             choices=self._get_choices_description()
         )
 
-    def _get_choices_description(self):
+    def _get_choices_description(self) -> str:
         description = f"Filter by {self.parameter_name} \n"
         for key, val in self.full_choices.get_api_choices():
             description += f" * `{key}` - {val}\n"

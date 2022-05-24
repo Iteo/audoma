@@ -38,7 +38,7 @@ __all__.extend(["MoneyField", "CurrencyField", "PhoneNumberField"])
 
 
 class CurrencyField(ModelExampleMixin, djmoney_fields.CurrencyField):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         default = kwargs.get("default", None)
         if default and str(default) != "XYZ":
             self.example = default
@@ -50,7 +50,7 @@ class CurrencyField(ModelExampleMixin, djmoney_fields.CurrencyField):
 
 
 class MoneyField(ModelExampleMixin, djmoney_fields.MoneyField):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
     def add_currency_field(self, cls, name):
@@ -82,7 +82,7 @@ class MoneyField(ModelExampleMixin, djmoney_fields.MoneyField):
 
 
 class PhoneNumberField(ModelExampleMixin, PhoneNumberField):
-    def __init__(self, *args, region=None, **kwargs):
+    def __init__(self, *args, region=None, **kwargs) -> None:
         super().__init__(*args, region=region, **kwargs)
         if not kwargs.get("example", None):
             number = phonenumbers.example_number(region)
@@ -90,7 +90,7 @@ class PhoneNumberField(ModelExampleMixin, PhoneNumberField):
 
 
 class CharField(ModelExampleMixin, models.CharField):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         max_length = kwargs.get("max_length", 80)
         if not kwargs.get("example", None) and max_length:
@@ -98,7 +98,7 @@ class CharField(ModelExampleMixin, models.CharField):
 
 
 class TextField(ModelExampleMixin, models.TextField):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         if not kwargs.get("example", None):
             self.example = generate_lorem_ipsum()

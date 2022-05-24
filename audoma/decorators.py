@@ -141,7 +141,9 @@ class audoma_action:
                 raise e
             logger.exception("audoma_action has been improperly configured.")
 
-    def _get_error_instance_and_class(self, error: Union[Exception, Type[Exception]]):
+    def _get_error_instance_and_class(
+        self, error: Union[Exception, Type[Exception]]
+    ) -> Tuple[Exception, Type[Exception]]:
         """
         This is an internal helper method.
         Beacuse we accept errors as instances and classes

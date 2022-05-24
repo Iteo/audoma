@@ -129,9 +129,8 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
         ...
     ```
 
-<<<<<<< HEAD
 * We also support documentation of `MoneyField` from `django-money` package which allows you to handle money and currency values
-=======
+
 * `audoma_action` decorator - this is a wrapper for standrad drfs' action decorator. It also handles documenting the action. In this decorator this is possible to pass:
     * **collectors** - collect serializers, those are being used to process users input, collectors may be
      passed as a serializer class which inherits from `serializers.BaseSerializer`, it may also be passed as a dict with given structure: {'http_method1': Serializer1Class, 'http_method2': Serializer2Class}.
@@ -283,7 +282,6 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
 
     #### Note:
     You may still use standard `@action` decorator with action methods. It'll still work in Audoma.
->>>>>>> pint-19-custom-action-tag
 
 
 Testing and example application

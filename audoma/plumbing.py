@@ -1,3 +1,8 @@
+from typing import (
+    List,
+    Type,
+)
+
 from drf_spectacular.drainage import cache
 from rest_framework import (
     generics,
@@ -16,7 +21,7 @@ from audoma.drf import (
 
 
 @cache
-def get_lib_doc_excludes_audoma():
+def get_lib_doc_excludes_audoma() -> List[Type]:
 
     return [
         views.APIView,

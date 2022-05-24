@@ -12,6 +12,7 @@ from drf_spectacular.plumbing import (
     sanitize_specification_extensions,
 )
 from drf_spectacular.types import OpenApiTypes
+from rest_framework.fields import Field
 from rest_framework.generics import GenericAPIView
 from rest_framework.serializers import BaseSerializer
 from rest_framework.views import APIView
@@ -29,13 +30,15 @@ from audoma.openapi_helpers import (
 class AudomaAutoSchema(AutoSchema):
     response_creator = AudomaApiResponseCreator()
 
-    def get_description(self):
+    def get_description(self) -> str:
         view = self.view
         description = super().get_description() or ""
         description += get_permissions_description(view)
         return description
 
-    def _get_serializer(self, serializer_type="collect"):  # noqa: C901
+    def _get_serializer(  # noqa: C901
+        self, serializer_type="collect"
+    ) -> typing.Union[BaseSerializer, typing.Type[BaseSerializer]]:
         view = self.view
         method = view.request.method
 
@@ -91,11 +94,15 @@ class AudomaAutoSchema(AutoSchema):
                 f"a request? Ignoring the view for now. (Exception: {exc})"
             )
 
-    def get_response_serializers(self) -> typing.Any:
+    def get_response_serializers(
+        self,
+    ) -> typing.Union[BaseSerializer, typing.Type[BaseSerializer]]:
         """overrides this for custom behaviour"""
         return self._get_serializer(serializer_type="result")
 
-    def _map_serializer_field(self, field, direction, bypass_extensions=False):
+    def _map_serializer_field(
+        self, field: Field, direction: str, bypass_extensions=False
+    ) -> dict:
         """
         Allows to use @extend_schema_field with `field` dict so that
         it gets updated instead of being overriden

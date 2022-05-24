@@ -11,7 +11,7 @@ from audoma.examples import (
 class ExampleMixin:
     audoma_example_class = Example
 
-    def __init__(self, *args, example=DEFAULT, **kwargs):
+    def __init__(self, *args, example=DEFAULT, **kwargs) -> None:
         self.audoma_example = self.audoma_example_class(self, example)
         super().__init__(*args, **kwargs)
         example = self.audoma_example.get_value()
