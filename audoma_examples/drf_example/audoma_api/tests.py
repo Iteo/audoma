@@ -99,7 +99,7 @@ class AudomaTests(SimpleTestCase):
         self.assertEqual(list(example_schema.keys())[0], "multipart/form-data")
 
     def test_filterset_class_description_in_query_params_schema(self):
-        choices_desc = "Filter by choices \n * `1` - example 1\n * `2` - example 2\n * `3` - example 3\n"
+        choices_desc = "Filter by choices \n * `EX_1` - example 1\n * `EX_2` - example 2\n * `EX_3` - example 3\n"
         docs_description = self.schema["paths"]["/model_examples/"]["get"][
             "parameters"
         ][0]["description"]
