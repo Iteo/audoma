@@ -8,10 +8,8 @@ from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import (
     build_array_type,
     build_examples_list,
-    build_media_type_object,
     error,
     force_instance,
-    modify_media_types_for_versioning,
     sanitize_specification_extensions,
 )
 from drf_spectacular.types import OpenApiTypes
@@ -24,7 +22,6 @@ from audoma.drf.serializers import BulkSerializerMixin
 from audoma.drf.validators import ExclusiveFieldsValidator
 from audoma.openapi_helpers import (
     AudomaApiResponseCreator,
-    build_bulk_type_examples,
     build_exclusive_fields_examples,
     build_exclusive_fields_schema,
     get_permissions_description,
@@ -131,37 +128,18 @@ class AudomaAutoSchema(AutoSchema):
 
     def _get_response_for_code(self, serializer, status_code, media_types=None):
 
+        schema_resp = super()._get_response_for_code(
+            serializer, status_code, media_types
+        )
+
         if isinstance(serializer, BulkSerializerMixin) and self.view.action != "list":
-            description, examples = "", []
+            for media_type in schema_resp["content"]:
+                schema = schema_resp["content"][media_type]["schema"]
+                schema_resp["content"][media_type]["schema"] = {
+                    "oneOf": [build_array_type(schema), schema]
+                }
 
-            serializer = force_instance(serializer)
-            headers = self._get_response_headers_for_code(status_code)
-            headers = {"headers": headers} if headers else {}
-
-            component = self.resolve_serializer(serializer, "response")
-
-            schema = {"oneOf": [build_array_type(component.ref), component.ref]}
-
-            if not media_types:
-                media_types = self.map_renderers("media_type")
-
-            media_types = modify_media_types_for_versioning(self.view, media_types)
-
-            return {
-                **headers,
-                "content": {
-                    media_type: build_media_type_object(
-                        schema,
-                        self._get_examples(
-                            serializer, "response", media_type, status_code, examples
-                        ),
-                    )
-                    for media_type in media_types
-                },
-                "description": description,
-            }
-
-        return super()._get_response_for_code(serializer, status_code, media_types)
+        return schema_resp
 
     def _get_examples(
         self,
@@ -185,9 +163,6 @@ class AudomaAutoSchema(AutoSchema):
                 examples += build_exclusive_fields_examples(
                     serializer, validator.fields, examples
                 )
-
-        if isinstance(serializer, BulkSerializerMixin) and self.view.action != "list":
-            examples = build_bulk_type_examples(serializer)
 
         if examples:
             examples = build_examples_list(examples)
