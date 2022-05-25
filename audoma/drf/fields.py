@@ -76,7 +76,7 @@ class RegexField(RegexExampleMixin, fields.RegexField):
 
 
 class MACAddressField(RegexExampleMixin, fields.CharField):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self.regex = "^([0-9A-F]{2}:){5}([0-9A-F]{2})|([0-9A-F]{2}-){5}([0-9A-F]{2})$"
         self.validators = [validators.RegexValidator(self.regex)]
         super().__init__(**kwargs)
@@ -108,7 +108,7 @@ class IPAddressField(ExampleMixin, fields.IPAddressField):
 
 @extend_schema_field(field={"format": "tel"})
 class PhoneNumberField(ExampleMixin, serializerfields.PhoneNumberField):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         example = kwargs.pop("example", None)
         if example is None:
             number = phonenumbers.example_number(None)
@@ -117,7 +117,7 @@ class PhoneNumberField(ExampleMixin, serializerfields.PhoneNumberField):
 
 
 class CharField(ExampleMixin, fields.CharField):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         example = kwargs.pop("example", None)
         min_length = kwargs.get("min_length", 20)
         max_length = kwargs.get("max_length", 80)

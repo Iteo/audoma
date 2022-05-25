@@ -1,4 +1,15 @@
-def make_choices(name, choices_tuple):
+from typing import (
+    Any,
+    List,
+    Tuple,
+    TypeVar,
+)
+
+
+_T = TypeVar("_T")
+
+
+def make_choices(name: str, choices_tuple: Tuple[Any, str, str]) -> _T:
     from collections import namedtuple
 
     """Factory function for quickly making a namedtuple suitable for use in a
@@ -36,16 +47,16 @@ def make_choices(name, choices_tuple):
         __slots__ = ()
         _choices = tuple([desc for val, name_, desc in choices_tuple])
 
-        def get_display(self, val):
+        def get_display(self, val: Any) -> str:
             return self._choices[self.index(val)]
 
-        def get_choices(self):
+        def get_choices(self) -> List[Tuple[Any, str]]:
             return list(zip(tuple(self), self._choices))
 
-        def get_api_choices(self):
+        def get_api_choices(self) -> List[Tuple[str, str]]:
             return list(zip(tuple(self._asdict()), tuple(self._choices)))
 
-        def get_value_by_name(self, name):
+        def get_value_by_name(self, name: str) -> Any:
             return getattr(self, name)
 
     return Choices._make([val for val, name_, desc in choices_tuple])

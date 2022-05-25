@@ -1,8 +1,11 @@
+from typing import Type
+
 from rest_framework import generics
+from rest_framework.serializers import BaseSerializer
 
 
 class GenericAPIView(generics.GenericAPIView):
-    def get_serializer(self, *args, **kwargs):
+    def get_serializer(self, *args, **kwargs) -> BaseSerializer:
         serializer_type = kwargs.pop("serializer_type", "collect")
         serializer_class = kwargs.pop(
             "serializer_class", self.get_serializer_class(type=serializer_type)
@@ -11,10 +14,10 @@ class GenericAPIView(generics.GenericAPIView):
         return serializer_class(*args, **kwargs)
 
     # needed by AudomaSwaggerAutoSchema
-    def get_result_serializer(self, *args, **kwargs):
+    def get_result_serializer(self, *args, **kwargs) -> BaseSerializer:
         return self.get_serializer(*args, serializer_type="result", **kwargs)
 
-    def get_serializer_class(self, type="collect"):
+    def get_serializer_class(self, type: str = "collect") -> Type[BaseSerializer]:
         assert self.action not in [
             "post",
             "put",
