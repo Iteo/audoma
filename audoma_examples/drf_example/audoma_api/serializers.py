@@ -2,9 +2,7 @@ from datetime import date
 
 from audoma_api.models import (
     Car,
-    ExampleDependedModel,
     ExampleFileModel,
-    ExampleForeignKeyModel,
     ExampleModel,
     Manufacturer,
 )

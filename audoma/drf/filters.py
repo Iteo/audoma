@@ -1,5 +1,7 @@
 from django_filters import rest_framework as df_filters
 
+from audoma.plumbing import create_choices_enum_description
+
 
 class DocumentedTypedChoiceFilter(df_filters.TypedChoiceFilter):
     """Extended TypedChoiceFilter to generate documentation automatically"""
@@ -13,11 +15,8 @@ class DocumentedTypedChoiceFilter(df_filters.TypedChoiceFilter):
         self.full_choices = full_choices
         self.parameter_name = parameter_name
         self.extra["help_text"] = self.extra.get("help_text", "{choices}").format(
-            choices=self._get_choices_description()
+            choices=create_choices_enum_description(
+                full_choices.get_api_choices(), self.field_name
+            )
         )
-
-    def _get_choices_description(self):
-        description = f"Filter by {self.parameter_name} \n"
-        for key, val in self.full_choices.get_api_choices():
-            description += f" * `{key}` - {val}\n"
-        return description
+        self.extra["choices"] = full_choices.get_api_choices()

@@ -8,7 +8,6 @@ from drf_spectacular.plumbing import (
     force_instance,
 )
 from rest_framework.generics import GenericAPIView
-from rest_framework.serializers import BaseSerializer
 from rest_framework.views import APIView
 
 from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
@@ -17,6 +16,7 @@ from audoma.links import (
     ChoicesOptionsLinkSchemaGenerator,
 )
 from audoma.openapi_helpers import get_permissions_description
+from audoma.plumbing import create_choices_enum_description
 
 
 class AudomaAutoSchema(AutoSchema):
@@ -117,6 +117,9 @@ class AudomaAutoSchema(AutoSchema):
         )
         if hasattr(field, "choices"):
             result["x-choices"] = self._get_enum_choices_for_field(field)
+            result["description"] = create_choices_enum_description(
+                result["x-choices"]["choices"], field.field_name
+            )
 
         serializer_type = "collect" if direction == "request" else "result"
         serializer = self._get_serializer(serializer_type=serializer_type)

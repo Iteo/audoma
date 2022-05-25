@@ -16,8 +16,6 @@ Including another URLconf
 from audoma_api.views import (
     CarViewSet,
     ExampleFileUploadViewSet,
-    ExampleFiltersetClassViewset,
-    ExampleFiltersetFieldsViewset,
     ExampleModelViewSet,
     ExampleViewSet,
     ManufacturerViewSet,
@@ -48,16 +46,6 @@ router.register(
     r"car_viewset",
     CarViewSet,
     basename="car_viewset",
-)
-router.register(
-    r"example_filterset_class_viewset",
-    ExampleFiltersetClassViewset,
-    basename="example_filterset_class_viewset",
-)
-router.register(
-    r"example_filterset_fields_viewset",
-    ExampleFiltersetFieldsViewset,
-    basename="example_filterset_fields_viewset",
 )
 
 urlpatterns = router.urls

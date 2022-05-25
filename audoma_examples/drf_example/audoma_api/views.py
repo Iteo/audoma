@@ -1,8 +1,6 @@
 from audoma_api.models import (
     Car,
-    ExampleDependedModel,
     ExampleFileModel,
-    ExampleForeignKeyModel,
     ExampleModel,
     Manufacturer,
 )
@@ -26,8 +24,6 @@ from rest_framework.filters import SearchFilter
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
-from django.utils.decorators import method_decorator
 
 from audoma.drf import (
     mixins,
@@ -127,38 +123,6 @@ class ExampleFileUploadViewSet(
     parser_classes = [MultiPartParser]
 
 
-class ExampleDefaultChoiceFilter(df_filters.FilterSet):
-    class Meta:
-        model = ExampleModel
-        fields = [
-            "choices",
-        ]
-
-
-class ExampleFiltersetClassViewset(
-    mixins.ActionModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.ListModelMixin,
-    viewsets.GenericViewSet,
-):
-    filterset_class = ExampleDefaultChoiceFilter
-    serializer_class = ExampleModelSerializer
-    queryset = ExampleModel.objects.all()
-
-
-class ExampleFiltersetFieldsViewset(
-    mixins.ActionModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.ListModelMixin,
-    viewsets.GenericViewSet,
-):
-    filterset_fields = [
-        "choices",
-    ]
-    serializer_class = ExampleModelSerializer
-    queryset = ExampleModel.objects.all()
-
-
 class ManufacturerViewSet(
     mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
 ):
@@ -177,7 +141,5 @@ class CarViewSet(
 
     filter_backends = [SearchFilter, df_filters.DjangoFilterBackend]
 
-    filterset_fields = [
-        "engine_size",
-    ]
+    filterset_fields = ["engine_type"]
     search_fields = ["=manufacturer", "name"]

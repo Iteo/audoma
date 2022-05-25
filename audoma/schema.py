@@ -4,16 +4,12 @@ from drf_spectacular.contrib.django_filters import DjangoFilterExtension
 from drf_spectacular.extensions import OpenApiFilterExtension
 from rest_framework.filters import SearchFilter
 
+from audoma.plumbing import create_choices_enum_description
+
 
 class AudomaDjangoFilterExtension(DjangoFilterExtension):
 
     priority = 5
-
-    def _generate_extra_choices_description(self, filter_field, field_name):
-        description = f"Filter by {field_name} \n"
-        for key, val in filter_field.extra["choices"]:
-            description += f" * `{key}` - {val}\n"
-        return description
 
     def _get_x_choices(self, choices: namedtuple):
         return {"choices": {key: value for key, value in choices}}
@@ -21,25 +17,28 @@ class AudomaDjangoFilterExtension(DjangoFilterExtension):
     def resolve_filter_field(
         self, auto_schema, model, filterset_class, field_name, filter_field
     ):
-        if "choices" in filter_field.extra:
+        choices = filter_field.extra.get("choices", None) or getattr(
+            filter_field, "choices"
+        )
+
+        if choices:
             # set proper help-text
             filter_field.extra["help_text"] = filter_field.extra.get(
                 "help_text", "{choices}"
             )
             filter_field.extra["help_text"] = filter_field.extra["help_text"].format(
-                choices=self._generate_extra_choices_description(
-                    filter_field, field_name
-                )
+                choices=create_choices_enum_description(choices, field_name)
             )
-            filter_field.extra["x-choices"] = self._get_x_choices(
-                filter_field.extra["choices"]
-            )
-
-            # TODO - there should be x-choices added to field
-        # TODO add x-choices as link here also, check the registry???
-        return super().resolve_filter_field(
+        schemas = super().resolve_filter_field(
             auto_schema, model, filterset_class, field_name, filter_field
         )
+        parsed_schemas = []
+        for schema in schemas:
+            if choices and "x-choices" not in schema:
+                schema["schema"]["x-choices"] = self._get_x_choices(choices)
+                parsed_schemas.append(schema)
+
+        return parsed_schemas
 
 
 class SearchFilterExtension(OpenApiFilterExtension):

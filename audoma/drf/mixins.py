@@ -6,8 +6,6 @@ from rest_framework import (
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
-from audoma.links import ChoicesOptionsLink
-
 
 class ActionModelMixin:
     def perform_action(
