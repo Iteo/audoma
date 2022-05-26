@@ -1,16 +1,19 @@
 import inspect
 from typing import (
     Any,
+    List,
     Tuple,
     Type,
     Union,
 )
+from uuid import UUID
 
 from rest_framework import serializers
 from rest_framework.serializers import *  # noqa: F403, F401
 
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import QuerySet
 
 from audoma import settings
 from audoma.django.db import models as audoma_models
@@ -95,7 +98,7 @@ def result_serializer_class(
         class ResultSerializer(serializers.Serializer):
             result = SerializerClass()
 
-            def __new__(cls, *args, **kwargs):
+            def __new__(cls, *args, **kwargs) -> Serializer:
                 _many = kwargs.pop("many", False)
 
                 if _many:
@@ -188,7 +191,7 @@ class DisplayNameWritableField(serializers.ChoiceField):
         # serializer_field.parentu
         return self.original_choices.get(value, value)
 
-    def to_internal_value(self, data: str) -> Any:
+    def to_internal_value(self, data: dict) -> Any:
         try:
             return self.choices_inverted_dict[data.title()]
         except KeyError:
@@ -200,7 +203,7 @@ class ListSerializer(ResultSerializerClassMixin, serializers.ListSerializer):
 
 
 class BulkSerializerMixin:
-    def to_internal_value(self, data):
+    def to_internal_value(self, data: dict) -> dict:
         ret = super().to_internal_value(data)
 
         id_attr = getattr(self.Meta, "id_field", "id")
@@ -230,15 +233,14 @@ class BulkSerializerMixin:
 class BulkListSerializer(ListSerializer):
     id_field = "id"
 
-    def get_unique_fields(self):
+    def get_unique_fields(self) -> List[Any]:
         return []
 
-    def validate(self, attrs):
+    def validate(self, attrs: Any) -> Any:
         ret = super().validate(attrs)
         return ret
 
-    def update(self, queryset, all_validated_data):
-        from uuid import UUID
+    def update(self, queryset: QuerySet, all_validated_data: dict) -> List[Any]:
 
         id_attr = getattr(self.child.Meta, "id_field", "id")
         all_validated_data_by_id = {i.pop(id_attr): i for i in all_validated_data}

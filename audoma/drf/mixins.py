@@ -1,12 +1,9 @@
-import random
 from typing import (
     Any,
     Dict,
     List,
-    Type,
 )
 
-import exrex
 from drf_spectacular.drainage import set_override
 from rest_framework import (
     mixins,
@@ -16,7 +13,12 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
-from django.core import validators
+from audoma.examples import (
+    DEFAULT,
+    Example,
+    NumericExample,
+    RegexExample,
+)
 
 
 class ActionModelMixin:
@@ -132,49 +134,6 @@ class DestroyModelMixin(mixins.DestroyModelMixin):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class DEFAULT:
-    pass
-
-
-class Example:
-    def __init__(self, field, example=DEFAULT):
-        self.field = field
-        self.example = example
-
-    def generate_value(self) -> Type[DEFAULT]:
-        return DEFAULT
-
-    def get_value(self) -> Any:
-        if self.example is not DEFAULT:
-            if callable(self.example):
-                return self.example()
-            return self.example
-        return self.generate_value()
-
-    def to_representation(self, value):
-        return self.field.to_representation(value)
-
-
-class NumericExample(Example):
-    def generate_value(self) -> float:
-        min_val = getattr(self.field, "min_value", 1) or 1
-        max_val = getattr(self.field, "max_value", 1000) or 1000
-        return random.uniform(min_val, max_val)
-
-
-class RegexExample(Example):
-    def generate_value(self) -> str:
-        regex_validators = [
-            validator
-            for validator in self.field.validators
-            if isinstance(validator, validators.RegexValidator)
-        ]
-        if regex_validators:
-            regex_validator = regex_validators[0]
-            return exrex.getone(regex_validator.regex.pattern)
-        return None
-
-
 class BulkCreateModelMixin(CreateModelMixin):
     """
     Either create a single or many model instances in bulk by using the
@@ -185,7 +144,7 @@ class BulkCreateModelMixin(CreateModelMixin):
         requests will use ``POST`` request method.
     """
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request: Request, *args, **kwargs) -> Response:
         bulk = isinstance(request.data, list)
         if not bulk:
             return super(BulkCreateModelMixin, self).create(request, *args, **kwargs)
@@ -197,7 +156,7 @@ class BulkCreateModelMixin(CreateModelMixin):
             serializer = self.get_result_serializer(serializer.instance, many=True)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def perform_bulk_create(self, serializer):
+    def perform_bulk_create(self, serializer: Any) -> None:
         return self.perform_create(serializer)
 
 
@@ -207,7 +166,7 @@ class BulkUpdateModelMixin(object):
     ``many=True`` ability from Django REST >= 2.2.5.
     """
 
-    def get_object(self):
+    def get_object(self) -> Any:
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
 
         if lookup_url_kwarg in self.kwargs:
@@ -223,7 +182,7 @@ class BulkUpdateModelMixin(object):
         # before any of the API actions (e.g. create, update, etc)
         return
 
-    def bulk_update(self, request, *args, **kwargs):
+    def bulk_update(self, request: Request, *args, **kwargs) -> Response:
         partial = kwargs.pop("partial", False)
 
         # restrict the update to the filtered queryset
@@ -238,14 +197,14 @@ class BulkUpdateModelMixin(object):
         self.perform_bulk_update(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def partial_bulk_update(self, request, *args, **kwargs):
+    def partial_bulk_update(self, request: Request, *args, **kwargs) -> Response:
         kwargs["partial"] = True
         return self.bulk_update(request, *args, **kwargs)
 
-    def perform_update(self, serializer):
+    def perform_update(self, serializer: Any) -> None:
         serializer.save()
 
-    def perform_bulk_update(self, serializer):
+    def perform_bulk_update(self, serializer: Any) -> None:
         return self.perform_update(serializer)
 
 
@@ -254,7 +213,7 @@ class BulkDestroyModelMixin(object):
     Destroy model instances.
     """
 
-    def allow_bulk_destroy(self, qs, filtered):
+    def allow_bulk_destroy(self, qs: Any, filtered: Any) -> bool:
         """
         Hook to ensure that the bulk destroy should be allowed.
         By default this checks that the destroy is only applied to
@@ -262,7 +221,7 @@ class BulkDestroyModelMixin(object):
         """
         return qs is not filtered
 
-    def bulk_destroy(self, request, *args, **kwargs):
+    def bulk_destroy(self, request: Request, *args, **kwargs) -> Response:
         qs = self.get_queryset()
 
         filtered = self.filter_queryset(qs)
@@ -273,10 +232,10 @@ class BulkDestroyModelMixin(object):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    def perform_destroy(self, instance):
+    def perform_destroy(self, instance: object) -> None:
         instance.delete()
 
-    def perform_bulk_destroy(self, objects):
+    def perform_bulk_destroy(self, objects: Any) -> None:
         for obj in objects:
             self.perform_destroy(obj)
 
