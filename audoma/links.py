@@ -7,25 +7,44 @@ from typing import (
     Union,
 )
 
+from drf_spectacular.plumbing import force_instance
 from rest_framework.serializers import BaseSerializer
 
+from django.urls import (
+    NoReverseMatch,
+    URLResolver,
+)
 from django.urls.resolvers import get_resolver
 
 
 def get_endpoint_pattern(endpoint_name: str, urlconf=None) -> str:
     resolver = get_resolver(urlconf)
     patterns = resolver.url_patterns
-    possibilities = list(filter(lambda p: p.name == endpoint_name, patterns))
-    if not possibilities:
-        return
-    # TODO - fix this before push
-    # FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+    new_patterns = []
+    resolvers = []
+
+    for pattern in patterns:
+        if isinstance(pattern, URLResolver):
+            resolvers.append(pattern)
+            continue
+        new_patterns.append(pattern)
+
+    while resolvers:
+        resolver = resolvers.pop()
+        patterns = resolver.url_patterns
+        for pattern in patterns:
+            if isinstance(pattern, URLResolver):
+                resolvers.append(pattern)
+                continue
+            new_patterns.append(pattern)
+
+    possibilities = list(filter(lambda p: p.name == endpoint_name, new_patterns))
+
     for p in possibilities:
         if "format" not in p.pattern.regex.pattern:
             return str(p.pattern)
 
-    # different exception
-    raise Exception
+    raise NoReverseMatch(f"There is no pattern with name f{endpoint_name}")
 
 
 @dataclass
@@ -79,24 +98,27 @@ class ChoicesOptionsLink:
 
 
 class ChoicesOptionsLinkSchemaGenerator:
-
-    # TODO - this does not make sense any more most probably
     def _process_link(
         self, link: Union[ChoicesOptionsLink, Dict[str, Any]]
     ) -> ChoicesOptionsLink:
         if isinstance(link, dict):
             link = ChoicesOptionsLink(**link)
-        # TODO - maybe this should be silent?
-        assert isinstance(link, ChoicesOptionsLink)
 
-        # TODO does this make any sense at all?
-        serializer = link.serializer_class()
+        if not isinstance(link, ChoicesOptionsLink):
+            raise TypeError(
+                f"This is not possible to create ChoicesOptionsLink \
+                    from object of type {type(link)}"
+            )
+
+        serializer = force_instance(link.serializer_class)
         # serializer must own defined field
-        assert serializer.fields.get(link.field_name, None) is not None
+        if not serializer.fields.get(link.field_name, None):
+            raise AttributeError(
+                f"Serializer class: {link.serializer_class} does not have field: {link.field_name}"
+            )
         return link
 
-    # TODO - change typing
-    def _create_link_title(self, link: ChoicesOptionsLink) -> str:
+    def _create_link_title(self, link: Union[ChoicesOptionsLink, dict]) -> str:
         partials = link.viewname.replace("-", " ").replace("_", " ").split(" ")
         partials = [p.capitalize() for p in partials]
         return " ".join(partials).title()
