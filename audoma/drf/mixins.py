@@ -1,21 +1,33 @@
+import random
+from typing import (
+    Any,
+    Dict,
+    List,
+    Type,
+)
+
+import exrex
 from drf_spectacular.drainage import set_override
 from rest_framework import (
     mixins,
     status,
 )
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
+
+from django.core import validators
 
 
 class ActionModelMixin:
     def perform_action(
         self,
-        request,
-        success_status=status.HTTP_200_OK,
-        instance=None,
-        partial=False,
+        request: Request,
+        success_status: int = status.HTTP_200_OK,
+        instance: Any = None,
+        partial: bool = False,
         **kwargs
-    ):
+    ) -> Response:
         if instance:
             serializer = self.get_serializer(
                 data=request.data, instance=instance, partial=partial
@@ -30,15 +42,19 @@ class ActionModelMixin:
         return Response(return_serializer.data, status=success_status, headers=headers)
 
     def retrieve_instance(
-        self, request, instance=None, success_status=status.HTTP_200_OK, **kwargs
-    ):
+        self,
+        request: Request,
+        instance: Any = None,
+        success_status: int = status.HTTP_200_OK,
+        **kwargs
+    ) -> Response:
         if instance is None:
             instance = self.get_object()
         assert instance is not None
         serializer = self.get_result_serializer(instance)
         return Response(serializer.data, status=success_status)
 
-    def get_success_headers(self, data):
+    def get_success_headers(self, data: dict) -> dict:
         try:
             return {"Location": str(data[api_settings.URL_FIELD_NAME])}
         except (TypeError, KeyError):
@@ -46,7 +62,7 @@ class ActionModelMixin:
 
 
 class CreateModelMixin(mixins.CreateModelMixin):
-    def create(self, request, *args, **kwargs):
+    def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -58,7 +74,7 @@ class CreateModelMixin(mixins.CreateModelMixin):
 
 
 class ListModelMixin(mixins.ListModelMixin):
-    def list(self, request, *args, **kwargs):
+    def list(self, request: Request, *args, **kwargs) -> Response:
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
@@ -69,7 +85,7 @@ class ListModelMixin(mixins.ListModelMixin):
         serializer = self.get_result_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    def get_paginated_response(self, data):
+    def get_paginated_response(self, data: List[Dict]) -> Response:
         ret = super().get_paginated_response(data)
         if hasattr(self, "get_list_message"):
             assert callable(self.get_list_message)
@@ -80,14 +96,14 @@ class ListModelMixin(mixins.ListModelMixin):
 
 
 class RetrieveModelMixin(mixins.RetrieveModelMixin):
-    def retrieve(self, request, *args, **kwargs):
+    def retrieve(self, request: Request, *args, **kwargs) -> Response:
         instance = self.get_object()
         serializer = self.get_result_serializer(instance)
         return Response(serializer.data)
 
 
 class UpdateModelMixin(mixins.UpdateModelMixin):
-    def update(self, request, *args, **kwargs):
+    def update(self, request: Request, *args, **kwargs) -> Response:
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
@@ -103,7 +119,7 @@ class UpdateModelMixin(mixins.UpdateModelMixin):
 
 
 class DestroyModelMixin(mixins.DestroyModelMixin):
-    def destroy(self, request, *args, **kwargs):
+    def destroy(self, request: Request, *args, **kwargs) -> Response:
         from rest_framework import serializers
 
         from django.core.exceptions import ValidationError
@@ -116,10 +132,78 @@ class DestroyModelMixin(mixins.DestroyModelMixin):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ExampleMixin:
-    def __init__(self, *args, **kwargs):
+class DEFAULT:
+    pass
 
-        example = kwargs.pop("example", None)
+
+class Example:
+    def __init__(self, field, example=DEFAULT):
+        self.field = field
+        self.example = example
+
+    def generate_value(self) -> Type[DEFAULT]:
+        return DEFAULT
+
+    def get_value(self) -> Any:
+        if self.example is not DEFAULT:
+            if callable(self.example):
+                return self.example()
+            return self.example
+        return self.generate_value()
+
+    def to_representation(self, value):
+        return self.field.to_representation(value)
+
+
+class NumericExample(Example):
+    def generate_value(self) -> float:
+        min_val = getattr(self.field, "min_value", 1) or 1
+        max_val = getattr(self.field, "max_value", 1000) or 1000
+        return random.uniform(min_val, max_val)
+
+
+class RegexExample(Example):
+    def generate_value(self) -> str:
+        regex_validators = [
+            validator
+            for validator in self.field.validators
+            if isinstance(validator, validators.RegexValidator)
+        ]
+        if regex_validators:
+            regex_validator = regex_validators[0]
+            return exrex.getone(regex_validator.regex.pattern)
+        return None
+
+
+class ExampleMixin:
+    audoma_example_class = Example
+
+    def __init__(self, *args, example=DEFAULT, **kwargs) -> None:
+        self.audoma_example = self.audoma_example_class(self, example)
         super().__init__(*args, **kwargs)
-        if example:
-            set_override(self, "field", {"example": example})
+        example = self.audoma_example.get_value()
+        if example is not DEFAULT:
+            has_annotation = (
+                hasattr(self, "_spectacular_annotation")
+                and "field" in self._spectacular_annotation
+                and isinstance(self._spectacular_annotation["field"], dict)
+            )
+            example_representation = self.audoma_example.to_representation(example)
+            field = {"example": example_representation}
+            if has_annotation:
+                field = self._spectacular_annotation["field"].copy()
+                field["example"] = example_representation
+
+            set_override(
+                self,
+                "field",
+                field,
+            )
+
+
+class NumericExampleMixin(ExampleMixin):
+    audoma_example_class = NumericExample
+
+
+class RegexExampleMixin(ExampleMixin):
+    audoma_example_class = RegexExample

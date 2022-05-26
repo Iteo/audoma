@@ -1,13 +1,28 @@
-import jsonfield
+from typing import (
+    Any,
+    Tuple,
+    Type,
+    Union,
+)
+
 from rest_framework import serializers
 from rest_framework.serializers import *  # noqa: F403, F401
 
 from django.db import models
 
-from audoma import (
-    django_modelfields,
-    settings,
-)
+from audoma import settings
+from audoma.django.db import models as audoma_models
+
+
+try:
+    from django.db.models import JSONField as ModelJSONField
+except ImportError:
+    try:
+        from jsonfield import JSONField as ModelJSONField
+    except ImportError as err:
+        raise ImportError(
+            "You are using old version of Django that doesn't support JSONField. Please install django-jsonfield"
+        ) from err
 
 
 from audoma.drf.fields import (  # NOQA # isort:skip
@@ -43,6 +58,7 @@ from audoma.drf.fields import (  # NOQA # isort:skip
     UUIDField,
     MACAddressField,
     PhoneNumberField,
+    MoneyField,
 )
 
 
@@ -50,11 +66,13 @@ embeded_serializer_classes = {}
 
 
 class Result:
-    def __init__(self, result):
+    def __init__(self, result: Any) -> None:
         self.result = result
 
 
-def result_serializer_class(SerializerClass):
+def result_serializer_class(
+    SerializerClass: Type[serializers.BaseSerializer],
+) -> Type[serializers.BaseSerializer]:
     if SerializerClass not in embeded_serializer_classes:
         class_name = SerializerClass.__name__
         if class_name.endswith("Serializer"):
@@ -65,7 +83,7 @@ def result_serializer_class(SerializerClass):
         class ResultSerializer(serializers.Serializer):
             result = SerializerClass()
 
-            def __init__(self, instance=None, **kwargs):
+            def __init__(self, instance: Any = None, **kwargs) -> None:
                 instance = Result(instance)
                 super().__init__(instance=instance, **kwargs)
 
@@ -78,7 +96,7 @@ class ResultSerializerClassMixin:
     _wrap_result_serializer = settings.WRAP_RESULT_SERIALIZER
 
     @classmethod
-    def get_result_serializer_class(cls):
+    def get_result_serializer_class(cls) -> Type[serializers.BaseSerializer]:
         if cls._wrap_result_serializer:
             return result_serializer_class(cls)
         return cls
@@ -94,6 +112,7 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
         models.DateField: DateField,
         models.DateTimeField: DateTimeField,
         models.DecimalField: DecimalField,
+        models.DurationField: DurationField,
         models.EmailField: EmailField,
         models.Field: ModelField,
         models.FileField: FileField,
@@ -111,11 +130,25 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
         models.GenericIPAddressField: IPAddressField,
         models.FilePathField: FilePathField,
         models.UUIDField: UUIDField,
-        django_modelfields.PhoneNumberField: PhoneNumberField,
-        django_modelfields.MACAddressField: MACAddressField,
-        jsonfield.JSONField: JSONField,
+        audoma_models.PhoneNumberField: PhoneNumberField,
+        audoma_models.MACAddressField: MACAddressField,
+        audoma_models.MoneyField: MoneyField,
+        audoma_models.CurrencyField: CharField,
+        ModelJSONField: JSONField,
     }
     serializer_choice_field = ChoiceField
+
+    serializer_choice_field = ChoiceField
+
+    def build_standard_field(
+        self, field_name, model_field
+    ) -> Tuple[Union[Type[Field], dict]]:
+        field_class, field_kwargs = super().build_standard_field(
+            field_name, model_field
+        )
+        if hasattr(model_field, "example") and model_field.example:
+            field_kwargs["example"] = model_field.example
+        return field_class, field_kwargs
 
 
 class Serializer(ResultSerializerClassMixin, serializers.Serializer):
@@ -123,17 +156,17 @@ class Serializer(ResultSerializerClassMixin, serializers.Serializer):
 
 
 class DisplayNameWritableField(serializers.ChoiceField):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.choices_inverted_dict = dict((y, x) for x, y in list(self.choices.items()))
         self.original_choices = self.choices
         self.choices = dict((y, y) for x, y in list(self.original_choices.items()))
 
-    def to_representation(self, value):
+    def to_representation(self, value: Any) -> Any:
         # serializer_field.parentu
         return self.original_choices.get(value, value)
 
-    def to_internal_value(self, data):
+    def to_internal_value(self, data: str) -> Any:
         try:
             return self.choices_inverted_dict[data.title()]
         except KeyError:

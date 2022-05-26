@@ -57,8 +57,8 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
         pass
     ```
 
-* `ExampleMixin` allows you to add example documentation value to a serializer field. To use it you just need to inherit
-    from `ExampleMixin`, like below and initialize object with example
+* `ExampleMixin` allows you to add example documentation value to a serializer field. To use it you just need to use fields defined in
+    `audoma.drf.fields` or inherit from `ExampleMixin` or use fields defined in `audoma.drf.fields`, like below and initialize object with example
 
     ```python
     class FloatField(ExampleMixin, fields.FloatField):
@@ -77,6 +77,7 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
     }
     ```
 
+<<<<<<< HEAD
 * `FieldLinkMixin` - mixin class for serializer fields, which allows you to define OpenApi link on this field.
     To use this your field class must inherit from `FieldLinkMixin`.
     All serializer fields defined in audoma inherits from this mixin.
@@ -126,6 +127,18 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
 
 * `LinkedSerializerMixin` - This mixin allows serializer to collect all links from it's fields. Inheriting from this class is
     necessary to make links render properly in docs. During writing custom serializer, you have to inherit from this mixin to provide OpenApi links funcionality. If you inherit from default audoma serializers `audoma.serializers.Serializer` or `audoma.serializers.ModelSerializer` those has this already implemented.
+=======
+    You can also add example directly to model fields. It works the same way as in serializers, just inherit from `ModelExampleMixin`, or
+    use audoma's fields defined in `audoma.django.db` and initialize model field with example like shown below.
+
+    ```python
+    from audoma.django.db import models
+
+    class Person(models.Model):
+        first_name = models.CharField(max_length=255, example="Tom")
+    ```
+
+>>>>>>> main
 
 * `DocumentedTypedChoiceFilter` is a wrapper to `df.filters.TypedChoiceFilter` that makes creating documentation easier. It goes out of the box with
     our `make_choices` function for quickly making a namedtuple suitable for use in a django model as a choices attribute on a field that will preserve order.
@@ -168,6 +181,164 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
         ...
     ```
 
+<<<<<<< HEAD
+=======
+* We also support documentation of `MoneyField` from `django-money` package which allows you to handle money and currency values
+
+* `audoma_action` decorator - this is a wrapper for standrad drfs' action decorator. It also handles documenting the action. In this decorator this is possible to pass:
+    * **collectors** - collect serializers, those are being used to process users input, collectors may be
+     passed as a serializer class which inherits from `serializers.BaseSerializer`, it may also be passed as a dict with given structure: {'http_method1': Serializer1Class, 'http_method2': Serializer2Class}.
+    If collectors won't be passed to the audoma_action decorator and request method will allow to use collect serializer, decorator will try to retrieve collect serializer from view.
+
+        **WARNING**  - if passed methods does not allow to define collectors (methods are "safe methods", so they can only read data), there will be ImproperlyConfigured exception raised.
+        \
+        Examples:
+        ``` py
+        @audoma_action(
+            detail=True,
+            methods=["post"],
+            collectors={"post": ExampleModelCreateSerializer},
+            results={
+                "post": {201: ExampleModelSerializer, 202: ExampleOneFieldSerializer}
+            },
+        )
+        def detail_action(self, request, collect_serializer, pk=None):
+            ...
+        ...
+        @audoma_action(
+            detail=False,
+            methods=["post"],
+            results=ExampleOneFieldSerializer,
+            collectors=ExampleOneFieldSerializer,
+        )
+        def rate_create_action(self, request, collect_serializer):
+            ...
+        ```
+        In case there are no collectors defined and http method is not a safe method, then audoma_action will try to fallback to standard way of retrieving collect serializer from view.
+
+        If audoma_action will extract proper collector, it'll be validated and passed into action method as parameter.
+
+    * **results** - allow to define custom results for each method, and returned status_code. results may be given in three different dictionary forms:
+        * {'http_method1': Serializer1Class or string, 'http_method2': Serializer2Class or string}
+        * {'http_method1: {status_code: Serializer1Class or string}}
+        * {status_code: Serializer1Class or string }
+    If the response consist of serializers classes, it'll simply serialize returned instance, if the response is a string, it'll return it as a message. The response, may be also given simply as a serializer class or a string message:
+        * results="This is a response message"
+        * results=Serializer1Class
+     \
+    Examples:
+        ``` py
+        @audoma_action(
+            detail=True,
+            methods=["post"],
+            collectors={"post": ExampleModelCreateSerializer},za
+            results={
+                "post": {201: ExampleModelSerializer, 202: ExampleOneFieldSerializer}
+            },
+        )
+        def detail_action(self, request, collect_serializer, pk=None):
+            ...
+
+        @audoma_action(
+            detail=False, methods=["get"], results={"get": "This is a test view"}
+        )
+        def non_detail_action(self, request):
+            ...
+
+        @audoma_action(
+            detail=False,
+            methods=["post"],
+            results=ExampleOneFieldSerializer,
+            collectors=ExampleOneFieldSerializer,
+        )
+        def rate_create_action(self, request, collect_serializer):
+            ...
+        ```
+        In case there are no results defined audoma_action will try to fallback to standard way of retrieving serializer from view.
+
+
+    * **errors** - a list of classes or instances which inherits from base Exception class. Exceptions defined in this list may be thrown in the action method. If you would like to accept all exceptions of given class simply pass exception class to the list, otherwise pass precise exception instance, than the exception content will also be verified. If you passed exception instance, if DEBUG=True, and the raised exception content won't match the exception defined in decorator, this will cause rising AudomaActionException, if DEBUG=False then there'll only appear logger exception, but your exception will be risen. If you'll try to rise exception which is not gently handled by django (for example ValueError), than also if DEBUG=True you'll get AudomaActionException, otherwise, there will appear logger exception, but exception will not be risen.
+        \
+        Examples:
+        ```py
+        @audoma_action(
+            detail=False,
+            methods=["get"],
+            results=ExampleOneFieldSerializer,
+            errors=[CustomBadRequestException(), CustomConflictException()],
+        )
+        def properly_defined_exception_example(self, request):
+            raise CustomConflictException
+
+
+        @audoma_action(
+            detail=False,
+            methods=["get"],
+            results=ExampleOneFieldSerializer,
+        )
+        def improperly_defined_exception_example(self, request):
+            raise CustomBadRequestException
+        ```
+        By default Audoma accepts exceptions:
+        * NotFound
+        * NotAuthenticated
+        * AuthenticationFailed
+        * ParseError
+        * PermissionDenied
+        * NotAcceptable
+        * ValidationError
+        \
+        If you want to add more common exceptions for your API, you should add exception objects or classes in COMMON_API_ERRORS list in your project settings
+        Example:
+        ```py
+            ...
+            COMMON_API_ERRORS = [
+                myexceptions.SomeException
+            ]
+        ```
+
+        **NOTE: this is not possible to define exceptions with extra required params as classes.**
+
+    * **validate_collector** - boolean variable which tells audoma_action either collect serializers should be validated or not.
+    * **ignore_view_collectors** - boolean variable which tells if audoma_action should fallback to default way of retrieving collector from view, if collector has not been passed and action uses method which allows collect serializer usage.
+    \
+    While using `audoma_action` custom decorator, your action method should not return the response. To allow `audoma_action` to work properly you should return the instance and the status code as a tuple.
+    \
+    Examples for serializers:
+    * With collect serializer defined
+        ```py
+        @audoma_action(
+            detail=False,
+            methods=["post"],
+            results=ExampleOneFieldSerializer,
+            collectors=ExampleOneFieldSerializer,
+        )
+        def rate_create_action(self, request, collect_serializer):
+            return collect_serializer.save(), 201
+        ```
+    * Without collect serializer defined
+        ```py
+        @audoma_action(detail=True, methods=["get"], results=ExampleOneFieldSerializer)
+        def specific_rate(self, request, pk=None):
+            return {"rate": 1}, 200
+        ```
+
+    * Example for string messages:
+        ```py
+        @audoma_action(
+            detail=False, methods=["get"], results={"get": "This is a test view"}
+        )
+        def non_detail_action(self, request):
+            return None, 200
+
+        ```
+        If string defined results, will return None, it'll simply use the message defined in response, otherwise, it'll return the message passed as an instance
+
+    #### Note:
+    You may still use standard `@action` decorator with action methods. It'll still work in Audoma.
+
+
+>>>>>>> main
 Testing and example application
 ------------
  #### Running example application

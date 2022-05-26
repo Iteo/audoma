@@ -1,6 +1,7 @@
 from typing import (
     List,
     Tuple,
+    Type,
     Union,
 )
 
@@ -22,7 +23,7 @@ from audoma.drf import (
 
 
 @cache
-def get_lib_doc_excludes_audoma():
+def get_lib_doc_excludes_audoma() -> List[Type]:
 
     return [
         views.APIView,
