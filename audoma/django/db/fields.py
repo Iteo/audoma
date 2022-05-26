@@ -4,6 +4,7 @@ import sys
 import phonenumbers
 from djmoney.models import fields as djmoney_fields
 from djmoney.utils import get_currency_field_name
+from macaddress.fields import MACAddressField
 from phonenumber_field.modelfields import PhoneNumberField
 from phonenumber_field.phonenumber import to_python
 
@@ -20,6 +21,17 @@ from audoma.example_generators import generate_lorem_ipsum
 from .mixins import ModelExampleMixin
 
 
+try:
+    from django.db.models import JSONField
+except ImportError:
+    try:
+        from jsonfield import JSONField
+    except ImportError as err:
+        raise ImportError(
+            "You are using old version of Django that doesn't support JSONField. Please install django-jsonfield"
+        ) from err
+
+
 this = sys.modules[__name__]
 
 
@@ -34,7 +46,7 @@ for field_name in __all__:
     )
 
 
-__all__.extend(["MoneyField", "CurrencyField", "PhoneNumberField"])
+__all__.extend(["MoneyField", "CurrencyField", "PhoneNumberField", "MACAddressField"])
 
 
 class CurrencyField(ModelExampleMixin, djmoney_fields.CurrencyField):
@@ -102,3 +114,15 @@ class TextField(ModelExampleMixin, models.TextField):
         super().__init__(*args, **kwargs)
         if not kwargs.get("example", None):
             self.example = generate_lorem_ipsum()
+
+
+class MACAddressField(ModelExampleMixin, MACAddressField):
+    pass
+
+
+class JSONField(ModelExampleMixin, JSONField):
+    pass
+
+
+if "JSONField" not in __all__:
+    __all__.append("JSONField")

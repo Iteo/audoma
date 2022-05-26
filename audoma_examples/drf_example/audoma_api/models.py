@@ -1,13 +1,10 @@
 import random
 from itertools import cycle
 
-from jsonfield import JSONField
-
 from django.utils.functional import lazy
 
 from audoma.choices import make_choices
 from audoma.django.db import models
-from audoma.django_modelfields import MACAddressField
 
 
 # Create your models here.
@@ -29,7 +26,7 @@ class ExampleModel(models.Model):
     url = models.URLField()
     boolean = models.BooleanField()
     nullboolean = models.BooleanField(null=True)
-    mac_adress = MACAddressField()
+    mac_adress = models.MACAddressField()
     slug = models.SlugField()
     uuid = models.UUIDField()
     ip_address = models.GenericIPAddressField()
@@ -41,7 +38,7 @@ class ExampleModel(models.Model):
     time = models.TimeField()
     duration = models.DurationField()
     choices = models.IntegerField(choices=EXAMPLE_CHOICES.get_choices())
-    json = JSONField()
+    json = models.JSONField()
     money = models.MoneyField(decimal_places=2, max_digits=10)
 
 
