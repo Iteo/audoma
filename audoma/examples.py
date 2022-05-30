@@ -34,6 +34,14 @@ class Example:
 
 class NumericExample(Example):
     def generate_value(self) -> float:
+        """
+        Extracts information from the field and generates a random value
+        based on min_value and max_value.
+
+        Returns
+        -------
+        Rendom value between min_value and max_value
+        """
         min_val = getattr(self.field, "min_value", 1) or 1
         max_val = getattr(self.field, "max_value", 1000) or 1000
         return random.uniform(min_val, max_val)
@@ -41,6 +49,14 @@ class NumericExample(Example):
 
 class RegexExample(Example):
     def generate_value(self) -> str:
+        """
+        Extracts information from the field and generates a random value
+        based on field's  RegexValidators.
+
+        Returns
+        -------
+        Generated regex string if regex is found, otherwise returns None
+        """
         regex_validators = [
             validator
             for validator in self.field.validators

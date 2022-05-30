@@ -142,6 +142,9 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
     def build_standard_field(
         self, field_name, model_field
     ) -> Tuple[Union[Type[Field], dict]]:
+        """
+        Adds support for mapping example from model fields to model serializer fields.
+        """
         field_class, field_kwargs = super().build_standard_field(
             field_name, model_field
         )
