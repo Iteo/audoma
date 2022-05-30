@@ -19,9 +19,18 @@ from rest_framework.permissions import (
     SingleOperandHolder,
 )
 from rest_framework.serializers import BaseSerializer
+from rest_framework.views import View
 
 
 def get_permissions_description(view) -> str:  # noqa: C901
+    """
+    This is a helper function which generates a description of the permissions.
+    Args:
+        * view - view object
+
+    Returns: string with permissions description
+    """
+
     def _render_permission_item(name: str, doc_str: str) -> str:
         return f"+ `{name}`: *{doc_str}*"
 
@@ -111,6 +120,13 @@ def get_permissions_description(view) -> str:  # noqa: C901
 def build_exclusive_fields_schema(
     schema: dict, exclusive_fields: List[str]
 ) -> List[dict]:
+    """
+    Builds a list of schemas for exclusive fields.
+    Args:
+        * schema - current schema
+        * exclusive_fields - list of exclusive fields
+    Returns: list of schemas (dicts)
+    """
     modified_schemas = []
     for field in exclusive_fields:
         new_schema = deepcopy(schema)
@@ -146,13 +162,25 @@ def build_exclusive_fields_examples(
 
 
 class AudomaApiResponseCreator:
-    def extract_collectors(self, view) -> dict:
+    def extract_collectors(self, view: View) -> dict:
+        """
+        Simply extracts collectors assigned to the view action method.
+        Args:
+            * view - view instance
+        Returns: dict of collectors
+        """
         action_function = self._extract_action(view)
         _audoma = getattr(action_function, "_audoma", None)
         collectors = getattr(_audoma, "collectors", None)
         return self._parse_action_serializers(collectors)
 
-    def extract_results(self, view) -> dict:
+    def extract_results(self, view: View) -> dict:
+        """
+        Simply extracts results assigned to the view action method.
+        Args:
+            * view - view instance
+        Returns: dict of results
+        """
         action_function = self._extract_action(view)
         _audoma = getattr(action_function, "_audoma", None)
         results = self._parse_action_serializers(getattr(_audoma, "results", None))
@@ -163,14 +191,28 @@ class AudomaApiResponseCreator:
 
         return errors
 
-    def _extract_action(self, view) -> Callable:
+    def _extract_action(self, view: View) -> Callable:
+        """
+        Simply extracts action function defined on the apssed view.
+        Args:
+            * view - view instance
+        Returns: callable which has been defined as an action.
+        """
+
         action = getattr(view, "action", None)
         if not action:
             return
 
         return getattr(view, action, None)
 
-    def _parse_action_serializers(self, action_serializers) -> dict:
+    def _parse_action_serializers(self, action_serializers: dict) -> dict:
+        """
+        Helper method which parses action serializers.
+        It allows to display non serializer responses correctly.
+        Args:
+            * action_serializers - dictionary of action collectors/responses
+        Retruns: dictionary of parsed collectors/responses
+        """
         if not action_serializers:
             return action_serializers
 
@@ -196,7 +238,14 @@ class AudomaApiResponseCreator:
 
         return parsed_action_serializers
 
-    def _parse_action_errors(self, action_errors) -> dict:
+    def _parse_action_errors(self, action_errors: dict) -> dict:
+        """
+        Helper method which parses action serializers.
+        It allows to display non serializer responses correctly.
+        Args:
+            * action_serializers - dictionary of action collectors/responses
+        Retruns: dictionary of parsed collectors/responses
+        """
         if not action_errors:
             return action_errors
 
