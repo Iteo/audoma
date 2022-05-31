@@ -266,32 +266,6 @@ class AudomaTests(SimpleTestCase):
             + default_keys,
         )
 
-    def test_mutually_exclusive_fields_examples(self):
-        schema = self.schema["paths"]["/mutually-exclusive/"]["post"]["requestBody"][
-            "content"
-        ]["application/json"]["examples"]
-        default_keys = ["not_exclusive_field", "second_not_exclusive_field"]
-        self.assertEqual(
-            list(schema["Option0"]["value"].keys()),
-            ["second_example_field", "third_example_field", "fourth_example_field"]
-            + default_keys,
-        )
-        self.assertEqual(
-            list(schema["Option1"]["value"].keys()),
-            ["example_field", "third_example_field", "fourth_example_field"]
-            + default_keys,
-        )
-        self.assertEqual(
-            list(schema["Option2"]["value"].keys()),
-            ["example_field", "second_example_field", "fourth_example_field"]
-            + default_keys,
-        )
-        self.assertEqual(
-            list(schema["Option3"]["value"].keys()),
-            ["example_field", "second_example_field", "third_example_field"]
-            + default_keys,
-        )
-
     def test_default_response_in_view_responses(self):
         docs = self.schema["paths"][
             "/permissionless_model_examples/properly_defined_exception_example/"
