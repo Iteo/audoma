@@ -15,7 +15,9 @@ Including another URLconf
 """
 from audoma_api.views import (
     ExampleFileUploadViewSet,
+    ExampleModelPermissionLessViewSet,
     ExampleModelViewSet,
+    ExamplePersonModelViewSet,
     ExampleViewSet,
     MutuallyExclusiveViewSet,
 )
@@ -26,6 +28,7 @@ from drf_spectacular.views import (
 )
 from rest_framework import routers
 
+from django.contrib import admin
 from django.urls import re_path
 
 
@@ -34,14 +37,24 @@ router = routers.DefaultRouter()
 router.register(r"examples", ExampleViewSet, basename="examples")
 router.register(r"model_examples", ExampleModelViewSet, basename="model-examples")
 router.register(
+    r"model_person_example", ExamplePersonModelViewSet, basename="model-person-example"
+)
+router.register(
     r"file-upload-example", ExampleFileUploadViewSet, basename="file-upload-example"
 )
 router.register(
     r"mutually-exclusive", MutuallyExclusiveViewSet, basename="mutually-exclusive"
 )
+router.register(
+    r"permissionless_model_examples",
+    ExampleModelPermissionLessViewSet,
+    basename="permissionless-model-examples",
+)
+
 urlpatterns = router.urls
 
 urlpatterns += [
+    re_path("admin/", admin.site.urls),
     re_path(r"^api/schema/$", SpectacularAPIView.as_view(), name="schema"),
     re_path(
         r"^swagger-ui/$",
