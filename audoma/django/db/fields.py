@@ -1,3 +1,14 @@
+"""Audoma Django model Fields
+This module contains all the fields from Django models with additional functionality.
+By inheriting from Audoma's ModelExampleMixin, an example is generated for each field (i.e. FloatField will have
+example generated based on field's min and max values).
+We can define custom example by simply passing `example` as an argument to the modelfield.
+
+Audoma fields also extends django model fields with the following features:
+    - MoneyField stores money values with its currencies and provides examples based on defined currency or list of currencies
+    - PhonenumberField stores phonenumber values and creates examples based on region
+"""
+
 import random
 import sys
 
