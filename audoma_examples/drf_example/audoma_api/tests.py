@@ -6,7 +6,10 @@ from datetime import (
 )
 
 import phonenumbers
-from audoma_api.models import ExampleModel
+from audoma_api.models import (
+    ExampleModel,
+    ExampleSimpleModel,
+)
 from audoma_api.serializers import (
     ExampleModelSerializer,
     ExampleSerializer,
@@ -345,9 +348,15 @@ class AudomaTests(SimpleTestCase):
 class AudomaBulkOperationsTest(APITestCase):
     def setUp(self):
         self.list_url = reverse("bulk-example-list")
+        ExampleSimpleModel.objects.bulk_create(
+            [
+                ExampleSimpleModel(name="Example 1", value=1),
+                ExampleSimpleModel(name="Example 2", value=2),
+            ]
+        )
         return super().setUp()
 
-    def test_create_records_bulk(self):
+    def test_bulk_create_records(self):
         data = [
             {
                 "name": "test 1",
@@ -362,10 +371,52 @@ class AudomaBulkOperationsTest(APITestCase):
         resp = self.client.post(self.list_url, data, format="json")
         self.assertEqual(201, resp.status_code, resp.json())
 
-        from .models import ExampleSimpleModel
-
         qs = ExampleSimpleModel.objects.all()
-        self.assertEqual(qs.count(), 2)
+        self.assertEqual(qs.count(), 4)
+
+    def test_bulk_update_records(self):
+
+        updated_data = [
+            {
+                "id": 1,
+                "name": "test 1 updated",
+                "value": 11,
+            },
+            {
+                "id": 2,
+                "name": "test 2 updated",
+                "value": 22,
+            },
+        ]
+
+        resp = self.client.put(self.list_url, updated_data, format="json")
+        qs = ExampleSimpleModel.objects.all()
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(qs.first().name, "test 1 updated")
+        self.assertEqual(qs.last().name, "test 2 updated")
+        self.assertEqual(qs.first().value, 11)
+        self.assertEqual(qs.last().value, 22)
+
+    def test_bulk_partial_update_records(self):
+
+        updated_data = [
+            {
+                "id": 1,
+                "name": "test 1 updated",
+            },
+            {
+                "id": 2,
+                "name": "test 2 updated",
+            },
+        ]
+
+        resp = self.client.patch(self.list_url, updated_data, format="json")
+        qs = ExampleSimpleModel.objects.all()
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(qs.first().name, "test 1 updated")
+        self.assertEqual(qs.last().name, "test 2 updated")
+        self.assertEqual(qs.first().value, 1)
+        self.assertEqual(qs.last().value, 2)
 
 
 class AudomaViewsTestCase(SimpleTestCase):

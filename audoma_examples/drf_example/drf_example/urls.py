@@ -27,16 +27,17 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
-from rest_framework import routers
 
 from django.contrib import admin
 from django.urls import re_path
 
+from audoma.drf import routers
+
+
 # special router to handle PATCH/PUT requests on list endpoints
-from audoma.drf.routes import BulkRouter
 
 
-bulk_router = BulkRouter()
+bulk_router = routers.BulkRouter()
 router = routers.DefaultRouter()
 
 bulk_router.register(r"bulk_endpoint", ExampleSimpleModelViewSet, "bulk-example")

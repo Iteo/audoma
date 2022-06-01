@@ -173,9 +173,6 @@ class ExampleSimpleModelViewSet(
 ):
     serializer_class = ExampleSimpleModelSerializer
 
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
     def get_queryset(self):
         return ExampleSimpleModel.objects.all()
 

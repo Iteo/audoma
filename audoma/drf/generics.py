@@ -13,9 +13,8 @@ class GenericAPIView(generics.GenericAPIView):
             self.get_serializer_class(type=serializer_type, many=many),
         )
         kwargs["context"] = self.get_serializer_context()
-        ret = serializer_class(*args, **kwargs)
 
-        return ret
+        return serializer_class(*args, **kwargs)
 
     # needed by AudomaSwaggerAutoSchema
     def get_result_serializer(self, *args, **kwargs) -> BaseSerializer:

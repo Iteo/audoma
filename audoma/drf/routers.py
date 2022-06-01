@@ -1,14 +1,11 @@
 import copy
 
-from rest_framework.routers import (
+
+from rest_framework.routers import (  # NOQA # isort:skip
     DefaultRouter,
     SimpleRouter,
+    BaseRouter,
 )
-
-
-__all__ = [
-    "BulkRouter",
-]
 
 
 class BulkRouter(DefaultRouter):

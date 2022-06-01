@@ -2,16 +2,21 @@ from typing import (
     Any,
     Dict,
     List,
+    Union,
 )
 
 from drf_spectacular.drainage import set_override
 from rest_framework import (
     mixins,
+    serializers,
     status,
 )
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.serializers import BaseSerializer
 from rest_framework.settings import api_settings
+
+from django.core.exceptions import ValidationError
 
 from audoma.examples import (
     DEFAULT,
@@ -122,9 +127,6 @@ class UpdateModelMixin(mixins.UpdateModelMixin):
 
 class DestroyModelMixin(mixins.DestroyModelMixin):
     def destroy(self, request: Request, *args, **kwargs) -> Response:
-        from rest_framework import serializers
-
-        from django.core.exceptions import ValidationError
 
         instance = self.get_object()
         try:
@@ -156,8 +158,8 @@ class BulkCreateModelMixin(CreateModelMixin):
             serializer = self.get_result_serializer(serializer.instance, many=True)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def perform_bulk_create(self, serializer: Any) -> None:
-        return self.perform_create(serializer)
+    def perform_bulk_create(self, serializer: Union[dict, BaseSerializer]) -> None:
+        self.perform_create(serializer)
 
 
 class BulkUpdateModelMixin(object):
@@ -201,11 +203,11 @@ class BulkUpdateModelMixin(object):
         kwargs["partial"] = True
         return self.bulk_update(request, *args, **kwargs)
 
-    def perform_update(self, serializer: Any) -> None:
+    def perform_update(self, serializer: Union[dict, BaseSerializer]) -> None:
         serializer.save()
 
-    def perform_bulk_update(self, serializer: Any) -> None:
-        return self.perform_update(serializer)
+    def perform_bulk_update(self, serializer: Union[dict, BaseSerializer]) -> None:
+        self.perform_update(serializer)
 
 
 class BulkDestroyModelMixin(object):

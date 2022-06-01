@@ -81,7 +81,7 @@ class ExampleFileModelSerializer(serializers.ModelSerializer):
 
 
 class ExampleSimpleModelSerializer(
-    serializers.ModelSerializer, serializers.BulkSerializerMixin
+    serializers.BulkSerializerMixin, serializers.ModelSerializer
 ):
     class Meta:
         model = ExampleSimpleModel

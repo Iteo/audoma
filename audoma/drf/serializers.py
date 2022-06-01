@@ -233,15 +233,7 @@ class BulkSerializerMixin:
 class BulkListSerializer(ListSerializer):
     id_field = "id"
 
-    def get_unique_fields(self) -> List[Any]:
-        return []
-
-    def validate(self, attrs: Any) -> Any:
-        ret = super().validate(attrs)
-        return ret
-
-    def update(self, queryset: QuerySet, all_validated_data: dict) -> List[Any]:
-
+    def update(self, queryset: QuerySet, all_validated_data: List[dict]) -> List[Any]:
         id_attr = getattr(self.child.Meta, "id_field", "id")
         all_validated_data_by_id = {i.pop(id_attr): i for i in all_validated_data}
 
