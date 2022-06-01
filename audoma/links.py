@@ -1,3 +1,13 @@
+"""
+This module is responsible for creating x-choices links.
+Such links may be used to generate choices enums for fields.
+
+If some field in the serializer has this attribute, it
+will be used to generate choices for this field.
+In other words choices should be limited to values
+available under passed x-choices link.
+"""
+
 import re
 from dataclasses import dataclass
 from typing import (
@@ -18,6 +28,15 @@ from django.urls.resolvers import get_resolver
 
 
 def get_endpoint_pattern(endpoint_name: str, urlconf=None) -> str:
+    """
+    This methods retrieves url pattern of the endpoint by given endpoint_name.
+
+    Args:
+        * endpoint_name: name of the endpoint
+        * urlconf: urlconf to use
+
+    Returns: url pattern of the endpoint
+    """
     resolver = get_resolver(urlconf)
     patterns = resolver.url_patterns
     new_patterns = []
@@ -49,6 +68,9 @@ def get_endpoint_pattern(endpoint_name: str, urlconf=None) -> str:
 
 @dataclass
 class ChoicesOptionsLink:
+    """
+    Helper dataclass, which holds data abot x-choices link.
+    """
 
     field_name: str
     viewname: str
@@ -59,6 +81,15 @@ class ChoicesOptionsLink:
     description: str = ""
 
     def _format_param_field(self, field: str) -> str:
+        """
+        Helper method which formats field name to be a JSON pointer.
+        If the passed field name is already a JSON pointer, it is returned unchagned.
+
+        Args:
+            * field: field name
+
+        Returns: formatted field name
+        """
         if "$" in field:
             # than we presume that there has been given full pointer
             return field
@@ -76,6 +107,9 @@ class ChoicesOptionsLink:
         return self._format_param_field(self.display_field)
 
     def get_url_pattern(self) -> str:
+        """
+        Returns formatted url pattern of the linked view.
+        """
         pattern = (
             get_endpoint_pattern(self.viewname)
             .replace("$", "")
@@ -124,6 +158,14 @@ class ChoicesOptionsLinkSchemaGenerator:
         return " ".join(partials).title()
 
     def generate_schema(self, link: Union[ChoicesOptionsLink, Dict[str, Any]]) -> dict:
+        """
+        Generates x-choices link schema.
+        Args:
+            * link: ChoicesOptionsLink instance or dict with link data
+
+        Returns: x-choices link schema
+        """
+
         if not link:
             return
 
