@@ -1,12 +1,10 @@
-from __future__ import annotations
-
 import typing
+from copy import deepcopy
 
 from drf_spectacular.drainage import get_override
 from drf_spectacular.extensions import OpenApiSerializerExtension
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import (
-    build_examples_list,
     error,
     force_instance,
     sanitize_specification_extensions,
@@ -25,8 +23,6 @@ from audoma.links import (
 )
 from audoma.openapi_helpers import (
     AudomaApiResponseCreator,
-    build_exclusive_fields_examples,
-    build_exclusive_fields_schema,
     get_permissions_description,
 )
 from audoma.plumbing import create_choices_enum_description
@@ -170,30 +166,15 @@ class AudomaAutoSchema(AutoSchema):
             result.update(annotation["field"])
         return result
 
-    def _get_examples(
-        self,
-        serializer,
-        direction: str,
-        media_type: str,
-        status_code: str = None,
-        extras: list = None,
+    def _build_exclusive_fields_schema(
+        self, schema: dict, exclusive_fields: typing.List[str]
     ) -> typing.List[dict]:
-        examples = super()._get_examples(
-            serializer, direction, media_type, status_code, extras
-        )
-        serializer = force_instance(serializer)
-        if not hasattr(serializer, "validators") or direction == "response":
-            return examples
-
-        examples = []
-        for validator in serializer.validators:
-            if isinstance(validator, ExclusiveFieldsValidator):
-                examples += build_exclusive_fields_examples(
-                    serializer, validator.fields, examples
-                )
-        if examples:
-            examples = build_examples_list(examples)
-        return examples
+        modified_schemas = []
+        for field in exclusive_fields:
+            new_schema = deepcopy(schema)
+            new_schema["properties"].pop(field)
+            modified_schemas.append(new_schema)
+        return modified_schemas
 
     def _map_serializer(
         self,
@@ -215,7 +196,7 @@ class AudomaAutoSchema(AutoSchema):
             subschemas = []
             for validator in serializer.validators:
                 if isinstance(validator, ExclusiveFieldsValidator):
-                    subschemas += build_exclusive_fields_schema(
+                    subschemas += self._build_exclusive_fields_schema(
                         schema, validator.fields
                     )
 
