@@ -11,12 +11,13 @@ Welcome to audoma - API Automatic Documentation Maker's documentation!
    :caption: Contents:
 
    readme.rst
-   settings.rst
-   improvements.rst
+   overview.rst
+   installation.rst
+   usage.rst
    testing_and_example_application.rst
    license.rst
    changelog.rst
-   overview.rst
+
 
 
 
