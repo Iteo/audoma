@@ -1,10 +1,3 @@
-"""Audoma DRF Fields
-This module contains all the fields from Django Rest Framework with additional functionality.
-By inheriting from Audoma Mixins, an example is generated for each field (i.e. FloatField will have
-example generated based on field's min and max values).
-We can define custom example by simply passing `example` as an argument to the field.
-"""
-
 import sys
 
 import exrex
@@ -54,11 +47,11 @@ this = sys.modules[__name__]
 
 for field_name in field_names:
 
-    class Field(ExampleMixin, getattr(fields, field_name)):
-        pass
-
-    Field.__name__ = field_name
-    setattr(this, field_name, Field)
+    setattr(
+        this,
+        field_name,
+        type(field_name, (ExampleMixin, getattr(fields, field_name)), {}),
+    )
 
 
 class DecimalField(NumericExampleMixin, fields.DecimalField):
