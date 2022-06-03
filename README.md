@@ -245,7 +245,6 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
 
         **NOTE: this is not possible to define exceptions with extra required params as classes.**
 
-    * **validate_collector** - boolean variable which tells audoma_action either collect serializers should be validated or not.
     * **ignore_view_collectors** - boolean variable which tells if audoma_action should fallback to default way of retrieving collector from view, if collector has not been passed and action uses method which allows collect serializer usage.
     \
     While using `audoma_action` custom decorator, your action method should not return the response. To allow `audoma_action` to work properly you should return the instance and the status code as a tuple.
