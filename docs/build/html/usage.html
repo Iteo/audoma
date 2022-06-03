@@ -36,6 +36,219 @@
 
   <section id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h1>
+<section id="viewset-defined-serializers">
+<h2>Viewset defined serializers<a class="headerlink" href="#viewset-defined-serializers" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="permissions">
+<h2>Permissions<a class="headerlink" href="#permissions" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="filters">
+<h2>Filters<a class="headerlink" href="#filters" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="decorators">
+<h2>Decorators<a class="headerlink" href="#decorators" title="Permalink to this heading">¶</a></h2>
+<section id="extend-schema-field">
+<h3>&#64;extend_schema_field<a class="headerlink" href="#extend-schema-field" title="Permalink to this heading">¶</a></h3>
+<div class="line-block">
+<div class="line">This decorator is a basic drf-spectacular decorator, but it’s behavior has been changed.</div>
+<div class="line">It allows to pass example to the field without using information about the field.</div>
+<div class="line">Data is not overriden, it’s updated.</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">audoma.drf.fields</span> <span class="kn">import</span> <span class="n">FloatField</span>
+
+<span class="kn">from</span> <span class="nn">drf_spectacular.utils</span> <span class="kn">import</span> <span class="n">extend_schema_field</span>
+
+<span class="nd">@extend_schema_field</span><span class="p">(</span>
+    <span class="n">field</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;example&quot;</span><span class="p">:</span> <span class="mf">10.00</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+<span class="k">class</span> <span class="nc">CustomExampleFloatField</span><span class="p">(</span><span class="n">FloatField</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">This decorator also allowst to pass all used by drf-spectacular parameters.</div>
+</div>
+</section>
+<section id="audoma-action">
+<h3>&#64;audoma_action<a class="headerlink" href="#audoma-action" title="Permalink to this heading">¶</a></h3>
+<div class="line-block">
+<div class="line">This is one of the most complex features offered by audoma.</div>
+<div class="line">In fact this is an extension of action decorator, which by default is Django Rest Framewok functionality.</div>
+<div class="line">It also allows to register custom action for viewset.</div>
+<div class="line">In case of audoma_action it is also possible to define additional parmeters, such as:</div>
+</div>
+<section id="collectors">
+<h4>collectors<a class="headerlink" href="#collectors" title="Permalink to this heading">¶</a></h4>
+<div class="line-block">
+<div class="line">This param allows to define serializer class which will collect and process request data.</div>
+<div class="line">To define this, action must serve POST/PATCH or PUT method.</div>
+<div class="line">Collectors may be define in few ways:</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@audoma_action</span><span class="p">(</span>
+    <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;post&quot;</span><span class="p">],</span>
+    <span class="n">results</span><span class="o">=</span><span class="n">ExampleOneFieldSerializer</span><span class="p">,</span>
+    <span class="n">collectors</span><span class="o">=</span><span class="n">ExampleOneFieldSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">rate_create_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">collect_serializer</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">As defined above, simply as a serializer class, which must inherit from <cite>serializers.BaseSerializer</cite>.</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@audoma_action</span><span class="p">(</span>
+    <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;post&quot;</span><span class="p">],</span>
+    <span class="n">collectors</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;post&quot;</span><span class="p">:</span> <span class="n">ExampleModelCreateSerializer</span><span class="p">},</span>
+    <span class="n">results</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;post&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">201</span><span class="p">:</span> <span class="n">ExampleModelSerializer</span><span class="p">,</span> <span class="mi">202</span><span class="p">:</span> <span class="n">ExampleOneFieldSerializer</span><span class="p">}</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">detail_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">collect_serializer</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">It also may be defined as a dictionary with given http methods, than</div>
+<div class="line">the collectors, will be used for each http method. For Example, we may define</div>
+<div class="line">different collectors for post an patch.</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@audoma_action</span><span class="p">(</span>
+    <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;post&quot;</span><span class="p">,</span> <span class="s2">&quot;patch&quot;</span><span class="p">],</span>
+    <span class="n">collectors</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;post&quot;</span><span class="p">:</span> <span class="n">ExampleModelCreateSerializer</span><span class="p">,</span>
+         <span class="s2">&quot;patch&quot;</span><span class="p">:</span> <span class="n">ExampleModelUpdateSerializer</span>
+    <span class="p">},</span>
+    <span class="n">results</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;post&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="mi">201</span><span class="p">:</span> <span class="n">ExampleModelSerializer</span><span class="p">,</span>
+            <span class="mi">202</span><span class="p">:</span> <span class="n">ExampleOneFieldSerializer</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;patch&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="mi">200</span><span class="p">:</span> <span class="n">ExampleModelSerializer</span><span class="p">,</span>
+            <span class="mi">202</span><span class="p">:</span> <span class="n">ExampleOneFieldSerializer</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">detail_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">collect_serializer</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">This parameter is optional, so you don’t have to pass collectors. If collectors won’t be passed, and</div>
+<div class="line">request method will be in <cite>[PUT, POST, PATCH]</cite> than by default, audoma_action fill fallback to default</div>
+<div class="line"><cite>get_serializer_class</cite> method for audoma.</div>
+</div>
+<p><strong>Important</strong></p>
+<div class="line-block">
+<div class="line">If you are using collectors it is important to remember,</div>
+<div class="line">that your method should tak additional kwarg <cite>collect_serializer</cite> which will be</div>
+<div class="line">validated collector instance.</div>
+</div>
+</section>
+<section id="results">
+<h4>results<a class="headerlink" href="#results" title="Permalink to this heading">¶</a></h4>
+<div class="line-block">
+<div class="line">This param allows to define custom results for each method and each response status code.</div>
+<div class="line">Results may be defined in three possible forms:</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@audoma_action</span><span class="p">(</span>
+    <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;put&quot;</span><span class="p">,</span> <span class="s2">&quot;patch&quot;</span><span class="p">],</span>
+    <span class="n">collectors</span><span class="o">=</span><span class="n">ExampleModelCreateSerializer</span><span class="p">,</span>
+    <span class="n">results</span><span class="o">=</span><span class="n">ExampleModelSerializer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">example_update_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">collect_serializer</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">As a serializer class, which must inherit from the <cite>serializers.BaseSerializer</cite>.</div>
+<div class="line">This will be used to serializer, returned instance</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@audoma_action</span><span class="p">(</span>
+    <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;post&quot;</span><span class="p">],</span>
+    <span class="n">collectors</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;post&quot;</span><span class="p">:</span> <span class="n">ExampleModelCreateSerializer</span><span class="p">},</span>
+    <span class="n">results</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;post&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">201</span><span class="p">:</span> <span class="n">ExampleModelSerializer</span><span class="p">,</span> <span class="mi">202</span><span class="p">:</span> <span class="n">ExampleOneFieldSerializer</span><span class="p">}},</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">detail_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">collect_serializer</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="o">...</span>
+
+<span class="nd">@audoma_action</span><span class="p">(</span>
+    <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;get&quot;</span><span class="p">],</span>
+    <span class="n">results</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;get&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">200</span><span class="p">:</span> <span class="s2">&quot;This is a test view&quot;</span><span class="p">,</span> <span class="mi">404</span><span class="p">:</span> <span class="s2">&quot;Not found&quot;</span><span class="p">}},</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">non_detail_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">As a dictionary with http methods and status code, where dict values, may be serializer</div>
+<div class="line">classes or text messages. If values will be serializers,</div>
+<div class="line">view should return alongside status code, an instnace which may be serialized.</div>
+<div class="line">If those are messages, view should return None as an instance,</div>
+<div class="line">or an overriding message for given status code.</div>
+</div>
+<div class="line-block">
+<div class="line">Results are not mandatorty parameter, if you won’t pass results</div>
+<div class="line">param into audoma_action, than there will be a fallback to default</div>
+<div class="line"><cite>get_serializer_class</cite> method used in audoma.</div>
+</div>
+<p># TODO - add reffernece to get_serializer_class description</p>
+</section>
+<section id="errors">
+<h4>errors<a class="headerlink" href="#errors" title="Permalink to this heading">¶</a></h4>
+<div class="line-block">
+<div class="line">This param may be a list of classes and instances of exceptions, which are</div>
+<div class="line">allowed to be risen in this action. Such behaviour prevents rising, not defined exceptions, and allows</div>
+<div class="line">to document such exceptions properly in OpenApi schema.</div>
+</div>
+<div class="line-block">
+<div class="line">The main difference between passing exception class and exception instance, is that</div>
+<div class="line">if you pass exception instance, audoma will not only check if exception</div>
+<div class="line">type matches, it’ll also validate it’s content.</div>
+<div class="line">We presume that if you pass, the exception class, you want to accept all exceptions of this class.</div>
+</div>
+<div class="line-block">
+<div class="line">In case the risen exception is not defined in audoma_action errors, there will be another</div>
+<div class="line">exception risen: AudomaActionException, in case the settings.DEBUG = False, this exception</div>
+<div class="line">will be handled silently by logging it, but the code will pass. In case of settings.DEBUG = True,</div>
+<div class="line">than the exception won’t be silent.</div>
+</div>
+<div class="line-block">
+<div class="line">By default audoma accepts some exceptions, which are defined globally.</div>
+<div class="line">Those exceptions are:</div>
+</div>
+<ul class="simple">
+<li><p>NotFound</p></li>
+<li><p>NotAuthenticated</p></li>
+<li><p>AuthenticationFailed</p></li>
+<li><p>ParseError</p></li>
+<li><p>PermissionDenied</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">COMMON_API_ERRORS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">myexceptions</span><span class="o">.</span><span class="n">SomeException</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="ignore-view-collectors">
+<h4>ignore_view_collectors<a class="headerlink" href="#ignore-view-collectors" title="Permalink to this heading">¶</a></h4>
+<p>Boolean variable which tells if audoma_action should fallback to
+default way of retrieving collector from view, if collector has not been passed
+and action uses method which allows collect serializer usage.</p>
+</section>
+</section>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h2>
+</section>
 </section>
 
 
@@ -60,7 +273,14 @@
 <li class="toctree-l1"><a class="reference internal" href="readme.html">Audoma - API Automatic Documentation Maker</a></li>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#viewset-defined-serializers">Viewset defined serializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#permissions">Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#filters">Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#decorators">Decorators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="testing_and_example_application.html">Testing And Example Application</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
