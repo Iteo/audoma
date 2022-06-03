@@ -20,7 +20,6 @@ Welcome to audoma - API Automatic Documentation Maker's documentation!
 
 
 
-
 Indices and tables
 ==================
 
