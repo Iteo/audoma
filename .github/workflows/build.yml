@@ -6,8 +6,9 @@ jobs:
  audoma-build:
   runs-on: ubuntu-latest # os for running the job
   steps:
-    - run: |
-      python3 --version
-      echo "hello world"
-      pip install ./
-      pip install -r requirements_dev.txt
+    - name: Install audoma
+      run: |
+        python3 --version
+        echo "hello world"
+        pip install ./
+        pip install -r requirements_dev.txt
