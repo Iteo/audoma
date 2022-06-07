@@ -5,8 +5,9 @@ on: [push]
 jobs:
  audoma-build:
   runs-on: ubuntu-latest # os for running the job
-  run: |
-    python3 --version
-    echo "hello world"
-    pip install ./
-    pip install -r requirements_dev.txt
+  steps:
+    run: |
+      python3 --version
+      echo "hello world"
+      pip install ./
+      pip install -r requirements_dev.txt
