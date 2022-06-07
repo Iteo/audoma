@@ -7,6 +7,7 @@ jobs:
   runs-on: ubuntu-latest # os for running the job
   steps:
     - name: Install audoma
+      working-directory: ../../
       run: |
         python3 --version
         echo "hello world"
