@@ -6,11 +6,10 @@ jobs:
  audoma-build:
   runs-on: ubuntu-latest # os for running the job
   steps:
+    - uses: actions/checkout@v2
     - name: Install audoma
       working-directory: ../../
       run: |
         python3 --version
         echo "hello world"
-        echo pwd
-        pip install ./
         pip install -r requirements_dev.txt
