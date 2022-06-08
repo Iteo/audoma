@@ -168,10 +168,15 @@ class ExampleSimpleModelViewSet(
     mixins.BulkCreateModelMixin,
     mixins.DestroyModelMixin,
     mixins.BulkUpdateModelMixin,
+    mixins.BulkDestroyModelMixin,
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
     serializer_class = ExampleSimpleModelSerializer
+
+    def filter_queryset(self, queryset):
+        min_value = self.request.data.get("min_value", 0)
+        return queryset.filter(value__lt=min_value)
 
     def get_queryset(self):
         return ExampleSimpleModel.objects.all()
