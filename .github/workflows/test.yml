@@ -3,11 +3,17 @@ name: Audoma test
 on: [push]
 
 jobs:
- audoma-test:
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v2
-    - name: run tests
-      run: |
-        echo "---> Building test image and running tests"
-        cd docker && docker-compose run --rm tests
+  audoma-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: run tests
+        run: |
+          echo "---> Building test image and running tests"
+          cd docker && docker-compose run --rm tests
+  audoma-static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: action/checkout@v3
+      - name: run static analysis
+        run: ./static_analysis.sh
