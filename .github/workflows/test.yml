@@ -1,0 +1,12 @@
+name: Audoma test
+
+on: [push]
+
+jobs:
+  audoma-test:
+    runs-on: ubuntu-latest
+    - uses: actions/checkout@v2
+    - name: run tests
+      run: |
+        echo "---> Building test image and running tests"
+        cd docker && docker-compose --project-name=$CI_BUILD_ID run --rm tests
