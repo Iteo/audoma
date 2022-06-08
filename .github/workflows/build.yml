@@ -8,7 +8,6 @@ jobs:
   steps:
     - uses: actions/checkout@v2
     - name: Install audoma
-      working-directory: ../../
       run: |
         python3 --version
         echo "hello world"
