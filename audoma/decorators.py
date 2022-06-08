@@ -110,19 +110,20 @@ class audoma_action:
         It also prevents from raising not defined errors, so if you want to raise an exception
         its' object or class has to be passed into audoma_action decorator.
 
-            * collectors - collect serializers, it may be passed as a dict: {'http_method': serializer_class}
-                            or just as a serializer_class. Those serializer are being used to
-                            collect data from user.
-                            NOTE: - it is not possible to define collectors for SAFE_METHODS
-            * results - response serializers/messages, it may be passed as a dict in three forms:
-                        * {'http_method': serializer_class}
-                        * {'http_method': {status_code: serializer_class, status_code: serializer_class}}
-                        * {status_code: serializer_class}
-                        or just as a serializer_class
-            * errors - list of exception objects, list of exceptions which may be raised in decorated method.
-                        'audoma_action' will not allow raising any other exceptions than those
-            * ignore_view_collectors - If set to True, decorator is ignoring view collect serializers.
-                        May be useful if we don't want to falback to default view collect serializer retrieval.
+        * collectors - collect serializers, it may be passed as a dict: {'http_method': serializer_class}
+                        or just as a serializer_class. Those serializer are being used to
+                        collect data from user.
+                        NOTE: - it is not possible to define collectors for SAFE_METHODS
+        * results - response serializers/messages, it may be passed as a dict in three forms:
+                    * {'http_method': serializer_class}
+                    * {'http_method': {status_code: serializer_class, status_code: serializer_class}}
+                    * {status_code: serializer_class}
+                    * just as a serializer_class
+        * errors - list of exception objects, list of exceptions which may be raised in decorated method.
+                    'audoma_action' will not allow raising any other exceptions than those
+        * ignore_view_collectors - If set to True, decorator is ignoring view collect serializers.
+                    May be useful if we don't want to falback to default view collect serializer retrieval.
+
 
         Returns: None.
         """
@@ -348,7 +349,7 @@ class audoma_action:
                     method may not be None if result operation is not str message"
             )
 
-    def __call__(self, func: Callable) -> Response:
+    def __call__(self, func: Callable) -> Callable:
         """ "
         Call of audoma_action decorator.
         This is where the magic happends.
@@ -365,7 +366,7 @@ class audoma_action:
         func = self.framework_decorator(func)
 
         @wraps(func)
-        def wrapper(view: APIView, request: Request, *args, **kwargs):
+        def wrapper(view: APIView, request: Request, *args, **kwargs) -> Response:
             # extend errors too allow default errors occurance
             errors = func._audoma.errors
             errors += audoma_settings.COMMON_API_ERRORS + getattr(

@@ -8,29 +8,38 @@
 
     <title>Welcome to audoma - API Automatic Documentation Maker’s documentation! &#8212; audoma - API Automatic Documentation Maker 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Audoma - API Automatic Documentation Maker" href="readme.html" />
-
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-
-
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
-
   </head><body>
-
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="readme.html" title="Audoma - API Automatic Documentation Maker"
+             accesskey="N">next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">audoma - API Automatic Documentation Maker 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Welcome to audoma - API Automatic Documentation Maker’s documentation!</a></li>
+      </ul>
+    </div>
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-
-
           <div class="body" role="main">
 
   <section id="welcome-to-audoma-api-automatic-documentation-maker-s-documentation">
@@ -39,17 +48,45 @@
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="readme.html">Audoma - API Automatic Documentation Maker</a></li>
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="usage.html#viewset-defined-serializers">Viewset defined serializers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage.html#permissions">Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#custom-choices">Custom choices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage.html#filters">Filters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage.html#decorators">Decorators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#extra-fields">Extra Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#serializer-field-links">Serializer Field links</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#schema-extensions">Schema Extensions</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="testing_and_example_application.html">Testing And Example Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing_and_example_application.html">Testing And Example Application</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="testing_and_example_application.html#running-example-application">Running example application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_and_example_application.html#running-unit-tests">Running unit tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_and_example_application.html#modyfying-example-application">Modyfying Example Application</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#module-audoma.choices">audoma.choices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#audoma-decorators">audoma.decorators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#audoma-examples">audoma.examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#module-audoma.hooks">audoma.hooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#module-audoma.mixins">audoma.mixins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#module-audoma.openapi">audoma.openapi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#module-audoma.django.db.fields">audoma.django.db.fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#module-audoma.django.db.mixins">audoma.django.db.mixins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#module-audoma.django.forms.fields">audoma.django.forms.fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#module-audoma.drf.decorators">audoma.drf.decorators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#module-audoma.drf.fields">audoma.drf.fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#module-audoma.drf.filters">audoma.drf.filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#module-audoma.drf.generics">audoma.drf.generics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#module-audoma.drf.mixins">audoma.drf.mixins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#module-audoma.drf.serializers">audoma.drf.serializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#module-audoma.drf.validators">audoma.drf.validators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#module-audoma.drf.viewsets">audoma.drf.viewsets</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
@@ -65,41 +102,32 @@
 </section>
 
 
+            <div class="clearer"></div>
           </div>
-
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="#">audoma - API Automatic Documentation Maker</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="readme.html">Audoma - API Automatic Documentation Maker</a></li>
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="testing_and_example_application.html">Testing And Example Application</a></li>
-<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+  <div>
+    <h3><a href="#">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Welcome to audoma - API Automatic Documentation Maker’s documentation!</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="#">Documentation overview</a><ul>
-      <li>Next: <a href="readme.html" title="next chapter">Audoma - API Automatic Documentation Maker</a></li>
-  </ul></li>
-</ul>
-</div>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="readme.html"
+                          title="next chapter">Audoma - API Automatic Documentation Maker</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -110,32 +138,29 @@
     </div>
 </div>
 <script>document.getElementById('searchbox').style.display = "block"</script>
-
-
-
-
-
-
-
-
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2022, Iteo.
-
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
-
-      |
-      <a href="_sources/index.rst.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="readme.html" title="Audoma - API Automatic Documentation Maker"
+             >next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">audoma - API Automatic Documentation Maker 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Welcome to audoma - API Automatic Documentation Maker’s documentation!</a></li>
+      </ul>
     </div>
-
-
-
-
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2022, Iteo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.0.
+    </div>
   </body>
 </html>

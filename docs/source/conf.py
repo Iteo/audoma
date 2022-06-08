@@ -17,6 +17,12 @@
 
 # -- Project information -----------------------------------------------------
 
+import os
+import sys
+
+import django
+
+
 project = "audoma - API Automatic Documentation Maker"
 copyright = "2022, Iteo"
 author = "Iteo"
@@ -51,9 +57,21 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "alabaster"
+html_theme = "classic"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+
+# django configuration
+# This step is necessary to make sphinx-autodoc work properly.
+
+# I've simplified this a little to use append instead of insert.
+sys.path.append(os.path.abspath("../../audoma_examples/drf_example/"))
+
+# Specify settings module
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "drf_example.settings")
+
+# Setup Django
+django.setup()

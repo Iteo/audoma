@@ -8,42 +8,263 @@
 
     <title>Usage &#8212; audoma - API Automatic Documentation Maker 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Testing And Example Application" href="testing_and_example_application.html" />
     <link rel="prev" title="Installation" href="installation.html" />
-
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-
-
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
-
   </head><body>
-
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="testing_and_example_application.html" title="Testing And Example Application"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">audoma - API Automatic Documentation Maker 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Usage</a></li>
+      </ul>
+    </div>
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-
-
           <div class="body" role="main">
 
   <section id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h1>
 <section id="viewset-defined-serializers">
-<h2>Viewset defined serializers<a class="headerlink" href="#viewset-defined-serializers" title="Permalink to this heading">¶</a></h2>
+<span id="get-serializer-class"></span><h2>Viewset defined serializers<a class="headerlink" href="#viewset-defined-serializers" title="Permalink to this heading">¶</a></h2>
+<div class="line-block">
+<div class="line">By default Django Rest Framework provides two methods to get serializer:</div>
+<div class="line"><cite>get_serializer</cite> and <cite>get_serializer_class</cite>.</div>
+<div class="line">Those methods checks if <cite>self</cite> has the property called <cite>serializer_class</cite></div>
+<div class="line">and returns it or its instance.</div>
+</div>
+<div class="line-block">
+<div class="line">Audoma extends this behaviour, first of all it is possible to</div>
+<div class="line">define <cite>collect</cite> and <cite>result</cite> serializer for given viewset, for all actions.</div>
+</div>
+<div class="line-block">
+<div class="line">Example:</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">MySerializer</span>
+    <span class="n">collect_serializer_class</span> <span class="o">=</span> <span class="n">MyCollectSerializer</span>
+    <span class="n">result_serializer_class</span> <span class="o">=</span> <span class="n">MyResultSerializer</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">It is also possible to define custom serializer for each action in the viewset.</div>
+</div>
+<div class="line-block">
+<div class="line">Example:</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+    <span class="n">create_serializer_class</span> <span class="o">=</span> <span class="n">MyCreateSerializer</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">In some specific cases we may want our action to serve more than one http method.</div>
+<div class="line">In audoma it is possible to define serializer per action and method.</div>
+</div>
+<div class="line-block">
+<div class="line">Example:</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+    <span class="n">get_list_serializer_class</span> <span class="o">=</span> <span class="n">MyListSerializer</span>
+    <span class="n">post_list_serializer_class</span> <span class="o">=</span> <span class="n">MyBulkCreateSerializer</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">Each action also may want to use different collect</div>
+<div class="line">and result serializers, it is also possible to define this on viewset.</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+    <span class="n">create_collect_serializer</span> <span class="o">=</span> <span class="n">MyModelCreateSerializer</span>
+    <span class="n">create_result_serializer</span> <span class="o">=</span> <span class="n">MyModelSerializer</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">In audoma it is also possible to combine all those three variables determining serializer_class usage.</div>
+<div class="line">You may want to have differetn collect/result serializers for action which server mutliple http methods.</div>
+</div>
+<div class="line-block">
+<div class="line">Example:</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+    <span class="n">get_list_serializer_class</span> <span class="o">=</span> <span class="n">MyListSerializer</span>
+    <span class="n">post_list_serializer_class</span> <span class="o">=</span> <span class="n">MyBulkCreateSerializer</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">All of above may be defined in one Viewset:</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">MySerializer</span>
+    <span class="n">collect_serializer_class</span> <span class="o">=</span> <span class="n">MyCollectSerializer</span>
+    <span class="n">result_serializer_class</span> <span class="o">=</span> <span class="n">MyResultSerializer</span>
+    <span class="n">create_serializer_class</span> <span class="o">=</span> <span class="n">MyCreateSerializer</span>
+    <span class="n">get_list_serializer_class</span> <span class="o">=</span> <span class="n">MyListSerializer</span>
+    <span class="n">post_list_serializer_class</span> <span class="o">=</span> <span class="n">MyBulkCreateSerializer</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">In case there are multiple name conventions used, serializer will be discovered in following order:</div>
+</div>
+<ul class="simple">
+<li><p><cite>{method}_{action}_{type}_serializer_class</cite></p></li>
+<li><p><cite>{action}_{type}_serializer_class</cite></p></li>
+<li><p><cite>{method}_{action}_serializer_class</cite></p></li>
+<li><p><cite>{action}_serializer_class</cite></p></li>
+<li><p><cite>common_{type}_serializer_class</cite></p></li>
+<li><p><cite>serializer_class</cite></p></li>
+</ul>
+<div class="line-block">
+<div class="line">What’s important all of the serializers defined this way, will be documented properly.</div>
+</div>
 </section>
 <section id="permissions">
 <h2>Permissions<a class="headerlink" href="#permissions" title="Permalink to this heading">¶</a></h2>
+<p>By default in <cite>drf-spectacular</cite> viewset permissions were not documented at all.
+Currently permissions are being documented for each viewset separately.</p>
+<p>You don’t have to define anything extra, this is being handled just out of the box.
+The only thing it is required is to define permissions on your viewset.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ExampleModelViewSet</span><span class="p">(</span>
+<span class="n">mixins</span><span class="o">.</span><span class="n">ActionModelMixin</span><span class="p">,</span>
+<span class="n">mixins</span><span class="o">.</span><span class="n">CreateModelMixin</span><span class="p">,</span>
+<span class="n">mixins</span><span class="o">.</span><span class="n">RetrieveModelMixin</span><span class="p">,</span>
+<span class="n">mixins</span><span class="o">.</span><span class="n">DestroyModelMixin</span><span class="p">,</span>
+<span class="n">mixins</span><span class="o">.</span><span class="n">ListModelMixin</span><span class="p">,</span>
+<span class="n">viewsets</span><span class="o">.</span><span class="n">GenericViewSet</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">IsAuthenticated</span><span class="p">,</span>
+        <span class="n">ViewAndDetailPermission</span><span class="p">,</span>
+        <span class="n">DetailPermission</span><span class="p">,</span>
+        <span class="n">ViewPermission</span><span class="p">,</span>
+        <span class="n">AlternatePermission1</span> <span class="o">|</span> <span class="n">AlternatePermission2</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-choices">
+<span id="choices"></span><h2>Custom choices<a class="headerlink" href="#custom-choices" title="Permalink to this heading">¶</a></h2>
+<div class="line-block">
+<div class="line">Audoma provides convenient method of creting choices.</div>
+<div class="line">This method allows to reffer to choices by it’s name.</div>
+</div>
+<p>Example:
+.. code :: python</p>
+<blockquote>
+<div><dl class="simple">
+<dt>if body_type == BODY_TYPE_CHOICES.SEDAN:</dt><dd><p>…</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>To create custom choices you have to use <cite>make_choices</cite> method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">audoma.choices</span> <span class="kn">import</span> <span class="n">make_choices</span>
+<span class="o">...</span>
+
+<span class="k">class</span> <span class="nc">ExampleModel</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+
+    <span class="n">EXAMPLE_CHOICES</span> <span class="o">=</span> <span class="n">make_choices</span><span class="p">(</span>
+        <span class="s2">&quot;CHOICES&quot;</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;EX_1&quot;</span><span class="p">,</span> <span class="s2">&quot;example 1&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;EX_2&quot;</span><span class="p">,</span> <span class="s2">&quot;example 2&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;EX_3&quot;</span><span class="p">,</span> <span class="s2">&quot;example 3&quot;</span><span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="o">....</span>
+<span class="n">choices</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">EXAMPLE_CHOICES</span><span class="o">.</span><span class="n">get_choices</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">As you may see if you are passing those choice into a model field you should use <cite>get_choices</cite> method.</div>
+<div class="line">This will return the choices in known from django.</div>
+</div>
+<div class="line-block">
+<div class="line">If you use this choices with <a class="reference internal" href="#documentedtypedchoicefilter"><span class="std std-ref">DocumentedTypedChoiceFilter</span></a> , there will be internal values available in API.</div>
+<div class="line">Otherwise this will be displayed as default choices, so in API, as value there will be the databse value.</div>
+</div>
 </section>
 <section id="filters">
 <h2>Filters<a class="headerlink" href="#filters" title="Permalink to this heading">¶</a></h2>
+<section id="default-filters">
+<h3>Default Filters<a class="headerlink" href="#default-filters" title="Permalink to this heading">¶</a></h3>
+<div class="line-block">
+<div class="line">In drf it’s possible to define <cite>filterset_fields</cite> and <cite>filterset_class</cite>.</div>
+<div class="line">By default drf-spectacular supports django-filters. Which are being documented.</div>
+<div class="line">Audoma has been tested with default drf’s filter backend and <cite>DjangoFilterBackend</cite>.</div>
+<div class="line">For more accurate documentation we recommend to use <cite>DjangoFilterBackend</cite> as default one.</div>
+<div class="line">Filters and search fields are being documented out of the box automatically:</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CarViewSet</span><span class="p">(</span>
+<span class="n">mixins</span><span class="o">.</span><span class="n">ActionModelMixin</span><span class="p">,</span>
+<span class="n">mixins</span><span class="o">.</span><span class="n">RetrieveModelMixin</span><span class="p">,</span>
+<span class="n">mixins</span><span class="o">.</span><span class="n">ListModelMixin</span><span class="p">,</span>
+<span class="n">viewsets</span><span class="o">.</span><span class="n">GenericViewSet</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">queryset</span> <span class="o">=</span> <span class="n">Car</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">none</span><span class="p">()</span>
+    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">CarModelSerializer</span>
+
+    <span class="n">filter_backends</span> <span class="o">=</span> <span class="p">[</span><span class="n">SearchFilter</span><span class="p">,</span> <span class="n">df_filters</span><span class="o">.</span><span class="n">DjangoFilterBackend</span><span class="p">]</span>
+
+    <span class="n">filterset_fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;engine_type&quot;</span><span class="p">]</span>
+    <span class="n">search_fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;=manufacturer&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">It is also possible to define filterset class which will also be documented</div>
+<div class="line">without any additional steps.</div>
+</div>
+<div class="line-block">
+<div class="line">The main extension of this feature in audoma is additional enum documentation.</div>
+<div class="line">In <cite>drf-spectacular</cite> enums are being shown only as values possible to pass to the filter.</div>
+<div class="line">Using audoma you also get a display field of a choice, this may be useful to show display value</div>
+<div class="line">in a drop-down for example.</div>
+</div>
+<div class="line-block">
+<div class="line">Additionaly enum fields get extension value in OpenApi schema, which is not</div>
+<div class="line">visible in redoc/swagger frontend. This value is <a class="reference internal" href="#x-choices"><span class="std std-ref">x-choices</span></a>, you may read about it here.</div>
+</div>
+</section>
+<section id="documentedtypedchoicefilter">
+<h3>DocumentedTypedChoiceFilter<a class="headerlink" href="#documentedtypedchoicefilter" title="Permalink to this heading">¶</a></h3>
+<div class="line-block">
+<div class="line">This is an extension for <cite>TypedChoiceFilter</cite> from <cite>django-filters</cite>.</div>
+<div class="line">This extends filter field help text, it changes the way of rendering enums.</div>
+<div class="line">It takes advatage of audoma <a class="reference internal" href="#choices"><span class="std std-ref">Custom choices</span></a> solution.</div>
+</div>
+<div class="line-block">
+<div class="line">In case of using <cite>DocumentedTypedChoiceFilter</cite> there will be three values for <cite>choices</cite>.</div>
+<div class="line">Two of those values will be api values, and the third value will be the database value.</div>
+<div class="line">Api values are display value, and the internal api value, which won’t used on databse, this will be</div>
+<div class="line">mapped to the third value, which is being used inside database.</div>
+</div>
+<div class="line-block">
+<div class="line">This field also create x-choices entry in OpenApi schema.</div>
+</div>
+</section>
 </section>
 <section id="decorators">
 <h2>Decorators<a class="headerlink" href="#decorators" title="Permalink to this heading">¶</a></h2>
@@ -68,7 +289,7 @@
 </pre></div>
 </div>
 <div class="line-block">
-<div class="line">This decorator also allowst to pass all used by drf-spectacular parameters.</div>
+<div class="line">This decorator also allows to pass all used by drf-spectacular parameters.</div>
 </div>
 </section>
 <section id="audoma-action">
@@ -91,9 +312,7 @@
     <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;post&quot;</span><span class="p">],</span>
     <span class="n">results</span><span class="o">=</span><span class="n">ExampleOneFieldSerializer</span><span class="p">,</span>
     <span class="n">collectors</span><span class="o">=</span><span class="n">ExampleOneFieldSerializer</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="k">def</span> <span class="nf">rate_create_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">collect_serializer</span><span class="p">):</span>
-    <span class="o">...</span>
+<span class="p">)</span><span class="n">PL</span>
 </pre></div>
 </div>
 <div class="line-block">
@@ -107,7 +326,7 @@
         <span class="s2">&quot;post&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">201</span><span class="p">:</span> <span class="n">ExampleModelSerializer</span><span class="p">,</span> <span class="mi">202</span><span class="p">:</span> <span class="n">ExampleOneFieldSerializer</span><span class="p">}</span>
     <span class="p">},</span>
 <span class="p">)</span>
-<span class="k">def</span> <span class="nf">detail_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">collect_serializer</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">detail_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reqDocumentedTypedChoiceFilteruest</span><span class="p">,</span> <span class="n">collect_serializer</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="o">...</span>
 </pre></div>
 </div>
@@ -198,9 +417,8 @@
 <div class="line-block">
 <div class="line">Results are not mandatorty parameter, if you won’t pass results</div>
 <div class="line">param into audoma_action, than there will be a fallback to default</div>
-<div class="line"><cite>get_serializer_class</cite> method used in audoma.</div>
+<div class="line"><a class="reference internal" href="#get-serializer-class"><span class="std std-ref">Viewset defined serializers</span></a>.</div>
 </div>
-<p># TODO - add reffernece to get_serializer_class description</p>
 </section>
 <section id="errors">
 <h4>errors<a class="headerlink" href="#errors" title="Permalink to this heading">¶</a></h4>
@@ -232,6 +450,10 @@
 <li><p>ParseError</p></li>
 <li><p>PermissionDenied</p></li>
 </ul>
+<div class="line-block">
+<div class="line">If you want to extend this list of globally accepted exceptions, you can do it by</div>
+<div class="line">defining <cite>COMMON_API_ERRORS</cite> in your settings, example:</div>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">COMMON_API_ERRORS</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">myexceptions</span><span class="o">.</span><span class="n">SomeException</span>
 <span class="p">]</span>
@@ -240,61 +462,253 @@
 </section>
 <section id="ignore-view-collectors">
 <h4>ignore_view_collectors<a class="headerlink" href="#ignore-view-collectors" title="Permalink to this heading">¶</a></h4>
-<p>Boolean variable which tells if audoma_action should fallback to
-default way of retrieving collector from view, if collector has not been passed
-and action uses method which allows collect serializer usage.</p>
+<div class="line-block">
+<div class="line">Boolean variable which tells if audoma_action should fallback to</div>
+<div class="line">default way of retrieving collector from view, if collector has not been passed</div>
+<div class="line">and action uses method which allows collect serializer usage.</div>
+</div>
 </section>
 </section>
 </section>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h2>
+<section id="define-example-for-field">
+<h3>Define example for field<a class="headerlink" href="#define-example-for-field" title="Permalink to this heading">¶</a></h3>
+<div class="line-block">
+<div class="line">Above we described <a class="reference internal" href="#extend-schema-field"><span class="std std-ref">&#64;extend_schema_field</span></a> decorator which allows to define example for field.</div>
+<div class="line">For all fields defined in audoma, there are being examples generated automatically,</div>
+<div class="line">but you may also pass your own example as field parameter.</div>
+</div>
+<div class="line-block">
+<div class="line">Example:</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ExampleSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">Serializer</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="n">phone_number_example</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">PhoneNumberField</span><span class="p">(</span><span class="n">example</span><span class="o">=</span><span class="s2">&quot;+48 123 456 789&quot;</span><span class="p">)</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="define-custom-fields-with-auto-generated-examples">
+<h3>Define custom fields with auto-generated examples<a class="headerlink" href="#define-custom-fields-with-auto-generated-examples" title="Permalink to this heading">¶</a></h3>
+<div class="line-block">
+<div class="line">If you want to define your own field with auto example generation,</div>
+<div class="line">it is possible, your field class should inherit from base <cite>ExampleMixin</cite> class,</div>
+<div class="line">set proper example class.</div>
+</div>
+</section>
+<section id="define-custom-example-classes">
+<h3>Define custom example classes<a class="headerlink" href="#define-custom-example-classes" title="Permalink to this heading">¶</a></h3>
+<div class="line-block">
+<div class="line">It is possible to define your own custom example classes, by default audoma has defined</div>
+<div class="line">two specific example classes inside <cite>audoma.examples</cite> module:</div>
+</div>
+<ul class="simple">
+<li><p><cite>NumericExample</cite></p></li>
+<li><p><cite>RegexExample</cite></p></li>
+</ul>
+<p>And one general class:
+* <cite>Example</cite></p>
+<div class="line-block">
+<div class="line">To define you own example class, you should inherit from <cite>Example</cite> class</div>
+<div class="line">and override <cite>generate_value</cite> method</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">audoma.examples</span> <span class="kn">import</span> <span class="n">Example</span>
+
+<span class="k">class</span> <span class="nc">MyExample</span><span class="p">(</span><span class="n">Example</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;My example value&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="extra-fields">
+<h2>Extra Fields<a class="headerlink" href="#extra-fields" title="Permalink to this heading">¶</a></h2>
+<section id="money-field">
+<h3>Money Field<a class="headerlink" href="#money-field" title="Permalink to this heading">¶</a></h3>
+<div class="line-block">
+<div class="line">Our money field is an extension for money field known from <cite>django_money</cite>.</div>
+<div class="line">This field is defined as one field in model, but it creates two fields in databse.</div>
+</div>
+<div class="line-block">
+<div class="line">It create separate field for amount and currency. This is useful during serialization,</div>
+<div class="line">because in most cases you want to serialize amount and currency separately.</div>
+</div>
+<div class="line-block">
+<div class="line">There is nothing complex in this field usage, simply define it in your model:</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">audoma.django.db</span> <span class="kn">import</span> <span class="n">models</span>
+
+<span class="k">class</span> <span class="nc">ExamplePerson</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="n">savings</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">MoneyField</span><span class="p">(</span><span class="n">max_digits</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">default_currency</span><span class="o">=</span><span class="s2">&quot;PLN&quot;</span><span class="p">)</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="phonenumberfield">
+<h3>PhoneNumberField<a class="headerlink" href="#phonenumberfield" title="Permalink to this heading">¶</a></h3>
+<p># TODO - write docs</p>
+</section>
+</section>
+<section id="serializer-field-links">
+<h2>Serializer Field links<a class="headerlink" href="#serializer-field-links" title="Permalink to this heading">¶</a></h2>
+<div class="line-block">
+<div class="line">Audoma allows to define links for serializer fields, which values</div>
+<div class="line">are related to other endpoints. This is useful if you want to limit value choices to</div>
+<div class="line">other filtered endpoint list.</div>
+</div>
+<div class="line-block">
+<div class="line">Such link won’t be visible in redoc/swagger frontend.</div>
+<div class="line">It’ll be included in OpenApi schema as <a class="reference internal" href="#x-choices"><span class="std std-ref">x-choices</span></a>.</div>
+</div>
+<div class="line-block">
+<div class="line">Link definition:</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CarModelSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+
+    <span class="n">choices_options_links</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;manufacturer&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;viewname&quot;</span><span class="p">:</span> <span class="s2">&quot;manufacturer_viewset-list&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;value_field&quot;</span><span class="p">:</span> <span class="s2">&quot;id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;display_field&quot;</span><span class="p">:</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">manufacturer</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">()</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Car</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s2">&quot;__all__&quot;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>viewname - name of a view from which variables should be retrieved</p></li>
+<li><p>value_field - field name from which value should be retrieved</p></li>
+<li><p>display_field - field name from which display value should be retrieved</p></li>
+</ul>
+</section>
+<section id="schema-extensions">
+<h2>Schema Extensions<a class="headerlink" href="#schema-extensions" title="Permalink to this heading">¶</a></h2>
+<section id="x-choices">
+<h3>x-choices<a class="headerlink" href="#x-choices" title="Permalink to this heading">¶</a></h3>
+<div class="line-block">
+<div class="line">This extension is being added to all fields which have limited choice to some range.</div>
+<div class="line">All fields which have defined choices as enum will have this included in their schema.</div>
+<div class="line">If filter field is also limited to choices this also will be included.</div>
+</div>
+<div class="line-block">
+<div class="line">x-choices may have two different forms.</div>
+<div class="line">The first one when it’s just a representation of choices enum.</div>
+<div class="line">Than it’ll be a maping:</div>
+</div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;x-choices&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;choices&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;value1&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;displayValue1&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;value2&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;displayValue2&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;value3&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;displayValue3&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;value4&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;displayValue4&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">This is simplay a mapping of values to display values.</div>
+<div class="line">This may be useful during displaying choices in for example drop-down.</div>
+</div>
+<div class="line-block">
+<div class="line">The second form of x-choices is:</div>
+</div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;x-choices&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;operationRef&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#/paths/manufacturer_viewset~1&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$response.body#results/*/id&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;display&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$response.body#results/*/name&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">This x-choices is a reference to diferent endpoint.</div>
+<div class="line">This may be used to read limited choices form related endpoint.</div>
+<div class="line">* operationRef - is a JSON pointer to ther related endpoint which should be accesible in this chema</div>
+<div class="line">* value - shows which field should be taken as field value</div>
+<div class="line">* display - shows which field should be taken as field display value (be shown at frontend)</div>
+</div>
+</section>
 </section>
 </section>
 
 
+            <div class="clearer"></div>
           </div>
-
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">audoma - API Automatic Documentation Maker</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="readme.html">Audoma - API Automatic Documentation Maker</a></li>
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#viewset-defined-serializers">Viewset defined serializers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#permissions">Permissions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#filters">Filters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#decorators">Decorators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Usage</a><ul>
+<li><a class="reference internal" href="#viewset-defined-serializers">Viewset defined serializers</a></li>
+<li><a class="reference internal" href="#permissions">Permissions</a></li>
+<li><a class="reference internal" href="#custom-choices">Custom choices</a></li>
+<li><a class="reference internal" href="#filters">Filters</a><ul>
+<li><a class="reference internal" href="#default-filters">Default Filters</a></li>
+<li><a class="reference internal" href="#documentedtypedchoicefilter">DocumentedTypedChoiceFilter</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="testing_and_example_application.html">Testing And Example Application</a></li>
-<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li><a class="reference internal" href="#decorators">Decorators</a><ul>
+<li><a class="reference internal" href="#extend-schema-field">&#64;extend_schema_field</a></li>
+<li><a class="reference internal" href="#audoma-action">&#64;audoma_action</a><ul>
+<li><a class="reference internal" href="#collectors">collectors</a></li>
+<li><a class="reference internal" href="#results">results</a></li>
+<li><a class="reference internal" href="#errors">errors</a></li>
+<li><a class="reference internal" href="#ignore-view-collectors">ignore_view_collectors</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#define-example-for-field">Define example for field</a></li>
+<li><a class="reference internal" href="#define-custom-fields-with-auto-generated-examples">Define custom fields with auto-generated examples</a></li>
+<li><a class="reference internal" href="#define-custom-example-classes">Define custom example classes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#extra-fields">Extra Fields</a><ul>
+<li><a class="reference internal" href="#money-field">Money Field</a></li>
+<li><a class="reference internal" href="#phonenumberfield">PhoneNumberField</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#serializer-field-links">Serializer Field links</a></li>
+<li><a class="reference internal" href="#schema-extensions">Schema Extensions</a><ul>
+<li><a class="reference internal" href="#x-choices">x-choices</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="installation.html" title="previous chapter">Installation</a></li>
-      <li>Next: <a href="testing_and_example_application.html" title="next chapter">Testing And Example Application</a></li>
-  </ul></li>
-</ul>
-</div>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="installation.html"
+                          title="previous chapter">Installation</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="testing_and_example_application.html"
+                          title="next chapter">Testing And Example Application</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/usage.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -305,32 +719,32 @@ and action uses method which allows collect serializer usage.</p>
     </div>
 </div>
 <script>document.getElementById('searchbox').style.display = "block"</script>
-
-
-
-
-
-
-
-
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2022, Iteo.
-
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
-
-      |
-      <a href="_sources/usage.rst.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="testing_and_example_application.html" title="Testing And Example Application"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">audoma - API Automatic Documentation Maker 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Usage</a></li>
+      </ul>
     </div>
-
-
-
-
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2022, Iteo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.0.
+    </div>
   </body>
 </html>
