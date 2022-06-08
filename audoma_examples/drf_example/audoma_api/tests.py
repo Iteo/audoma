@@ -392,6 +392,21 @@ class AudomaBulkOperationsTest(APITestCase):
         self.assertEqual(qs.first().value, 1)
         self.assertEqual(qs.last().value, 2)
 
+    def test_bulk_delete_records(self):
+        ExampleSimpleModel.objects.bulk_create(
+            [
+                ExampleSimpleModel(name="EX1", value=1),
+                ExampleSimpleModel(name="EX2", value=2),
+            ]
+        )
+        resp = self.client.delete(
+            self.list_url, data=[{"name": "EX1"}, {"name": "EX2"}], format="json"
+        )
+        self.assertEqual(resp.status_code, 204)
+        self.assertEqual(
+            ExampleSimpleModel.objects.filter(name__in=["EX1", "EX2"]).count(), 0
+        )
+
 
 class AudomaViewsTestCase(SimpleTestCase):
     def setUp(self):

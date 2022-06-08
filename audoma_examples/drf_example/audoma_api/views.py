@@ -168,10 +168,25 @@ class ExampleSimpleModelViewSet(
     mixins.BulkCreateModelMixin,
     mixins.DestroyModelMixin,
     mixins.BulkUpdateModelMixin,
+    mixins.BulkDestroyModelMixin,
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
     serializer_class = ExampleSimpleModelSerializer
+
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+
+        if self.request.method.lower() == "delete":
+            names = []
+            for d in self.request.data:
+                name = d.get("name")
+                if name:
+                    names.append(name)
+            if names:
+                return queryset.filter(name__in=names)
+
+        return queryset
 
     def get_queryset(self):
         return ExampleSimpleModel.objects.all()
