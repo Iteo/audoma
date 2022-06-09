@@ -68,9 +68,6 @@ class CurrencyField(ModelExampleMixin, djmoney_fields.CurrencyField):
 
 
 class MoneyField(ModelExampleMixin, djmoney_fields.MoneyField):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
     def add_currency_field(self, cls, name):
         """
         Adds CurrencyField instance to a model class and creates example in documentation.
