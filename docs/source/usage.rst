@@ -216,6 +216,44 @@ DocumentedTypedChoiceFilter
 | This field also create x-choices entry in OpenApi schema.
 
 
+Validators
+===========
+
+ExclusiveFieldsValidator
+--------------------------
+
+| This is an additional validator, which allows to define mutually exclusive fields in serializer.
+| It validates if any of fields has been given, and if not all exclusive fields has been given.
+
+| This validator takes params:
+
+* fields - list or a tuple of field names
+* message - string message, which will replace defaul validator message
+* required - boolean which determines if any of field must be given
+* message_required - message which will be displayed if one of fields was required,
+    and none has been passed
+
+| Usage is quite simple:
+
+.. code :: python
+
+    class MutuallyExclusiveExampleSerializer(serializers.Serializer):
+        class Meta:
+
+            validators = [
+                ExclusiveFieldsValidator(
+                    fields=[
+                        "example_field",
+                        "second_example_field",
+                    ]
+                ),
+            ]
+
+        example_field = serializers.CharField(required=False)
+        second_example_field = serializers.CharField(required=False)
+
+
+
 Decorators
 ===========
 
@@ -262,7 +300,7 @@ collectors
         methods=["post"],
         results=ExampleOneFieldSerializer,
         collectors=ExampleOneFieldSerializer,
-    )PL
+    )
 
 | As defined above, simply as a serializer class, which must inherit from `serializers.BaseSerializer`.
 
