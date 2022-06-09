@@ -11,7 +11,6 @@ from uuid import UUID
 from rest_framework import serializers
 from rest_framework.serializers import *  # noqa: F403, F401
 
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import QuerySet
 
@@ -243,7 +242,7 @@ class BulkListSerializer(ListSerializer):
                 for i in all_validated_data_by_id.keys()
             )
         ):
-            raise ValidationError("")
+            raise serializers.ValidationError("")
 
         # since this method is given a queryset which can have many
         # model instances, first find all objects to update
@@ -256,7 +255,7 @@ class BulkListSerializer(ListSerializer):
         )
 
         if len(all_validated_data_by_id) != objects_to_update.count():
-            raise ValidationError("Could not find all objects to update.")
+            raise serializers.ValidationError("Could not find all objects to update.")
 
         updated_objects = []
 
