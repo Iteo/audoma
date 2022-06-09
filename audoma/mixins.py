@@ -13,8 +13,7 @@ class ExampleMixin:
     A mixin class that adds an example to the field in documentation by overriding
     `field` parameter in `_spectacular_annotation`.
 
-    Parameters
-    ----------
+    Args:
         audoma_example_class : Type[Example]
             The class that will be used to create the example.
             Depends on the type of field

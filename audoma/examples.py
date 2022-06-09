@@ -14,6 +14,11 @@ class DEFAULT:
 
 
 class Example:
+    """
+    Class that represents an example for a field.
+    It allows to add example to the field during initialization.
+    """
+
     def __init__(self, field, example=DEFAULT) -> None:
         self.field = field
         self.example = example
@@ -38,9 +43,8 @@ class NumericExample(Example):
         Extracts information from the field and generates a random value
         based on min_value and max_value.
 
-        Returns
-        -------
-        Rendom value between min_value and max_value
+        Returns:
+            Random value between min_value and max_value
         """
         min_val = getattr(self.field, "min_value", 1) or 1
         max_val = getattr(self.field, "max_value", 1000) or 1000
@@ -53,9 +57,8 @@ class RegexExample(Example):
         Extracts information from the field and generates a random value
         based on field's  RegexValidators.
 
-        Returns
-        -------
-        Generated regex string if regex is found, otherwise returns None
+        Returns:
+            Generated regex string if regex is found, otherwise returns None
         """
         regex_validators = [
             validator
