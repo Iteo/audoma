@@ -26,9 +26,10 @@ def get_permissions_description(view) -> str:  # noqa: C901
     """
     This is a helper function which generates a description of the permissions.
     Args:
-        * view - view object
+        view - view object
 
-    Returns: string with permissions description
+    Returns:
+        string with permissions description
     """
 
     def _render_permission_item(name: str, doc_str: str) -> str:
@@ -123,9 +124,10 @@ def build_exclusive_fields_schema(
     """
     Builds a list of schemas for exclusive fields.
     Args:
-        * schema - current schema
-        * exclusive_fields - list of exclusive fields
-    Returns: list of schemas (dicts)
+        schema - current schema
+        exclusive_fields - list of exclusive fields
+    Returns:
+        list of schemas (dicts)
     """
     modified_schemas = []
     for field in exclusive_fields:
@@ -166,8 +168,9 @@ class AudomaApiResponseCreator:
         """
         Simply extracts collectors assigned to the view action method.
         Args:
-            * view - view instance
-        Returns: dict of collectors
+            view - view instance
+        Returns:
+            dict of collectors
         """
         action_function = self._extract_action(view)
         _audoma = getattr(action_function, "_audoma", None)
@@ -178,8 +181,9 @@ class AudomaApiResponseCreator:
         """
         Simply extracts results assigned to the view action method.
         Args:
-            * view - view instance
-        Returns: dict of results
+            view - view instance
+        Returns:
+            dict of results
         """
         action_function = self._extract_action(view)
         _audoma = getattr(action_function, "_audoma", None)
@@ -195,8 +199,9 @@ class AudomaApiResponseCreator:
         """
         Simply extracts action function defined on the apssed view.
         Args:
-            * view - view instance
-        Returns: callable which has been defined as an action.
+            view - view instance
+        Returns:
+            callable which has been defined as an action.
         """
 
         action = getattr(view, "action", None)
@@ -210,8 +215,9 @@ class AudomaApiResponseCreator:
         Helper method which parses action serializers.
         It allows to display non serializer responses correctly.
         Args:
-            * action_serializers - dictionary of action collectors/responses
-        Retruns: dictionary of parsed collectors/responses
+            action_serializers - dictionary of action collectors/responses
+        Retruns:
+            Dictionary of parsed collectors/responses.
         """
         if not action_serializers:
             return action_serializers
@@ -243,8 +249,9 @@ class AudomaApiResponseCreator:
         Helper method which parses action serializers.
         It allows to display non serializer responses correctly.
         Args:
-            * action_serializers - dictionary of action collectors/responses
-        Retruns: dictionary of parsed collectors/responses
+            action_serializers - dictionary of action collectors/responses
+        Retruns:
+            dictionary of parsed collectors/responses
         """
         if not action_errors:
             return action_errors

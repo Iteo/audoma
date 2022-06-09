@@ -9,6 +9,23 @@ from rest_framework.validators import *  # noqa: F403, F401
 
 
 class ExclusiveFieldsValidator:
+    """
+    This is extra validator defined in audoma.
+    This validator allows to define mutually exclusvie fields.
+
+    Attributes:
+        fields - list or a tuple of mutually exclusive field names
+        message - string validation error message
+        required - boolean value, determines if fields are required
+        message_reqiured - string message if one of fields is required and none has been passed
+
+    Args:
+        fields - list or a tuple of mutually exclusive field names
+        message - string validation error message
+        required - boolean value, determines if fields are required
+        message_reqiured - string message if one of fields is required and none has been passed
+    """
+
     message = "The fields {field_names} are mutually exclusive arguments."
     message_required = "One of the fields {field_names} is required."
     # requires_context = True

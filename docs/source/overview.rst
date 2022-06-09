@@ -58,7 +58,6 @@ audoma.django.db.fields
 ========================
 .. automodule:: audoma.django.db.fields
    :members:
-   :private-members:
 
 
 audoma.django.db.mixins
@@ -71,7 +70,6 @@ audoma.django.forms.fields
 ===========================
 .. automodule:: audoma.django.forms.fields
    :members:
-   :private-members:
    :undoc-members:
 
 
@@ -87,8 +85,6 @@ audoma.drf.fields
 ==================
 .. automodule:: audoma.drf.fields
    :members:
-   :private-members:
-   :undoc-members:
 
 audoma.drf.filters
 ===================
@@ -119,7 +115,6 @@ audoma.drf.serializers
 .. automodule:: audoma.drf.serializers
    :members:
    :private-members:
-   :undoc-members:
 
 
 audoma.drf.validators

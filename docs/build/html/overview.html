@@ -61,41 +61,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="audoma.decorators.audoma_action.__init__">
 <span class="sig-prename descclassname"><span class="pre">audoma_action.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collectors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">BaseSerializer</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">BaseSerializer</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">errors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Exception</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Exception</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_view_collectors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#audoma.decorators.audoma_action.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is a custom action decorator which allows to define collectors, results and errors.
-This decorator also applies the collect serializer if such has been defined.
-It also prevents from raising not defined errors, so if you want to raise an exception
-its’ object or class has to be passed into audoma_action decorator.</p>
-<ul class="simple">
-<li><dl class="simple">
-<dt>collectors - collect serializers, it may be passed as a dict: {‘http_method’: serializer_class}</dt><dd><p>or just as a serializer_class. Those serializer are being used to
-collect data from user.
-NOTE: - it is not possible to define collectors for SAFE_METHODS</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>results - response serializers/messages, it may be passed as a dict in three forms:</dt><dd><ul>
-<li><p>{‘http_method’: serializer_class}</p></li>
-<li><p>{‘http_method’: {status_code: serializer_class, status_code: serializer_class}}</p></li>
-<li><p>{status_code: serializer_class}</p></li>
-<li><p>just as a serializer_class</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>errors - list of exception objects, list of exceptions which may be raised in decorated method.</dt><dd><p>‘audoma_action’ will not allow raising any other exceptions than those</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>ignore_view_collectors - If set to True, decorator is ignoring view collect serializers.</dt><dd><p>May be useful if we don’t want to falback to default view collect serializer retrieval.</p>
-</dd>
-</dl>
-</li>
-</ul>
-<p>Returns: None.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="audoma.decorators.audoma_action.__call__">
@@ -104,12 +70,11 @@ NOTE: - it is not possible to define collectors for SAFE_METHODS</p>
 Call of audoma_action decorator.
 This is where the magic happends.</p>
 <dl class="simple">
-<dt>Args:</dt><dd><ul class="simple">
-<li><p>func - decorated function</p></li>
-</ul>
+<dt>Args:</dt><dd><p>func - decorated function</p>
+</dd>
+<dt>Returns: </dt><dd><p>wrapper callable.</p>
 </dd>
 </dl>
-<p>Returns: wrapper callable.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -153,7 +118,10 @@ This is where the magic happends.</p>
 <span class="sig-name descname"><span class="pre">generate_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#audoma.examples.NumericExample.generate_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extracts information from the field and generates a random value
 based on min_value and max_value.</p>
-<p>Rendom value between min_value and max_value</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>Rendom value between min_value and max_value</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -166,7 +134,10 @@ based on min_value and max_value.</p>
 <span class="sig-name descname"><span class="pre">generate_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#audoma.examples.RegexExample.generate_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extracts information from the field and generates a random value
 based on field’s  RegexValidators.</p>
-<p>Generated regex string if regex is found, otherwise returns None</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>Generated regex string if regex is found, otherwise returns None</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -183,7 +154,7 @@ based on field’s  RegexValidators.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="audoma.hooks.preprocess_include_path_format">
 <span class="sig-prename descclassname"><span class="pre">audoma.hooks.</span></span><span class="sig-name descname"><span class="pre">preprocess_include_path_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#audoma.hooks.preprocess_include_path_format" title="Permalink to this definition">¶</a></dt>
-<dd><p>preprocessing hook that filters {format} prefdixed paths, in case
+<dd><p>Preprocessing hook that filters {format} prefdixed paths, in case
 schema pattern prefix is used and {format} path params are wanted.</p>
 </dd></dl>
 
@@ -195,13 +166,14 @@ schema pattern prefix is used and {format} path params are wanted.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">audoma.mixins.</span></span><span class="sig-name descname"><span class="pre">ExampleMixin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">example=&lt;class</span> <span class="pre">'audoma.examples.DEFAULT'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#audoma.mixins.ExampleMixin" title="Permalink to this definition">¶</a></dt>
 <dd><p>A mixin class that adds an example to the field in documentation by overriding
 <cite>field</cite> parameter in <cite>_spectacular_annotation</cite>.</p>
-<blockquote>
-<div><dl class="simple">
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
 <dt>audoma_example_class<span class="classifier">Type[Example]</span></dt><dd><p>The class that will be used to create the example.
 Depends on the type of field</p>
 </dd>
 </dl>
-</div></blockquote>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
@@ -267,18 +239,6 @@ it gets updated instead of being overriden</p>
 </section>
 <section id="module-audoma.django.db.fields">
 <span id="audoma-django-db-fields"></span><h2>audoma.django.db.fields<a class="headerlink" href="#module-audoma.django.db.fields" title="Permalink to this heading">¶</a></h2>
-<p>Audoma Django model Fields
-This module contains all the fields from Django models with additional functionality.
-By inheriting from Audoma’s ModelExampleMixin, an example is generated for each field (i.e. FloatField will have
-example generated based on field’s min and max values).
-We can define custom example by simply passing <cite>example</cite> as an argument to the modelfield.</p>
-<dl class="simple">
-<dt>Audoma fields also extends django model fields with the following features:</dt><dd><ul class="simple">
-<li><p>MoneyField stores money values with its currencies and provides examples based on defined currency or list of currencies</p></li>
-<li><p>PhonenumberField stores phonenumber values and creates examples based on region</p></li>
-</ul>
-</dd>
-</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="audoma.django.db.fields.AutoField">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">audoma.django.db.fields.</span></span><span class="sig-name descname"><span class="pre">AutoField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#audoma.django.db.fields.AutoField" title="Permalink to this definition">¶</a></dt>
@@ -493,6 +453,9 @@ We can define custom example by simply passing <cite>example</cite> as an argume
 </section>
 <section id="module-audoma.drf.fields">
 <span id="audoma-drf-fields"></span><h2>audoma.drf.fields<a class="headerlink" href="#module-audoma.drf.fields" title="Permalink to this heading">¶</a></h2>
+<p>This module is an override for default drf’s field module.
+Most of those fields, are providing additional example functionality,
+and also has defined schema type.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="audoma.drf.fields.BooleanField">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">audoma.drf.fields.</span></span><span class="sig-name descname"><span class="pre">BooleanField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#audoma.drf.fields.BooleanField" title="Permalink to this definition">¶</a></dt>
@@ -511,12 +474,7 @@ We can define custom example by simply passing <cite>example</cite> as an argume
 <dl class="py class">
 <dt class="sig sig-object py" id="audoma.drf.fields.DateField">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">audoma.drf.fields.</span></span><span class="sig-name descname"><span class="pre">DateField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#audoma.drf.fields.DateField" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="audoma.drf.fields.DateField._spectacular_annotation">
-<span class="sig-name descname"><span class="pre">_spectacular_annotation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'field':</span> <span class="pre">OpenApiTypes.DATE,</span> <span class="pre">'field_component_name':</span> <span class="pre">None}</span></em><a class="headerlink" href="#audoma.drf.fields.DateField._spectacular_annotation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="audoma.drf.fields.DateTimeField">
@@ -566,12 +524,7 @@ We can define custom example by simply passing <cite>example</cite> as an argume
 <dl class="py class">
 <dt class="sig sig-object py" id="audoma.drf.fields.IPAddressField">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">audoma.drf.fields.</span></span><span class="sig-name descname"><span class="pre">IPAddressField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#audoma.drf.fields.IPAddressField" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="audoma.drf.fields.IPAddressField._spectacular_annotation">
-<span class="sig-name descname"><span class="pre">_spectacular_annotation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'field':</span> <span class="pre">{'example':</span> <span class="pre">'250.227.208.251',</span> <span class="pre">'format':</span> <span class="pre">'ip-address'},</span> <span class="pre">'field_component_name':</span> <span class="pre">None}</span></em><a class="headerlink" href="#audoma.drf.fields.IPAddressField._spectacular_annotation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="audoma.drf.fields.ImageField">
@@ -616,12 +569,7 @@ We can define custom example by simply passing <cite>example</cite> as an argume
 <dl class="py class">
 <dt class="sig sig-object py" id="audoma.drf.fields.PhoneNumberField">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">audoma.drf.fields.</span></span><span class="sig-name descname"><span class="pre">PhoneNumberField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#audoma.drf.fields.PhoneNumberField" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="audoma.drf.fields.PhoneNumberField._spectacular_annotation">
-<span class="sig-name descname"><span class="pre">_spectacular_annotation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'field':</span> <span class="pre">{'format':</span> <span class="pre">'tel'},</span> <span class="pre">'field_component_name':</span> <span class="pre">None}</span></em><a class="headerlink" href="#audoma.drf.fields.PhoneNumberField._spectacular_annotation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="audoma.drf.fields.ReadOnlyField">
@@ -646,12 +594,7 @@ We can define custom example by simply passing <cite>example</cite> as an argume
 <dl class="py class">
 <dt class="sig sig-object py" id="audoma.drf.fields.TimeField">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">audoma.drf.fields.</span></span><span class="sig-name descname"><span class="pre">TimeField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#audoma.drf.fields.TimeField" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="audoma.drf.fields.TimeField._spectacular_annotation">
-<span class="sig-name descname"><span class="pre">_spectacular_annotation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'field':</span> <span class="pre">OpenApiTypes.TIME,</span> <span class="pre">'field_component_name':</span> <span class="pre">None}</span></em><a class="headerlink" href="#audoma.drf.fields.TimeField._spectacular_annotation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="audoma.drf.fields.URLField">
@@ -661,12 +604,7 @@ We can define custom example by simply passing <cite>example</cite> as an argume
 <dl class="py class">
 <dt class="sig sig-object py" id="audoma.drf.fields.UUIDField">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">audoma.drf.fields.</span></span><span class="sig-name descname"><span class="pre">UUIDField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#audoma.drf.fields.UUIDField" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="audoma.drf.fields.UUIDField._spectacular_annotation">
-<span class="sig-name descname"><span class="pre">_spectacular_annotation</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'field':</span> <span class="pre">OpenApiTypes.UUID,</span> <span class="pre">'field_component_name':</span> <span class="pre">None}</span></em><a class="headerlink" href="#audoma.drf.fields.UUIDField._spectacular_annotation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-</dd></dl>
 
 </section>
 <section id="module-audoma.drf.filters">
@@ -688,26 +626,44 @@ We can define custom example by simply passing <cite>example</cite> as an argume
 <dl class="py class">
 <dt class="sig sig-object py" id="audoma.drf.generics.GenericAPIView">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">audoma.drf.generics.</span></span><span class="sig-name descname"><span class="pre">GenericAPIView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#audoma.drf.generics.GenericAPIView" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>Extended GenericAPIView known from rest_framework.
+This class extends <cite>get_serializer</cite> and <cite>get_serializer_class</cite> methods.
+Also provides <cite>get_result_serializer</cite>, which is a shourtcut for <cite>get_serializer</cite> with proper param.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="audoma.drf.generics.GenericAPIView.get_result_serializer">
 <span class="sig-name descname"><span class="pre">get_result_serializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BaseSerializer</span></span></span><a class="headerlink" href="#audoma.drf.generics.GenericAPIView.get_result_serializer" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Shortuct for get_serializer.
+Simply has serializer_type set to <cite>result</cite></p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="audoma.drf.generics.GenericAPIView.get_serializer">
 <span class="sig-name descname"><span class="pre">get_serializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BaseSerializer</span></span></span><a class="headerlink" href="#audoma.drf.generics.GenericAPIView.get_serializer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the serializer instance that should be used for validating and
-deserializing input, and for serializing output.</p>
+<dd><p>Passes additional param to <cite>get_serializer_class</cite>.</p>
+<dl class="simple">
+<dt>kwargs:</dt><dd><dl class="simple">
+<dt>serializer_type - defines if serializer is collect or result serializer.</dt><dd><p>result serializer will be used to produce response, collect to process incoming data.</p>
+</dd>
+<dt>serializer_class - it is possible to pass serializer_class to get_serializer, this will</dt><dd><p>ends with returning passed serializer_class object.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>Object of obtained serializer class.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="audoma.drf.generics.GenericAPIView.get_serializer_class">
 <span class="sig-name descname"><span class="pre">get_serializer_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'collect'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseSerializer</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#audoma.drf.generics.GenericAPIView.get_serializer_class" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the class to use for the serializer.
-Defaults to using <cite>self.serializer_class</cite>.</p>
-<p>You may want to override this if you need to provide different
-serializations depending on the incoming request.</p>
-<p>(Eg. admins get full serialization, others get basic serialization)</p>
+<dd><p>Extends defuault <cite>get_serializer_class</cite> method.
+This returns proper serializer_class for current request.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>type - type of serializer to be returned, it may be collect or result serializer.</p>
+</dd>
+<dt>Returns:</dt><dd><p>This returns serializer_class</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -715,6 +671,23 @@ serializations depending on the incoming request.</p>
 </section>
 <section id="module-audoma.drf.mixins">
 <span id="audoma-drf-mixins"></span><h2>audoma.drf.mixins<a class="headerlink" href="#module-audoma.drf.mixins" title="Permalink to this heading">¶</a></h2>
+<p>This module overwrites basic mixins provided bu django rest framework.
+Mixins defined here should be used instead of default drf’s mixins.
+Those mixins should be used to allow usage of extended <cite>get_serializer</cite> method&gt;</p>
+<p>Example:</p>
+<blockquote>
+<div><p>from audoma.drf import mixins
+from audoma.drf import viewsets</p>
+<dl class="simple">
+<dt>class ExampleModelViewSet(</dt><dd><p>mixins.ActionModelMixin,
+mixins.CreateModelMixin,
+viewsets.GenericViewSet,</p>
+</dd>
+<dt>):</dt><dd><p>serializer_class = ExampleModelSerializer
+queryset = ExampleModel.objects.all()</p>
+</dd>
+</dl>
+</div></blockquote>
 <dl class="py class">
 <dt class="sig sig-object py" id="audoma.drf.mixins.ActionModelMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">audoma.drf.mixins.</span></span><span class="sig-name descname"><span class="pre">ActionModelMixin</span></span><a class="headerlink" href="#audoma.drf.mixins.ActionModelMixin" title="Permalink to this definition">¶</a></dt>
@@ -794,30 +767,11 @@ serializations depending on the incoming request.</p>
 <section id="module-audoma.drf.serializers">
 <span id="audoma-drf-serializers"></span><h2>audoma.drf.serializers<a class="headerlink" href="#module-audoma.drf.serializers" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="audoma.drf.serializers.DisplayNameWritableField">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">audoma.drf.serializers.</span></span><span class="sig-name descname"><span class="pre">DisplayNameWritableField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#audoma.drf.serializers.DisplayNameWritableField" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="audoma.drf.serializers.DisplayNameWritableField.to_internal_value">
-<span class="sig-name descname"><span class="pre">to_internal_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#audoma.drf.serializers.DisplayNameWritableField.to_internal_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transform the <em>incoming</em> primitive data into a native value.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="audoma.drf.serializers.DisplayNameWritableField.to_representation">
-<span class="sig-name descname"><span class="pre">to_representation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#audoma.drf.serializers.DisplayNameWritableField.to_representation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transform the <em>outgoing</em> native value into primitive data.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="audoma.drf.serializers.ModelSerializer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">audoma.drf.serializers.</span></span><span class="sig-name descname"><span class="pre">ModelSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#audoma.drf.serializers.ModelSerializer" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="audoma.drf.serializers.ModelSerializer._declared_fields">
-<span class="sig-name descname"><span class="pre">_declared_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#audoma.drf.serializers.ModelSerializer._declared_fields" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<dd><p>Extends default ModelSerializer,
+modifies serializer_field_mapping (replaces some fields with audoma fields).
+Adds support for generating audoma example for field.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="audoma.drf.serializers.ModelSerializer.build_standard_field">
 <span class="sig-name descname"><span class="pre">build_standard_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_field</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Field</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#audoma.drf.serializers.ModelSerializer.build_standard_field" title="Permalink to this definition">¶</a></dt>
@@ -830,47 +784,31 @@ serializations depending on the incoming request.</p>
 <dd><p>alias of <a class="reference internal" href="#audoma.drf.fields.ChoiceField" title="audoma.drf.fields.ChoiceField"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChoiceField</span></code></a></p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="audoma.drf.serializers.ModelSerializer.serializer_field_mapping">
-<span class="sig-name descname"><span class="pre">serializer_field_mapping</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'django.db.models.fields.AutoField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.IntegerField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.BigIntegerField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.IntegerField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.BooleanField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.BooleanField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.CharField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.CharField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.CommaSeparatedIntegerField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.CharField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.DateField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.DateField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.DateTimeField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.DateTimeField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.DecimalField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.DecimalField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.DurationField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.DurationField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.EmailField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.EmailField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.Field'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'rest_framework.fields.ModelField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.files.FileField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.FileField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.FloatField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.FloatField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.files.ImageField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.ImageField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.IntegerField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.IntegerField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.NullBooleanField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.NullBooleanField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.PositiveIntegerField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.IntegerField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.PositiveSmallIntegerField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.IntegerField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.SlugField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.SlugField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.SmallIntegerField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.IntegerField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.TextField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.CharField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.TimeField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.TimeField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.URLField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.URLField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.GenericIPAddressField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.IPAddressField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.FilePathField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.FilePathField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.UUIDField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.UUIDField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.django.db.fields.PhoneNumberField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.PhoneNumberField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.django.db.fields.MACAddressField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.MACAddressField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.django.db.fields.MoneyField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.MoneyField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.django.db.fields.CurrencyField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.CharField'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'django.db.models.fields.json.JSONField'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'audoma.drf.fields.JSONField'&gt;}</span></em><a class="headerlink" href="#audoma.drf.serializers.ModelSerializer.serializer_field_mapping" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="audoma.drf.serializers.Result">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">audoma.drf.serializers.</span></span><span class="sig-name descname"><span class="pre">Result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#audoma.drf.serializers.Result" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="audoma.drf.serializers.ResultSerializerClassMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">audoma.drf.serializers.</span></span><span class="sig-name descname"><span class="pre">ResultSerializerClassMixin</span></span><a class="headerlink" href="#audoma.drf.serializers.ResultSerializerClassMixin" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="audoma.drf.serializers.ResultSerializerClassMixin._wrap_result_serializer">
-<span class="sig-name descname"><span class="pre">_wrap_result_serializer</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#audoma.drf.serializers.ResultSerializerClassMixin._wrap_result_serializer" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="audoma.drf.serializers.ResultSerializerClassMixin.get_result_serializer_class">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_result_serializer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseSerializer</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#audoma.drf.serializers.ResultSerializerClassMixin.get_result_serializer_class" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<dd><p>Allows to define wrap for serializer result.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="audoma.drf.serializers.Serializer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">audoma.drf.serializers.</span></span><span class="sig-name descname"><span class="pre">Serializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#audoma.drf.serializers.Serializer" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="audoma.drf.serializers.Serializer._declared_fields">
-<span class="sig-name descname"><span class="pre">_declared_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#audoma.drf.serializers.Serializer._declared_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="audoma.drf.serializers.result_serializer_class">
 <span class="sig-prename descclassname"><span class="pre">audoma.drf.serializers.</span></span><span class="sig-name descname"><span class="pre">result_serializer_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">SerializerClass</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseSerializer</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseSerializer</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#audoma.drf.serializers.result_serializer_class" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Helper function which wraps the serializer result if necessary.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><ul class="simple">
+<li><p>SerializerClass - serializer class which result should be wrapped</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns: ResultSerializer class</p>
+</dd></dl>
 
 </section>
 <section id="module-audoma.drf.validators">
@@ -878,7 +816,21 @@ serializations depending on the incoming request.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="audoma.drf.validators.ExclusiveFieldsValidator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">audoma.drf.validators.</span></span><span class="sig-name descname"><span class="pre">ExclusiveFieldsValidator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_required</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#audoma.drf.validators.ExclusiveFieldsValidator" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py attribute">
+<dd><p>This is extra validator defined in audoma.
+This validator allows to define mutually exclusvie fields.</p>
+<dl class="simple">
+<dt>Attributes:</dt><dd><p>fields - list or a tuple of mutually exclusive field names
+message - string validation error message
+required - boolean value, determines if fields are required
+message_reqiured - string message if one of fields is required and none has been passed</p>
+</dd>
+<dt>Args:</dt><dd><p>fields - list or a tuple of mutually exclusive field names
+message - string validation error message
+required - boolean value, determines if fields are required
+message_reqiured - string message if one of fields is required and none has been passed</p>
+</dd>
+</dl>
+<dl class="py attribute">
 <dt class="sig sig-object py" id="audoma.drf.validators.ExclusiveFieldsValidator.message">
 <span class="sig-name descname"><span class="pre">message</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'The</span> <span class="pre">fields</span> <span class="pre">{field_names}</span> <span class="pre">are</span> <span class="pre">mutually</span> <span class="pre">exclusive</span> <span class="pre">arguments.'</span></em><a class="headerlink" href="#audoma.drf.validators.ExclusiveFieldsValidator.message" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -896,7 +848,16 @@ serializations depending on the incoming request.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="audoma.drf.viewsets.AudomaPagination">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">audoma.drf.viewsets.</span></span><span class="sig-name descname"><span class="pre">AudomaPagination</span></span><a class="headerlink" href="#audoma.drf.viewsets.AudomaPagination" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
+<dd><p>This is audoma pagination class, usage of it is necessary to obtain better pagination docs.</p>
+<dl class="simple">
+<dt>Note:</dt><dd><p>If this won’t be used it’ll cause worse pagination documentation.
+This class does not provide any additional functionality.</p>
+</dd>
+<dt>Attributes:</dt><dd><p>page_size - default size of a single page
+max_page_size - maximum size of apage using this pagination class</p>
+</dd>
+</dl>
+<dl class="py method">
 <dt class="sig sig-object py" id="audoma.drf.viewsets.AudomaPagination.get_paginated_response_schema">
 <span class="sig-name descname"><span class="pre">get_paginated_response_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#audoma.drf.viewsets.AudomaPagination.get_paginated_response_schema" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>

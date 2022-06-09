@@ -1,3 +1,23 @@
+"""
+This module overwrites basic mixins provided bu django rest framework.
+Mixins defined here should be used instead of default drf's mixins.
+Those mixins should be used to allow usage of extended `get_serializer` method>
+
+Example:
+
+    from audoma.drf import mixins
+    from audoma.drf import viewsets
+
+    class ExampleModelViewSet(
+        mixins.ActionModelMixin,
+        mixins.CreateModelMixin,
+        viewsets.GenericViewSet,
+    ):
+        serializer_class = ExampleModelSerializer
+        queryset = ExampleModel.objects.all()
+
+"""
+
 from typing import (
     Any,
     Dict,

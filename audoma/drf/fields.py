@@ -1,3 +1,9 @@
+"""
+This module is an override for default drf's field module.
+Most of those fields, are providing additional example functionality,
+and also has defined schema type.
+"""
+
 import sys
 
 import exrex
