@@ -175,8 +175,18 @@ class ExampleSimpleModelViewSet(
     serializer_class = ExampleSimpleModelSerializer
 
     def filter_queryset(self, queryset):
-        min_value = self.request.data.get("min_value", 0)
-        return queryset.filter(value__lt=min_value)
+        queryset = super().filter_queryset(queryset)
+
+        if self.request.method.lower() == "delete":
+            names = []
+            for d in self.request.data:
+                name = d.get("name")
+                if name:
+                    names.append(name)
+            if names:
+                return queryset.filter(name__in=names)
+
+        return queryset
 
     def get_queryset(self):
         return ExampleSimpleModel.objects.all()
