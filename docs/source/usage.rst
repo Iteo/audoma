@@ -74,8 +74,7 @@ Viewset defined serializers
             collect_serializer_class = MyCollectSerializer
             result_serializer_class = MyResultSerializer
             create_serializer_class = MyCreateSerializer
-            get_list_serializer_class = MyListSerializer
-            post_list_serializer_class = MyBulkCreateSerializer
+            get_list_serializer_class = MyListSerializerfeatures
 
 | In case there are multiple name conventions used, serializer will be discovered in following order:
 
@@ -126,6 +125,7 @@ Custom choices
 | This method allows referring to choices by their name.
 
 Example:
+
 .. code :: python
 
     if body_type == BODY_TYPE_CHOICES.SEDAN:
@@ -154,10 +154,6 @@ To create custom choices you have to use the `make_choices` method.
 
 | As you may see if you are passing those choices into a model field you should use the `get_choices` method.
 | This will return the choices known from Django.
-
-| If you use these choices with :ref:`DocumentedTypedChoiceFilter`, there will be internal values available in API.
-| Otherwise this will be displayed as default choices, so in API, as value, there will be the database value.
-
 
 
 Filters
@@ -242,11 +238,11 @@ Decorators
 ===========
 
 @extend_schema_field
---------------------
+---------------------
 
-| This decorator is a basic `drf-spectacular `decorator, but its behavior has been changed.
+| This decorator is a basic `drf-spectacular` decorator, but its behavior has been changed.
 | It allows passing the example to the field without using information about the field.
-| Data is not overriden, it's updated.
+| Data is not overridden, it's updated.
 
 .. code :: python
 
@@ -298,7 +294,7 @@ collectors
             "post": {201: ExampleModelSerializer, 202: ExampleOneFieldSerializer}
         },
     )
-    def detail_action(self, reqDocumentedTypedChoiceFilteruest, collect_serializer, pk=None):
+    def detail_action(self, request, collect_serializer, pk=None):
         ...
 
 | It also may be defined as a dictionary with given http methods, than

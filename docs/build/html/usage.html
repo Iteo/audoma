@@ -51,13 +51,13 @@
 <section id="viewset-defined-serializers">
 <span id="get-serializer-class"></span><h2>Viewset defined serializers<a class="headerlink" href="#viewset-defined-serializers" title="Permalink to this heading">¶</a></h2>
 <div class="line-block">
-<div class="line">By default Django Rest Framework provides two methods to get serializer:</div>
+<div class="line">By, default Django Rest Framework provides two methods to get a serializer:</div>
 <div class="line"><cite>get_serializer</cite> and <cite>get_serializer_class</cite>.</div>
-<div class="line">Those methods checks if <cite>self</cite> has the property called <cite>serializer_class</cite></div>
+<div class="line">Those methods check if <cite>self</cite> has the property called <cite>serializer_class</cite></div>
 <div class="line">and returns it or its instance.</div>
 </div>
 <div class="line-block">
-<div class="line">Audoma extends this behaviour, first of all it is possible to</div>
+<div class="line">Audoma extends this behavior, first of all, it is possible to</div>
 <div class="line">define <cite>collect</cite> and <cite>result</cite> serializer for given viewset, for all actions.</div>
 </div>
 <div class="line-block">
@@ -70,7 +70,7 @@
 </pre></div>
 </div>
 <div class="line-block">
-<div class="line">It is also possible to define custom serializer for each action in the viewset.</div>
+<div class="line">It is also possible to define a custom serializer for each action in the viewset.</div>
 </div>
 <div class="line-block">
 <div class="line">Example:</div>
@@ -80,7 +80,7 @@
 </pre></div>
 </div>
 <div class="line-block">
-<div class="line">In some specific cases we may want our action to serve more than one http method.</div>
+<div class="line">In some specific cases, we may want our action to serve more than one HTTP method.</div>
 <div class="line">In audoma it is possible to define serializer per action and method.</div>
 </div>
 <div class="line-block">
@@ -101,8 +101,8 @@
 </pre></div>
 </div>
 <div class="line-block">
-<div class="line">In audoma it is also possible to combine all those three variables determining serializer_class usage.</div>
-<div class="line">You may want to have differetn collect/result serializers for action which server mutliple http methods.</div>
+<div class="line">In audoma, it is also possible to combine all those three variables determining serializer_class usage.</div>
+<div class="line">You may want to have different collect/result serializers for action which serve multiple HTTP methods.</div>
 </div>
 <div class="line-block">
 <div class="line">Example:</div>
@@ -113,15 +113,14 @@
 </pre></div>
 </div>
 <div class="line-block">
-<div class="line">All of above may be defined in one Viewset:</div>
+<div class="line">All of the above may be defined in one viewset:</div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
     <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">MySerializer</span>
     <span class="n">collect_serializer_class</span> <span class="o">=</span> <span class="n">MyCollectSerializer</span>
     <span class="n">result_serializer_class</span> <span class="o">=</span> <span class="n">MyResultSerializer</span>
     <span class="n">create_serializer_class</span> <span class="o">=</span> <span class="n">MyCreateSerializer</span>
-    <span class="n">get_list_serializer_class</span> <span class="o">=</span> <span class="n">MyListSerializer</span>
-    <span class="n">post_list_serializer_class</span> <span class="o">=</span> <span class="n">MyBulkCreateSerializer</span>
+    <span class="n">get_list_serializer_class</span> <span class="o">=</span> <span class="n">MyListSerializerfeatures</span>
 </pre></div>
 </div>
 <div class="line-block">
@@ -141,8 +140,8 @@
 </section>
 <section id="permissions">
 <h2>Permissions<a class="headerlink" href="#permissions" title="Permalink to this heading">¶</a></h2>
-<p>By default in <cite>drf-spectacular</cite> viewset permissions were not documented at all.
-Currently permissions are being documented for each viewset separately.</p>
+<p>By default in the <cite>drf-spectacular</cite> viewset permissions were not documented at all.
+Currently, permissions are being documented for each viewset separately.</p>
 <p>You don’t have to define anything extra, this is being handled just out of the box.
 The only thing it is required is to define permissions on your viewset.</p>
 <p>Example:</p>
@@ -168,18 +167,15 @@ The only thing it is required is to define permissions on your viewset.</p>
 <section id="custom-choices">
 <span id="choices"></span><h2>Custom choices<a class="headerlink" href="#custom-choices" title="Permalink to this heading">¶</a></h2>
 <div class="line-block">
-<div class="line">Audoma provides convenient method of creting choices.</div>
-<div class="line">This method allows to reffer to choices by it’s name.</div>
+<div class="line">Audoma provides a convenient method of creating choices.</div>
+<div class="line">This method allows referring to choices by their name.</div>
 </div>
-<p>Example:
-.. code :: python</p>
-<blockquote>
-<div><dl class="simple">
-<dt>if body_type == BODY_TYPE_CHOICES.SEDAN:</dt><dd><p>…</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>To create custom choices you have to use <cite>make_choices</cite> method.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">body_type</span> <span class="o">==</span> <span class="n">BODY_TYPE_CHOICES</span><span class="o">.</span><span class="n">SEDAN</span><span class="p">:</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>To create custom choices you have to use the <cite>make_choices</cite> method.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">audoma.choices</span> <span class="kn">import</span> <span class="n">make_choices</span>
 <span class="o">...</span>
 
@@ -199,12 +195,8 @@ The only thing it is required is to define permissions on your viewset.</p>
 </pre></div>
 </div>
 <div class="line-block">
-<div class="line">As you may see if you are passing those choice into a model field you should use <cite>get_choices</cite> method.</div>
-<div class="line">This will return the choices in known from django.</div>
-</div>
-<div class="line-block">
-<div class="line">If you use this choices with <a class="reference internal" href="#documentedtypedchoicefilter"><span class="std std-ref">DocumentedTypedChoiceFilter</span></a> , there will be internal values available in API.</div>
-<div class="line">Otherwise this will be displayed as default choices, so in API, as value there will be the databse value.</div>
+<div class="line">As you may see if you are passing those choices into a model field you should use the <cite>get_choices</cite> method.</div>
+<div class="line">This will return the choices known from Django.</div>
 </div>
 </section>
 <section id="filters">
@@ -212,10 +204,10 @@ The only thing it is required is to define permissions on your viewset.</p>
 <section id="default-filters">
 <h3>Default Filters<a class="headerlink" href="#default-filters" title="Permalink to this heading">¶</a></h3>
 <div class="line-block">
-<div class="line">In drf it’s possible to define <cite>filterset_fields</cite> and <cite>filterset_class</cite>.</div>
-<div class="line">By default drf-spectacular supports django-filters. Which are being documented.</div>
-<div class="line">Audoma has been tested with default drf’s filter backend and <cite>DjangoFilterBackend</cite>.</div>
-<div class="line">For more accurate documentation we recommend to use <cite>DjangoFilterBackend</cite> as default one.</div>
+<div class="line">In <cite>drf`</cite> it’s possible to define <cite>filterset_fields</cite> and <cite>filterset_class</cite>.</div>
+<div class="line">By default <cite>drf-spectacular`</cite> supports <cite>django-filters</cite>. Which are being documented.</div>
+<div class="line">Audoma has been tested with default drfs filter backend and <cite>DjangoFilterBackend</cite>.</div>
+<div class="line">For more accurate documentation we recommend using`DjangoFilterBackend` as the default one.</div>
 <div class="line">Filters and search fields are being documented out of the box automatically:</div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CarViewSet</span><span class="p">(</span>
@@ -234,7 +226,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </pre></div>
 </div>
 <div class="line-block">
-<div class="line">It is also possible to define filterset class which will also be documented</div>
+<div class="line">It is also possible to define the <cite>filterset</cite> class which will also be documented</div>
 <div class="line">without any additional steps.</div>
 </div>
 <div class="line-block">
@@ -244,25 +236,50 @@ The only thing it is required is to define permissions on your viewset.</p>
 <div class="line">in a drop-down for example.</div>
 </div>
 <div class="line-block">
-<div class="line">Additionaly enum fields get extension value in OpenApi schema, which is not</div>
+<div class="line">Additionally enum fields get extension value in OpenApi schema, which is not</div>
 <div class="line">visible in redoc/swagger frontend. This value is <a class="reference internal" href="#x-choices"><span class="std std-ref">x-choices</span></a>, you may read about it here.</div>
 </div>
 </section>
-<section id="documentedtypedchoicefilter">
-<h3>DocumentedTypedChoiceFilter<a class="headerlink" href="#documentedtypedchoicefilter" title="Permalink to this heading">¶</a></h3>
+</section>
+<section id="validators">
+<h2>Validators<a class="headerlink" href="#validators" title="Permalink to this heading">¶</a></h2>
+<section id="exclusivefieldsvalidator">
+<h3>ExclusiveFieldsValidator<a class="headerlink" href="#exclusivefieldsvalidator" title="Permalink to this heading">¶</a></h3>
 <div class="line-block">
-<div class="line">This is an extension for <cite>TypedChoiceFilter</cite> from <cite>django-filters</cite>.</div>
-<div class="line">This extends filter field help text, it changes the way of rendering enums.</div>
-<div class="line">It takes advatage of audoma <a class="reference internal" href="#choices"><span class="std std-ref">Custom choices</span></a> solution.</div>
+<div class="line">This is an additional validator, which allows for defining mutually exclusive fields in the serializer.</div>
+<div class="line">It validates if any of the fields have been given and if not all exclusive fields have been given.</div>
 </div>
 <div class="line-block">
-<div class="line">In case of using <cite>DocumentedTypedChoiceFilter</cite> there will be three values for <cite>choices</cite>.</div>
-<div class="line">Two of those values will be api values, and the third value will be the database value.</div>
-<div class="line">Api values are display value, and the internal api value, which won’t used on databse, this will be</div>
-<div class="line">mapped to the third value, which is being used inside database.</div>
+<div class="line">This validator takes params:</div>
 </div>
+<ul class="simple">
+<li><p>fields - list or a tuple of field names</p></li>
+<li><p>message - string message, which will replace defaul validator message</p></li>
+<li><p>required - boolean which determines if any of the fields must be given</p></li>
+<li><dl class="simple">
+<dt>message_required - a message which will be displayed if one of the fields is required,</dt><dd><p>and none has been passed</p>
+</dd>
+</dl>
+</li>
+</ul>
 <div class="line-block">
-<div class="line">This field also create x-choices entry in OpenApi schema.</div>
+<div class="line">Usage is quite simple:</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MutuallyExclusiveExampleSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">Serializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+
+        <span class="n">validators</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">ExclusiveFieldsValidator</span><span class="p">(</span>
+                <span class="n">fields</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s2">&quot;example_field&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;second_example_field&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
+
+    <span class="n">example_field</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">second_example_field</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
 </div>
 </section>
 </section>
@@ -271,9 +288,9 @@ The only thing it is required is to define permissions on your viewset.</p>
 <section id="extend-schema-field">
 <h3>&#64;extend_schema_field<a class="headerlink" href="#extend-schema-field" title="Permalink to this heading">¶</a></h3>
 <div class="line-block">
-<div class="line">This decorator is a basic drf-spectacular decorator, but it’s behavior has been changed.</div>
-<div class="line">It allows to pass example to the field without using information about the field.</div>
-<div class="line">Data is not overriden, it’s updated.</div>
+<div class="line">This decorator is a basic <cite>drf-spectacular</cite> decorator, but its behavior has been changed.</div>
+<div class="line">It allows passing the example to the field without using information about the field.</div>
+<div class="line">Data is not overridden, it’s updated.</div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">audoma.drf.fields</span> <span class="kn">import</span> <span class="n">FloatField</span>
 
@@ -289,7 +306,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </pre></div>
 </div>
 <div class="line-block">
-<div class="line">This decorator also allows to pass all used by drf-spectacular parameters.</div>
+<div class="line">This decorator also allows passing all used by <cite>drf-spectacular</cite> parameters.</div>
 </div>
 </section>
 <section id="audoma-action">
@@ -297,22 +314,22 @@ The only thing it is required is to define permissions on your viewset.</p>
 <div class="line-block">
 <div class="line">This is one of the most complex features offered by audoma.</div>
 <div class="line">In fact this is an extension of action decorator, which by default is Django Rest Framewok functionality.</div>
-<div class="line">It also allows to register custom action for viewset.</div>
-<div class="line">In case of audoma_action it is also possible to define additional parmeters, such as:</div>
+<div class="line">It also allows registering custom action for viewset.</div>
+<div class="line">In the case of <cite>audoma_action</cite>, it is also possible to define additional parameters, such as:</div>
 </div>
 <section id="collectors">
 <h4>collectors<a class="headerlink" href="#collectors" title="Permalink to this heading">¶</a></h4>
 <div class="line-block">
-<div class="line">This param allows to define serializer class which will collect and process request data.</div>
+<div class="line">This param allows defining serializer class which will collect and process request data.</div>
 <div class="line">To define this, action must serve POST/PATCH or PUT method.</div>
-<div class="line">Collectors may be define in few ways:</div>
+<div class="line">Collectors may be defined in a few ways:</div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@audoma_action</span><span class="p">(</span>
     <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;post&quot;</span><span class="p">],</span>
     <span class="n">results</span><span class="o">=</span><span class="n">ExampleOneFieldSerializer</span><span class="p">,</span>
     <span class="n">collectors</span><span class="o">=</span><span class="n">ExampleOneFieldSerializer</span><span class="p">,</span>
-<span class="p">)</span><span class="n">PL</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <div class="line-block">
@@ -326,14 +343,14 @@ The only thing it is required is to define permissions on your viewset.</p>
         <span class="s2">&quot;post&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">201</span><span class="p">:</span> <span class="n">ExampleModelSerializer</span><span class="p">,</span> <span class="mi">202</span><span class="p">:</span> <span class="n">ExampleOneFieldSerializer</span><span class="p">}</span>
     <span class="p">},</span>
 <span class="p">)</span>
-<span class="k">def</span> <span class="nf">detail_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reqDocumentedTypedChoiceFilteruest</span><span class="p">,</span> <span class="n">collect_serializer</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">detail_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">collect_serializer</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="o">...</span>
 </pre></div>
 </div>
 <div class="line-block">
 <div class="line">It also may be defined as a dictionary with given http methods, than</div>
 <div class="line">the collectors, will be used for each http method. For Example, we may define</div>
-<div class="line">different collectors for post an patch.</div>
+<div class="line">different collectors for POST and PATCH.</div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@audoma_action</span><span class="p">(</span>
     <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -359,7 +376,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 <div class="line-block">
 <div class="line">This parameter is optional, so you don’t have to pass collectors. If collectors won’t be passed, and</div>
-<div class="line">request method will be in <cite>[PUT, POST, PATCH]</cite> than by default, audoma_action fill fallback to default</div>
+<div class="line">request method will be in <cite>[PUT, POST, PATCH]</cite> then by default, audoma_action fill fallback to default</div>
 <div class="line"><cite>get_serializer_class</cite> method for audoma.</div>
 </div>
 <p><strong>Important</strong></p>
@@ -372,7 +389,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 <section id="results">
 <h4>results<a class="headerlink" href="#results" title="Permalink to this heading">¶</a></h4>
 <div class="line-block">
-<div class="line">This param allows to define custom results for each method and each response status code.</div>
+<div class="line">This param allows defining custom results for each method and each response status code.</div>
 <div class="line">Results may be defined in three possible forms:</div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@audoma_action</span><span class="p">(</span>
@@ -387,7 +404,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 <div class="line-block">
 <div class="line">As a serializer class, which must inherit from the <cite>serializers.BaseSerializer</cite>.</div>
-<div class="line">This will be used to serializer, returned instance</div>
+<div class="line">This will be used to the serializer, returned instance</div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@audoma_action</span><span class="p">(</span>
     <span class="n">detail</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -411,12 +428,12 @@ The only thing it is required is to define permissions on your viewset.</p>
 <div class="line">As a dictionary with http methods and status code, where dict values, may be serializer</div>
 <div class="line">classes or text messages. If values will be serializers,</div>
 <div class="line">view should return alongside status code, an instnace which may be serialized.</div>
-<div class="line">If those are messages, view should return None as an instance,</div>
-<div class="line">or an overriding message for given status code.</div>
+<div class="line">If those are messages, the view should return None as an instance,</div>
+<div class="line">or an overriding message for a given status code.</div>
 </div>
 <div class="line-block">
-<div class="line">Results are not mandatorty parameter, if you won’t pass results</div>
-<div class="line">param into audoma_action, than there will be a fallback to default</div>
+<div class="line">Results param is not mandatory, if you won’t pass the results</div>
+<div class="line">param into audoma_action, then there will be a fallback to default</div>
 <div class="line"><a class="reference internal" href="#get-serializer-class"><span class="std std-ref">Viewset defined serializers</span></a>.</div>
 </div>
 </section>
@@ -424,20 +441,20 @@ The only thing it is required is to define permissions on your viewset.</p>
 <h4>errors<a class="headerlink" href="#errors" title="Permalink to this heading">¶</a></h4>
 <div class="line-block">
 <div class="line">This param may be a list of classes and instances of exceptions, which are</div>
-<div class="line">allowed to be risen in this action. Such behaviour prevents rising, not defined exceptions, and allows</div>
+<div class="line">allowed to rise in this action. Such behavior prevents rising, not defined exceptions, and allows</div>
 <div class="line">to document such exceptions properly in OpenApi schema.</div>
 </div>
 <div class="line-block">
 <div class="line">The main difference between passing exception class and exception instance, is that</div>
 <div class="line">if you pass exception instance, audoma will not only check if exception</div>
-<div class="line">type matches, it’ll also validate it’s content.</div>
+<div class="line">type matches, it’ll also validate its content.</div>
 <div class="line">We presume that if you pass, the exception class, you want to accept all exceptions of this class.</div>
 </div>
 <div class="line-block">
 <div class="line">In case the risen exception is not defined in audoma_action errors, there will be another</div>
 <div class="line">exception risen: AudomaActionException, in case the settings.DEBUG = False, this exception</div>
-<div class="line">will be handled silently by logging it, but the code will pass. In case of settings.DEBUG = True,</div>
-<div class="line">than the exception won’t be silent.</div>
+<div class="line">will be handled silently by logging it, but the code will pass. In the case of settings.DEBUG = True,</div>
+<div class="line">then the exception won’t be silent.</div>
 </div>
 <div class="line-block">
 <div class="line">By default audoma accepts some exceptions, which are defined globally.</div>
@@ -452,7 +469,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </ul>
 <div class="line-block">
 <div class="line">If you want to extend this list of globally accepted exceptions, you can do it by</div>
-<div class="line">defining <cite>COMMON_API_ERRORS</cite> in your settings, example:</div>
+<div class="line">defining <cite>COMMON_API_ERRORS</cite> in your settings, for example:</div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">COMMON_API_ERRORS</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">myexceptions</span><span class="o">.</span><span class="n">SomeException</span>
@@ -464,8 +481,8 @@ The only thing it is required is to define permissions on your viewset.</p>
 <h4>ignore_view_collectors<a class="headerlink" href="#ignore-view-collectors" title="Permalink to this heading">¶</a></h4>
 <div class="line-block">
 <div class="line">Boolean variable which tells if audoma_action should fallback to</div>
-<div class="line">default way of retrieving collector from view, if collector has not been passed</div>
-<div class="line">and action uses method which allows collect serializer usage.</div>
+<div class="line">default way of retrieving collector from view, if the collector has not been passed</div>
+<div class="line">and action use method which allows collecting serializer usage.</div>
 </div>
 </section>
 </section>
@@ -475,9 +492,9 @@ The only thing it is required is to define permissions on your viewset.</p>
 <section id="define-example-for-field">
 <h3>Define example for field<a class="headerlink" href="#define-example-for-field" title="Permalink to this heading">¶</a></h3>
 <div class="line-block">
-<div class="line">Above we described <a class="reference internal" href="#extend-schema-field"><span class="std std-ref">&#64;extend_schema_field</span></a> decorator which allows to define example for field.</div>
+<div class="line">Above we described <a class="reference internal" href="#extend-schema-field"><span class="std std-ref">&#64;extend_schema_field</span></a> decorator which allows defining example for field.</div>
 <div class="line">For all fields defined in audoma, there are being examples generated automatically,</div>
-<div class="line">but you may also pass your own example as field parameter.</div>
+<div class="line">but you may also pass your example as a field parameter.</div>
 </div>
 <div class="line-block">
 <div class="line">Example:</div>
@@ -492,16 +509,25 @@ The only thing it is required is to define permissions on your viewset.</p>
 <section id="define-custom-fields-with-auto-generated-examples">
 <h3>Define custom fields with auto-generated examples<a class="headerlink" href="#define-custom-fields-with-auto-generated-examples" title="Permalink to this heading">¶</a></h3>
 <div class="line-block">
-<div class="line">If you want to define your own field with auto example generation,</div>
-<div class="line">it is possible, your field class should inherit from base <cite>ExampleMixin</cite> class,</div>
+<div class="line">If you want to define your field with auto example generation,</div>
+<div class="line">it is possible, that your field class should inherit from the base <cite>ExampleMixin</cite> class,</div>
 <div class="line">set proper example class.</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">rest_framework</span> <span class="kn">import</span> <span class="n">fields</span>
+<span class="kn">from</span> <span class="nn">audoma.mixins</span> <span class="kn">import</span> <span class="n">ExampleMixin</span>
+<span class="kn">from</span> <span class="nn">audoma.examples</span> <span class="kn">import</span> <span class="n">NumericExample</span><span class="p">,</span>
+
+
+<span class="k">class</span> <span class="nc">SomeExampleField</span><span class="p">(</span><span class="n">ExampleMixin</span><span class="p">,</span> <span class="n">fields</span><span class="o">.</span><span class="n">Field</span><span class="p">):</span>
+    <span class="n">audoma_example_class</span> <span class="o">=</span> <span class="n">NumericExample</span>
+</pre></div>
 </div>
 </section>
 <section id="define-custom-example-classes">
 <h3>Define custom example classes<a class="headerlink" href="#define-custom-example-classes" title="Permalink to this heading">¶</a></h3>
 <div class="line-block">
-<div class="line">It is possible to define your own custom example classes, by default audoma has defined</div>
-<div class="line">two specific example classes inside <cite>audoma.examples</cite> module:</div>
+<div class="line">It is possible to define your custom example classes, by default audio has defined</div>
+<div class="line">two specific example classes inside the <cite>audoma.examples</cite> module:</div>
 </div>
 <ul class="simple">
 <li><p><cite>NumericExample</cite></p></li>
@@ -510,8 +536,8 @@ The only thing it is required is to define permissions on your viewset.</p>
 <p>And one general class:
 * <cite>Example</cite></p>
 <div class="line-block">
-<div class="line">To define you own example class, you should inherit from <cite>Example</cite> class</div>
-<div class="line">and override <cite>generate_value</cite> method</div>
+<div class="line">To define your example class, you should inherit from the <cite>Example</cite> class</div>
+<div class="line">and override the <cite>generate_value</cite> method</div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">audoma.examples</span> <span class="kn">import</span> <span class="n">Example</span>
 
@@ -527,14 +553,11 @@ The only thing it is required is to define permissions on your viewset.</p>
 <section id="money-field">
 <h3>Money Field<a class="headerlink" href="#money-field" title="Permalink to this heading">¶</a></h3>
 <div class="line-block">
-<div class="line">Our money field is an extension for money field known from <cite>django_money</cite>.</div>
-<div class="line">This field is defined as one field in model, but it creates two fields in databse.</div>
+<div class="line">Our money field is an extension of the <cite>MoneyField</cite> known from <cite>django_money</cite>.</div>
+<div class="line">This field is defined as one field in the model, but it creates two fields in the database.</div>
 </div>
 <div class="line-block">
-<div class="line">It create separate field for amount and currency. This is useful during serialization,</div>
-<div class="line">because in most cases you want to serialize amount and currency separately.</div>
-</div>
-<div class="line-block">
+<div class="line">It creates a separate fielfield</div>
 <div class="line">There is nothing complex in this field usage, simply define it in your model:</div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">audoma.django.db</span> <span class="kn">import</span> <span class="n">models</span>
@@ -554,9 +577,9 @@ The only thing it is required is to define permissions on your viewset.</p>
 <section id="serializer-field-links">
 <h2>Serializer Field links<a class="headerlink" href="#serializer-field-links" title="Permalink to this heading">¶</a></h2>
 <div class="line-block">
-<div class="line">Audoma allows to define links for serializer fields, which values</div>
+<div class="line">Audoma allows defining links for serializer fields, which values</div>
 <div class="line">are related to other endpoints. This is useful if you want to limit value choices to</div>
-<div class="line">other filtered endpoint list.</div>
+<div class="line">other filtered endpoint lists.</div>
 </div>
 <div class="line-block">
 <div class="line">Such link won’t be visible in redoc/swagger frontend.</div>
@@ -583,7 +606,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><p>viewname - name of a view from which variables should be retrieved</p></li>
+<li><p>viewname - the name of a view from which variables should be retrieved</p></li>
 <li><p>value_field - field name from which value should be retrieved</p></li>
 <li><p>display_field - field name from which display value should be retrieved</p></li>
 </ul>
@@ -595,12 +618,12 @@ The only thing it is required is to define permissions on your viewset.</p>
 <div class="line-block">
 <div class="line">This extension is being added to all fields which have limited choice to some range.</div>
 <div class="line">All fields which have defined choices as enum will have this included in their schema.</div>
-<div class="line">If filter field is also limited to choices this also will be included.</div>
+<div class="line">If the filter field is also limited to choices this also will be included.</div>
 </div>
 <div class="line-block">
 <div class="line">x-choices may have two different forms.</div>
 <div class="line">The first one when it’s just a representation of choices enum.</div>
-<div class="line">Than it’ll be a maping:</div>
+<div class="line">Then it’ll be a mapping:</div>
 </div>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="nt">&quot;x-choices&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -631,10 +654,10 @@ The only thing it is required is to define permissions on your viewset.</p>
 </pre></div>
 </div>
 <div class="line-block">
-<div class="line">This x-choices is a reference to diferent endpoint.</div>
-<div class="line">This may be used to read limited choices form related endpoint.</div>
+<div class="line">This x-choices is a reference to a different endpoint.</div>
+<div class="line">This may be used to read limited choices from the related endpoint.</div>
 <div class="line">* operationRef - is a JSON pointer to ther related endpoint which should be accesible in this chema</div>
-<div class="line">* value - shows which field should be taken as field value</div>
+<div class="line">* value - shows which field should be taken as a field value</div>
 <div class="line">* display - shows which field should be taken as field display value (be shown at frontend)</div>
 </div>
 </section>
@@ -657,7 +680,10 @@ The only thing it is required is to define permissions on your viewset.</p>
 <li><a class="reference internal" href="#custom-choices">Custom choices</a></li>
 <li><a class="reference internal" href="#filters">Filters</a><ul>
 <li><a class="reference internal" href="#default-filters">Default Filters</a></li>
-<li><a class="reference internal" href="#documentedtypedchoicefilter">DocumentedTypedChoiceFilter</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#validators">Validators</a><ul>
+<li><a class="reference internal" href="#exclusivefieldsvalidator">ExclusiveFieldsValidator</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#decorators">Decorators</a><ul>
