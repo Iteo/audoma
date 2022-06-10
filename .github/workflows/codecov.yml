@@ -7,17 +7,20 @@ jobs:
       OS: ubuntu-latest
       PYTHON: '3.8'
     steps:
-    - uses: checkout@v2
+    - uses: actions/checkout@v2
       with:
         fetch-depth: ‘2’
 
     - name: Setup Python
       uses: actions/setup-python@master
       with:
-        python-version: 3.7
+        python-version: 3.8
+    - name: install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install -r requirements_dev.txt
     - name: Generate Report
       run: |
-        pip install coverage
         cd audoma_examples/drf_example
         coverage run manage.py test
     - name: Upload Coverage to Codecov
