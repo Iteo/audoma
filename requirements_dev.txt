@@ -5,4 +5,4 @@ isort==5.10.1
 pre-commit==2.17.0
 tox==3.24.5
 ipdb==0.13.9
-sphinx==5.0
+sphinx==4.9
