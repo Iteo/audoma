@@ -57,8 +57,8 @@
 <div class="line">and returns it or its instance.</div>
 </div>
 <div class="line-block">
-<div class="line">Audoma extends this behavior, first of all, it is possible to</div>
-<div class="line">define <cite>collect</cite> and <cite>result</cite> serializer for given viewset, for all actions.</div>
+<div class="line">Audoma Extends this behavior by, first of all, enabling to</div>
+<div class="line">define <cite>collect</cite> and <cite>result</cite> serializer for given views, for all actions.</div>
 </div>
 <div class="line-block">
 <div class="line">Example:</div>
@@ -80,8 +80,8 @@
 </pre></div>
 </div>
 <div class="line-block">
-<div class="line">In some specific cases, we may want our action to serve more than one HTTP method.</div>
-<div class="line">In audoma it is possible to define serializer per action and method.</div>
+<div class="line">In some specific cases, you may want your action to serve more than one HTTP method.</div>
+<div class="line">With audoma, it is possible to define serializer per action and method.</div>
 </div>
 <div class="line-block">
 <div class="line">Example:</div>
@@ -101,7 +101,7 @@
 </pre></div>
 </div>
 <div class="line-block">
-<div class="line">In audoma, it is also possible to combine all those three variables determining serializer_class usage.</div>
+<div class="line">Audoma also allows combining all three variables determining serializer_class usage.</div>
 <div class="line">You may want to have different collect/result serializers for action which serve multiple HTTP methods.</div>
 </div>
 <div class="line-block">
@@ -113,7 +113,7 @@
 </pre></div>
 </div>
 <div class="line-block">
-<div class="line">All of the above may be defined in one viewset:</div>
+<div class="line">All of the above can be defined in one viewset:</div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyViewSet</span><span class="p">(</span><span class="n">viewsets</span><span class="o">.</span><span class="n">ModelViewSet</span><span class="p">):</span>
     <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">MySerializer</span>
@@ -140,7 +140,7 @@
 </section>
 <section id="permissions">
 <h2>Permissions<a class="headerlink" href="#permissions" title="Permalink to this heading">¶</a></h2>
-<p>By default in the <cite>drf-spectacular</cite> viewset permissions were not documented at all.
+<p>By default, in the <cite>drf-spectacular</cite> viewset permissions were not documented at all.
 Currently, permissions are being documented for each viewset separately.</p>
 <p>You don’t have to define anything extra, this is being handled just out of the box.
 The only thing it is required is to define permissions on your viewset.</p>
@@ -167,8 +167,8 @@ The only thing it is required is to define permissions on your viewset.</p>
 <section id="custom-choices">
 <span id="choices"></span><h2>Custom choices<a class="headerlink" href="#custom-choices" title="Permalink to this heading">¶</a></h2>
 <div class="line-block">
-<div class="line">Audoma provides a convenient method of creating choices.</div>
-<div class="line">This method allows referring to choices by their name.</div>
+<div class="line">Audoma provides a convenient method of creating choices, which allows</div>
+<div class="line">referring to choices by their name.</div>
 </div>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">body_type</span> <span class="o">==</span> <span class="n">BODY_TYPE_CHOICES</span><span class="o">.</span><span class="n">SEDAN</span><span class="p">:</span>
@@ -195,7 +195,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </pre></div>
 </div>
 <div class="line-block">
-<div class="line">As you may see if you are passing those choices into a model field you should use the <cite>get_choices</cite> method.</div>
+<div class="line">As you may see if, you are passing those choices into a model field you should use the <cite>get_choices</cite> method.</div>
 <div class="line">This will return the choices known from Django.</div>
 </div>
 </section>
@@ -204,10 +204,10 @@ The only thing it is required is to define permissions on your viewset.</p>
 <section id="default-filters">
 <h3>Default Filters<a class="headerlink" href="#default-filters" title="Permalink to this heading">¶</a></h3>
 <div class="line-block">
-<div class="line">In <cite>drf`</cite> it’s possible to define <cite>filterset_fields</cite> and <cite>filterset_class</cite>.</div>
-<div class="line">By default <cite>drf-spectacular`</cite> supports <cite>django-filters</cite>. Which are being documented.</div>
+<div class="line">In <cite>drf</cite>, it’s possible to define <cite>filterset_fields</cite> and <cite>filterset_class</cite>.</div>
+<div class="line">By default, <cite>drf-spectacular`</cite> supports <cite>django-filters</cite>. Which are being documented.</div>
 <div class="line">Audoma has been tested with default drfs filter backend and <cite>DjangoFilterBackend</cite>.</div>
-<div class="line">For more accurate documentation we recommend using`DjangoFilterBackend` as the default one.</div>
+<div class="line">For more accurate documentation, we recommend using`DjangoFilterBackend` as the default one.</div>
 <div class="line">Filters and search fields are being documented out of the box automatically:</div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CarViewSet</span><span class="p">(</span>
@@ -231,8 +231,8 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 <div class="line-block">
 <div class="line">The main extension of this feature in audoma is additional enum documentation.</div>
-<div class="line">In <cite>drf-spectacular</cite> enums are being shown only as values possible to pass to the filter.</div>
-<div class="line">Using audoma you also get a display field of a choice, this may be useful to show display value</div>
+<div class="line">In <cite>drf-spectacular</cite>, enums are being shown only as values possible to pass to the filter.</div>
+<div class="line">With audoma you also get a display field of a choice, this may be useful to show display value</div>
 <div class="line">in a drop-down for example.</div>
 </div>
 <div class="line-block">
@@ -254,7 +254,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 <ul class="simple">
 <li><p>fields - list or a tuple of field names</p></li>
-<li><p>message - string message, which will replace defaul validator message</p></li>
+<li><p>message - string message, which will replace default validator message</p></li>
 <li><p>required - boolean which determines if any of the fields must be given</p></li>
 <li><dl class="simple">
 <dt>message_required - a message which will be displayed if one of the fields is required,</dt><dd><p>and none has been passed</p>

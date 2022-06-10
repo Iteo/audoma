@@ -12,8 +12,8 @@ Viewset defined serializers
 | Those methods check if `self` has the property called `serializer_class`
 | and returns it or its instance.
 
-| Audoma extends this behavior, first of all, it is possible to
-| define `collect` and `result` serializer for given viewset, for all actions.
+| Audoma Extends this behavior by, first of all, enabling to
+| define `collect` and `result` serializer for given views, for all actions.
 
 | Example:
 
@@ -33,8 +33,8 @@ Viewset defined serializers
     class MyViewSet(viewsets.ModelViewSet):
         create_serializer_class = MyCreateSerializer
 
-| In some specific cases, we may want our action to serve more than one HTTP method.
-| In audoma it is possible to define serializer per action and method.
+| In some specific cases, you may want your action to serve more than one HTTP method.
+| With audoma, it is possible to define serializer per action and method.
 
 | Example:
 
@@ -54,7 +54,7 @@ Viewset defined serializers
         create_collect_serializer = MyModelCreateSerializer
         create_result_serializer = MyModelSerializer
 
-| In audoma, it is also possible to combine all those three variables determining serializer_class usage.
+| Audoma also allows combining all three variables determining serializer_class usage.
 | You may want to have different collect/result serializers for action which serve multiple HTTP methods.
 
 | Example:
@@ -65,7 +65,7 @@ Viewset defined serializers
         get_list_serializer_class = MyListSerializer
         post_list_serializer_class = MyBulkCreateSerializer
 
-| All of the above may be defined in one viewset:
+| All of the above can be defined in one viewset:
 
 .. code :: python
 
@@ -90,7 +90,7 @@ Viewset defined serializers
 Permissions
 ===========
 
-By default in the `drf-spectacular` viewset permissions were not documented at all.
+By default, in the `drf-spectacular` viewset permissions were not documented at all.
 Currently, permissions are being documented for each viewset separately.
 
 You don't have to define anything extra, this is being handled just out of the box.
@@ -121,8 +121,8 @@ Example:
 
 Custom choices
 ==============
-| Audoma provides a convenient method of creating choices.
-| This method allows referring to choices by their name.
+| Audoma provides a convenient method of creating choices, which allows
+| referring to choices by their name.
 
 Example:
 
@@ -152,7 +152,7 @@ To create custom choices you have to use the `make_choices` method.
         ....
     choices = models.IntegerField(choices=EXAMPLE_CHOICES.get_choices())
 
-| As you may see if you are passing those choices into a model field you should use the `get_choices` method.
+| As you may see if, you are passing those choices into a model field you should use the `get_choices` method.
 | This will return the choices known from Django.
 
 
@@ -162,10 +162,10 @@ Filters
 Default Filters
 ----------------
 
-| In `drf`` it's possible to define `filterset_fields` and `filterset_class`.
-| By default `drf-spectacular`` supports `django-filters`. Which are being documented.
+| In `drf`, it's possible to define `filterset_fields` and `filterset_class`.
+| By default, `drf-spectacular`` supports `django-filters`. Which are being documented.
 | Audoma has been tested with default drfs filter backend and `DjangoFilterBackend`.
-| For more accurate documentation we recommend using`DjangoFilterBackend` as the default one.
+| For more accurate documentation, we recommend using`DjangoFilterBackend` as the default one.
 | Filters and search fields are being documented out of the box automatically:
 
 .. code :: python
@@ -189,8 +189,8 @@ Default Filters
 | without any additional steps.
 
 | The main extension of this feature in audoma is additional enum documentation.
-| In `drf-spectacular` enums are being shown only as values possible to pass to the filter.
-| Using audoma you also get a display field of a choice, this may be useful to show display value
+| In `drf-spectacular`, enums are being shown only as values possible to pass to the filter.
+| With audoma you also get a display field of a choice, this may be useful to show display value
 | in a drop-down for example.
 
 | Additionally enum fields get extension value in OpenApi schema, which is not
@@ -208,7 +208,7 @@ ExclusiveFieldsValidator
 | This validator takes params:
 
 * fields - list or a tuple of field names
-* message - string message, which will replace defaul validator message
+* message - string message, which will replace default validator message
 * required - boolean which determines if any of the fields must be given
 * message_required - a message which will be displayed if one of the fields is required,
     and none has been passed
