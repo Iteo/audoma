@@ -12,7 +12,7 @@ Main goals of this project are:
 * Make documentation more accurate, make schema include more information about views.
 * Include some external library solutions as default, and document them properly.
 * Make code and documentation more consistent, and avoid situations when documentation differs from code.
-*
+* Extend basic rest-framework functionalities
 
 Getting Started
 ----------------
