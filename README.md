@@ -1,4 +1,4 @@
-### audoma - API Automatic Documentation Maker
+# audoma - API Automatic Documentation Maker
 
 
 [![Audoma test](https://github.com/Iteo/audoma/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Iteo/audoma/actions/workflows/test.yml)

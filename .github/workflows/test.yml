@@ -1,4 +1,4 @@
-a3name: Audoma test
+name: Audoma test
 
 on: [push]
 
