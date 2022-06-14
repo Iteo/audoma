@@ -77,7 +77,6 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
     }
     ```
 
-<<<<<<< HEAD
 * `FieldLinkMixin` - mixin class for serializer fields, which allows you to define OpenApi link on this field.
     To use this your field class must inherit from `FieldLinkMixin`.
     All serializer fields defined in audoma inherits from this mixin.
@@ -127,7 +126,6 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
 
 * `LinkedSerializerMixin` - This mixin allows serializer to collect all links from it's fields. Inheriting from this class is
     necessary to make links render properly in docs. During writing custom serializer, you have to inherit from this mixin to provide OpenApi links funcionality. If you inherit from default audoma serializers `audoma.serializers.Serializer` or `audoma.serializers.ModelSerializer` those has this already implemented.
-=======
     You can also add example directly to model fields. It works the same way as in serializers, just inherit from `ModelExampleMixin`, or
     use audoma's fields defined in `audoma.django.db` and initialize model field with example like shown below.
 
@@ -138,7 +136,6 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
         first_name = models.CharField(max_length=255, example="Tom")
     ```
 
->>>>>>> main
 
 * `DocumentedTypedChoiceFilter` is a wrapper to `df.filters.TypedChoiceFilter` that makes creating documentation easier. It goes out of the box with
     our `make_choices` function for quickly making a namedtuple suitable for use in a django model as a choices attribute on a field that will preserve order.
@@ -181,8 +178,6 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
         ...
     ```
 
-<<<<<<< HEAD
-=======
 * We also support documentation of `MoneyField` from `django-money` package which allows you to handle money and currency values
 
 * `audoma_action` decorator - this is a wrapper for standrad drfs' action decorator. It also handles documenting the action. In this decorator this is possible to pass:
@@ -338,7 +333,6 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
     You may still use standard `@action` decorator with action methods. It'll still work in Audoma.
 
 
->>>>>>> main
 Testing and example application
 ------------
  #### Running example application
