@@ -510,7 +510,34 @@ Money Field
 PhoneNumberField
 ----------------
 
-# TODO - write docs
+Audoma provides a `PhoneNumberField` which is an extension of the `django-phonenumber-field`.
+You can use it in your models straight away, just as the original `PhoneNumberField`_,
+and what we added here is an automatically generated example in documentation, based on country code.
+
+.. _PhoneNumberField: https://github.com/stefanfoulis/django-phonenumber-field
+
+Example:
+
+.. code :: python
+
+        from audoma.django.db import models
+
+        class ExamplePerson(models.Model):
+            ...
+            phone_number = models.PhoneNumberField(region="GB")
+            ...
+
+
+Above will result in the following example in the documentation:
+
+.. code :: json
+
+        {
+            ...
+            "phone_number": "+44 20 7894 5678",
+            ...
+        }
+
 
 Serializer Field links
 ========================

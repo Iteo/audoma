@@ -1,55 +1,121 @@
-
 <!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usage &mdash; audoma - API Automatic Documentation Maker 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
 
-    <title>Usage &#8212; audoma - API Automatic Documentation Maker 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
-
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
-
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Testing And Example Application" href="testing_and_example_application.html" />
     <link rel="prev" title="Installation" href="installation.html" />
-  </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="testing_and_example_application.html" title="Testing And Example Application"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="installation.html" title="Installation"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">audoma - API Automatic Documentation Maker 0.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Usage</a></li>
-      </ul>
-    </div>
+</head>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+<body class="wy-body-for-nav">
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> audoma - API Automatic Documentation Maker
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#viewset-defined-serializers">Viewset defined serializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#permissions">Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#custom-choices">Custom choices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#filters">Filters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#default-filters">Default Filters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#validators">Validators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#exclusivefieldsvalidator">ExclusiveFieldsValidator</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#decorators">Decorators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#extend-schema-field">&#64;extend_schema_field</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#audoma-action">&#64;audoma_action</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#collectors">collectors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#results">results</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#errors">errors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ignore-view-collectors">ignore_view_collectors</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#define-example-for-field">Define example for field</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#define-custom-fields-with-auto-generated-examples">Define custom fields with auto-generated examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#define-custom-example-classes">Define custom example classes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#extra-fields">Extra Fields</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#money-field">Money Field</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#phonenumberfield">PhoneNumberField</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#serializer-field-links">Serializer Field links</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#schema-extensions">Schema Extensions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#x-choices">x-choices</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="testing_and_example_application.html">Testing And Example Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">audoma - API Automatic Documentation Maker</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Usage</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/usage.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
 
   <section id="usage">
-<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h1>
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h1>
 <section id="viewset-defined-serializers">
-<span id="get-serializer-class"></span><h2>Viewset defined serializers<a class="headerlink" href="#viewset-defined-serializers" title="Permalink to this heading">¶</a></h2>
+<span id="get-serializer-class"></span><h2>Viewset defined serializers<a class="headerlink" href="#viewset-defined-serializers" title="Permalink to this heading"></a></h2>
 <div class="line-block">
 <div class="line">By, default Django Rest Framework provides two methods to get a serializer:</div>
 <div class="line"><cite>get_serializer</cite> and <cite>get_serializer_class</cite>.</div>
@@ -139,7 +205,7 @@
 </div>
 </section>
 <section id="permissions">
-<h2>Permissions<a class="headerlink" href="#permissions" title="Permalink to this heading">¶</a></h2>
+<h2>Permissions<a class="headerlink" href="#permissions" title="Permalink to this heading"></a></h2>
 <p>By default, in the <cite>drf-spectacular</cite> viewset permissions were not documented at all.
 Currently, permissions are being documented for each viewset separately.</p>
 <p>You don’t have to define anything extra, this is being handled just out of the box.
@@ -165,7 +231,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 </section>
 <section id="custom-choices">
-<span id="choices"></span><h2>Custom choices<a class="headerlink" href="#custom-choices" title="Permalink to this heading">¶</a></h2>
+<span id="choices"></span><h2>Custom choices<a class="headerlink" href="#custom-choices" title="Permalink to this heading"></a></h2>
 <div class="line-block">
 <div class="line">Audoma provides a convenient method of creating choices, which allows</div>
 <div class="line">referring to choices by their name.</div>
@@ -200,9 +266,9 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 </section>
 <section id="filters">
-<h2>Filters<a class="headerlink" href="#filters" title="Permalink to this heading">¶</a></h2>
+<h2>Filters<a class="headerlink" href="#filters" title="Permalink to this heading"></a></h2>
 <section id="default-filters">
-<h3>Default Filters<a class="headerlink" href="#default-filters" title="Permalink to this heading">¶</a></h3>
+<h3>Default Filters<a class="headerlink" href="#default-filters" title="Permalink to this heading"></a></h3>
 <div class="line-block">
 <div class="line">In <cite>drf</cite>, it’s possible to define <cite>filterset_fields</cite> and <cite>filterset_class</cite>.</div>
 <div class="line">By default, <cite>drf-spectacular`</cite> supports <cite>django-filters</cite>. Which are being documented.</div>
@@ -242,9 +308,9 @@ The only thing it is required is to define permissions on your viewset.</p>
 </section>
 </section>
 <section id="validators">
-<h2>Validators<a class="headerlink" href="#validators" title="Permalink to this heading">¶</a></h2>
+<h2>Validators<a class="headerlink" href="#validators" title="Permalink to this heading"></a></h2>
 <section id="exclusivefieldsvalidator">
-<h3>ExclusiveFieldsValidator<a class="headerlink" href="#exclusivefieldsvalidator" title="Permalink to this heading">¶</a></h3>
+<h3>ExclusiveFieldsValidator<a class="headerlink" href="#exclusivefieldsvalidator" title="Permalink to this heading"></a></h3>
 <div class="line-block">
 <div class="line">This is an additional validator, which allows for defining mutually exclusive fields in the serializer.</div>
 <div class="line">It validates if any of the fields have been given and if not all exclusive fields have been given.</div>
@@ -284,9 +350,9 @@ The only thing it is required is to define permissions on your viewset.</p>
 </section>
 </section>
 <section id="decorators">
-<h2>Decorators<a class="headerlink" href="#decorators" title="Permalink to this heading">¶</a></h2>
+<h2>Decorators<a class="headerlink" href="#decorators" title="Permalink to this heading"></a></h2>
 <section id="extend-schema-field">
-<h3>&#64;extend_schema_field<a class="headerlink" href="#extend-schema-field" title="Permalink to this heading">¶</a></h3>
+<h3>&#64;extend_schema_field<a class="headerlink" href="#extend-schema-field" title="Permalink to this heading"></a></h3>
 <div class="line-block">
 <div class="line">This decorator is a basic <cite>drf-spectacular</cite> decorator, but its behavior has been changed.</div>
 <div class="line">It allows passing the example to the field without using information about the field.</div>
@@ -310,7 +376,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 </section>
 <section id="audoma-action">
-<h3>&#64;audoma_action<a class="headerlink" href="#audoma-action" title="Permalink to this heading">¶</a></h3>
+<h3>&#64;audoma_action<a class="headerlink" href="#audoma-action" title="Permalink to this heading"></a></h3>
 <div class="line-block">
 <div class="line">This is one of the most complex features offered by audoma.</div>
 <div class="line">In fact this is an extension of action decorator, which by default is Django Rest Framewok functionality.</div>
@@ -318,7 +384,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 <div class="line">In the case of <cite>audoma_action</cite>, it is also possible to define additional parameters, such as:</div>
 </div>
 <section id="collectors">
-<h4>collectors<a class="headerlink" href="#collectors" title="Permalink to this heading">¶</a></h4>
+<h4>collectors<a class="headerlink" href="#collectors" title="Permalink to this heading"></a></h4>
 <div class="line-block">
 <div class="line">This param allows defining serializer class which will collect and process request data.</div>
 <div class="line">To define this, action must serve POST/PATCH or PUT method.</div>
@@ -387,7 +453,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 </section>
 <section id="results">
-<h4>results<a class="headerlink" href="#results" title="Permalink to this heading">¶</a></h4>
+<h4>results<a class="headerlink" href="#results" title="Permalink to this heading"></a></h4>
 <div class="line-block">
 <div class="line">This param allows defining custom results for each method and each response status code.</div>
 <div class="line">Results may be defined in three possible forms:</div>
@@ -438,7 +504,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 </section>
 <section id="errors">
-<h4>errors<a class="headerlink" href="#errors" title="Permalink to this heading">¶</a></h4>
+<h4>errors<a class="headerlink" href="#errors" title="Permalink to this heading"></a></h4>
 <div class="line-block">
 <div class="line">This param may be a list of classes and instances of exceptions, which are</div>
 <div class="line">allowed to rise in this action. Such behavior prevents rising, not defined exceptions, and allows</div>
@@ -478,7 +544,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 </section>
 <section id="ignore-view-collectors">
-<h4>ignore_view_collectors<a class="headerlink" href="#ignore-view-collectors" title="Permalink to this heading">¶</a></h4>
+<h4>ignore_view_collectors<a class="headerlink" href="#ignore-view-collectors" title="Permalink to this heading"></a></h4>
 <div class="line-block">
 <div class="line">Boolean variable which tells if audoma_action should fallback to</div>
 <div class="line">default way of retrieving collector from view, if the collector has not been passed</div>
@@ -488,9 +554,9 @@ The only thing it is required is to define permissions on your viewset.</p>
 </section>
 </section>
 <section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h2>
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
 <section id="define-example-for-field">
-<h3>Define example for field<a class="headerlink" href="#define-example-for-field" title="Permalink to this heading">¶</a></h3>
+<h3>Define example for field<a class="headerlink" href="#define-example-for-field" title="Permalink to this heading"></a></h3>
 <div class="line-block">
 <div class="line">Above we described <a class="reference internal" href="#extend-schema-field"><span class="std std-ref">&#64;extend_schema_field</span></a> decorator which allows defining example for field.</div>
 <div class="line">For all fields defined in audoma, there are being examples generated automatically,</div>
@@ -507,7 +573,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 </section>
 <section id="define-custom-fields-with-auto-generated-examples">
-<h3>Define custom fields with auto-generated examples<a class="headerlink" href="#define-custom-fields-with-auto-generated-examples" title="Permalink to this heading">¶</a></h3>
+<h3>Define custom fields with auto-generated examples<a class="headerlink" href="#define-custom-fields-with-auto-generated-examples" title="Permalink to this heading"></a></h3>
 <div class="line-block">
 <div class="line">If you want to define your field with auto example generation,</div>
 <div class="line">it is possible, that your field class should inherit from the base <cite>ExampleMixin</cite> class,</div>
@@ -524,7 +590,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 </section>
 <section id="define-custom-example-classes">
-<h3>Define custom example classes<a class="headerlink" href="#define-custom-example-classes" title="Permalink to this heading">¶</a></h3>
+<h3>Define custom example classes<a class="headerlink" href="#define-custom-example-classes" title="Permalink to this heading"></a></h3>
 <div class="line-block">
 <div class="line">It is possible to define your custom example classes, by default audio has defined</div>
 <div class="line">two specific example classes inside the <cite>audoma.examples</cite> module:</div>
@@ -549,9 +615,9 @@ The only thing it is required is to define permissions on your viewset.</p>
 </section>
 </section>
 <section id="extra-fields">
-<h2>Extra Fields<a class="headerlink" href="#extra-fields" title="Permalink to this heading">¶</a></h2>
+<h2>Extra Fields<a class="headerlink" href="#extra-fields" title="Permalink to this heading"></a></h2>
 <section id="money-field">
-<h3>Money Field<a class="headerlink" href="#money-field" title="Permalink to this heading">¶</a></h3>
+<h3>Money Field<a class="headerlink" href="#money-field" title="Permalink to this heading"></a></h3>
 <div class="line-block">
 <div class="line">Our money field is an extension of the <cite>MoneyField</cite> known from <cite>django_money</cite>.</div>
 <div class="line">This field is defined as one field in the model, but it creates two fields in the database.</div>
@@ -570,12 +636,31 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 </section>
 <section id="phonenumberfield">
-<h3>PhoneNumberField<a class="headerlink" href="#phonenumberfield" title="Permalink to this heading">¶</a></h3>
-<p># TODO - write docs</p>
+<h3>PhoneNumberField<a class="headerlink" href="#phonenumberfield" title="Permalink to this heading"></a></h3>
+<p>Audoma provides a <cite>PhoneNumberField</cite> which is an extension of the <cite>django-phonenumber-field</cite>.
+You can use it in your models straight away, just as the original <a class="reference external" href="https://github.com/stefanfoulis/django-phonenumber-field">PhoneNumberField</a>,
+and what we added here is an automatically generated example in documentation, based on country code.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">audoma.django.db</span> <span class="kn">import</span> <span class="n">models</span>
+
+<span class="k">class</span> <span class="nc">ExamplePerson</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="n">phone_number</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PhoneNumberField</span><span class="p">(</span><span class="n">region</span><span class="o">=</span><span class="s2">&quot;GB&quot;</span><span class="p">)</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>Above will result in the following example in the documentation:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span>{
+    ...
+    &quot;phone_number&quot;: &quot;+44 20 7894 5678&quot;,
+    ...
+}
+</pre></div>
+</div>
 </section>
 </section>
 <section id="serializer-field-links">
-<h2>Serializer Field links<a class="headerlink" href="#serializer-field-links" title="Permalink to this heading">¶</a></h2>
+<h2>Serializer Field links<a class="headerlink" href="#serializer-field-links" title="Permalink to this heading"></a></h2>
 <div class="line-block">
 <div class="line">Audoma allows defining links for serializer fields, which values</div>
 <div class="line">are related to other endpoints. This is useful if you want to limit value choices to</div>
@@ -612,9 +697,9 @@ The only thing it is required is to define permissions on your viewset.</p>
 </ul>
 </section>
 <section id="schema-extensions">
-<h2>Schema Extensions<a class="headerlink" href="#schema-extensions" title="Permalink to this heading">¶</a></h2>
+<h2>Schema Extensions<a class="headerlink" href="#schema-extensions" title="Permalink to this heading"></a></h2>
 <section id="x-choices">
-<h3>x-choices<a class="headerlink" href="#x-choices" title="Permalink to this heading">¶</a></h3>
+<h3>x-choices<a class="headerlink" href="#x-choices" title="Permalink to this heading"></a></h3>
 <div class="line-block">
 <div class="line">This extension is being added to all fields which have limited choice to some range.</div>
 <div class="line">All fields which have defined choices as enum will have this included in their schema.</div>
@@ -665,112 +750,34 @@ The only thing it is required is to define permissions on your viewset.</p>
 </section>
 
 
-            <div class="clearer"></div>
+           </div>
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <div>
-    <h3><a href="index.html">Table of Contents</a></h3>
-    <ul>
-<li><a class="reference internal" href="#">Usage</a><ul>
-<li><a class="reference internal" href="#viewset-defined-serializers">Viewset defined serializers</a></li>
-<li><a class="reference internal" href="#permissions">Permissions</a></li>
-<li><a class="reference internal" href="#custom-choices">Custom choices</a></li>
-<li><a class="reference internal" href="#filters">Filters</a><ul>
-<li><a class="reference internal" href="#default-filters">Default Filters</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#validators">Validators</a><ul>
-<li><a class="reference internal" href="#exclusivefieldsvalidator">ExclusiveFieldsValidator</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#decorators">Decorators</a><ul>
-<li><a class="reference internal" href="#extend-schema-field">&#64;extend_schema_field</a></li>
-<li><a class="reference internal" href="#audoma-action">&#64;audoma_action</a><ul>
-<li><a class="reference internal" href="#collectors">collectors</a></li>
-<li><a class="reference internal" href="#results">results</a></li>
-<li><a class="reference internal" href="#errors">errors</a></li>
-<li><a class="reference internal" href="#ignore-view-collectors">ignore_view_collectors</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#examples">Examples</a><ul>
-<li><a class="reference internal" href="#define-example-for-field">Define example for field</a></li>
-<li><a class="reference internal" href="#define-custom-fields-with-auto-generated-examples">Define custom fields with auto-generated examples</a></li>
-<li><a class="reference internal" href="#define-custom-example-classes">Define custom example classes</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#extra-fields">Extra Fields</a><ul>
-<li><a class="reference internal" href="#money-field">Money Field</a></li>
-<li><a class="reference internal" href="#phonenumberfield">PhoneNumberField</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#serializer-field-links">Serializer Field links</a></li>
-<li><a class="reference internal" href="#schema-extensions">Schema Extensions</a><ul>
-<li><a class="reference internal" href="#x-choices">x-choices</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="testing_and_example_application.html" class="btn btn-neutral float-right" title="Testing And Example Application" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Iteo.</p>
   </div>
-  <div>
-    <h4>Previous topic</h4>
-    <p class="topless"><a href="installation.html"
-                          title="previous chapter">Installation</a></p>
-  </div>
-  <div>
-    <h4>Next topic</h4>
-    <p class="topless"><a href="testing_and_example_application.html"
-                          title="next chapter">Testing And Example Application</a></p>
-  </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/usage.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>document.getElementById('searchbox').style.display = "block"</script>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+
+</footer>
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="testing_and_example_application.html" title="Testing And Example Application"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="installation.html" title="Installation"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">audoma - API Automatic Documentation Maker 0.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Usage</a></li>
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2022, Iteo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.0.
-    </div>
-  </body>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+</body>
 </html>

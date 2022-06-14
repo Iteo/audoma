@@ -6,11 +6,14 @@
 Welcome to audoma - API Automatic Documentation Maker's documentation!
 ======================================================================
 
+Audoma is a Python library that was designed to make Django Rest Framework documentation easier and more automatic.
+It's build on the top of `drf-spectacular` and extends some of its functionalities.
+
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   readme.rst
    installation.rst
    usage.rst
    testing_and_example_application.rst
