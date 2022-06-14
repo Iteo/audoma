@@ -77,6 +77,55 @@ Audoma works with DRF and drf-spectacular, and here are some functionalities add
     }
     ```
 
+* `FieldLinkMixin` - mixin class for serializer fields, which allows you to define OpenApi link on this field.
+    To use this your field class must inherit from `FieldLinkMixin`.
+    All serializer fields defined in audoma inherits from this mixin.
+    Example:
+    ```python
+        class IntegerField(ExampleMixin, FieldLinkMixin, fields.IntegerField):
+            ...
+    ```
+    To use this you simply have to pass dictionary with link config as `audoma_link` keyword argument to field instance.
+    Example:
+    ```python
+
+        class ExampleForeignKeyModelSerializer(serializers.ModelSerializer):
+            id = serializers.IntegerField(
+                choices_link={
+                    "viewname": "related_model_viewset-detail",
+                    "destinations": {"id": "foreign_key"},
+                    "view_kwargs": {"pk": "id"},
+                }
+            )
+        ...
+
+        class ExampleDependedModelSerializer(serializers.ModelSerializer):
+
+            foreign_key = serializers.IntegerField(
+                choices_link={
+                    "viewname": "example_foreign_key_viewset-list",
+                    "sources": {"foreign_key": "id"},
+                }
+            )
+        ...
+    ```
+    **Available Params:**
+    *  viewname[required] - name of related endpoint, related endpoint must be created separately, it should contain exact action
+    *  sources - dictionary of related fields sources. By default framework assumes,
+        that given variable is refering to `$response.body. If you want field to refer to other place, you should pass full refenrence as dict value, more info: https://swagger.io/docs/specification/links/#runtime-expressions
+    * destinations - dictionary of related fields destinations. By default framework assumes,
+        that given variable is refering to `$response.body. If you want field to refer to other place, you should pass full refenrence as dict value, more info: https://swagger.io/docs/specification/links/#runtime-expressions
+    * view_kwargs - kwargs necessary to retrieve view url, those kwargs will be passed to `reverse` method.
+        You should not provide here actual kwargs, only placeholders, Example: `{"foreign_key": "id"}`
+    * description - additional description, necesarry if you want to provide additional explonation to link.
+
+    **Note**:
+    To allow OpenApi links to work properly your serializer class must inherit from `LinkedSerializerMixin`.
+    If your class alread inherits from classes defined in `audoma.serializers`, you don't have to worry about this.
+    This funcionality is already provided.
+
+* `LinkedSerializerMixin` - This mixin allows serializer to collect all links from it's fields. Inheriting from this class is
+    necessary to make links render properly in docs. During writing custom serializer, you have to inherit from this mixin to provide OpenApi links funcionality. If you inherit from default audoma serializers `audoma.serializers.Serializer` or `audoma.serializers.ModelSerializer` those has this already implemented.
     You can also add example directly to model fields. It works the same way as in serializers, just inherit from `ModelExampleMixin`, or
     use audoma's fields defined in `audoma.django.db` and initialize model field with example like shown below.
 

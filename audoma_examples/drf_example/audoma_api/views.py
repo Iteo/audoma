@@ -11,9 +11,11 @@ from audoma_api.exceptions import (
     CustomConflictException,
 )
 from audoma_api.models import (
+    Car,
     ExampleFileModel,
     ExampleModel,
     ExamplePerson,
+    Manufacturer,
 )
 from audoma_api.permissions import (
     AlternatePermission1,
@@ -23,17 +25,20 @@ from audoma_api.permissions import (
     ViewPermission,
 )
 from audoma_api.serializers import (
+    CarModelSerializer,
     ExampleFileModelSerializer,
     ExampleModelCreateSerializer,
     ExampleModelSerializer,
     ExampleOneFieldSerializer,
     ExamplePersonModelSerializer,
     ExampleSerializer,
+    ManufacturerModelSerializer,
     MutuallyExclusiveExampleSerializer,
 )
 from django_filters import rest_framework as df_filters
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
+from rest_framework.filters import SearchFilter
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -97,6 +102,7 @@ class ExampleModelViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
+
     permission_classes = [
         IsAuthenticated,
         ViewAndDetailPermission,
@@ -159,6 +165,28 @@ class ExampleFileUploadViewSet(
     queryset = ExampleFileModel.objects.all()
 
     parser_classes = [MultiPartParser]
+
+
+class ManufacturerViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
+    queryset = Manufacturer.objects.none()
+    serializer_class = ManufacturerModelSerializer
+
+
+class CarViewSet(
+    mixins.ActionModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = Car.objects.none()
+    serializer_class = CarModelSerializer
+
+    filter_backends = [SearchFilter, df_filters.DjangoFilterBackend]
+
+    filterset_fields = ["engine_type"]
+    search_fields = ["=manufacturer", "name"]
 
 
 class MutuallyExclusiveViewSet(

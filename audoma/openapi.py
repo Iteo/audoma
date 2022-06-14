@@ -17,14 +17,20 @@ from rest_framework.views import APIView
 
 from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
 from audoma.drf.validators import ExclusiveFieldsValidator
+from audoma.links import (
+    ChoicesOptionsLink,
+    ChoicesOptionsLinkSchemaGenerator,
+)
 from audoma.openapi_helpers import (
     AudomaApiResponseCreator,
     get_permissions_description,
 )
+from audoma.plumbing import create_choices_enum_description
 
 
 class AudomaAutoSchema(AutoSchema):
     response_creator = AudomaApiResponseCreator()
+    choice_link_schema_generator = ChoicesOptionsLinkSchemaGenerator()
 
     def get_description(self) -> str:
         view = self.view
@@ -96,6 +102,31 @@ class AudomaAutoSchema(AutoSchema):
         """overrides this for custom behaviour"""
         return self._get_serializer(serializer_type="result")
 
+    def _get_enum_choices_for_field(self, field):
+        if hasattr(field, "original_choices"):
+            choices = field.original_choices
+        else:
+            choices = field.choices
+        return {"choices": {key: value for key, value in choices}}
+
+    def _get_link_choices_for_field(self, field, serializer):
+        link = serializer.choices_options_links.get(field.field_name, None)
+        if not link:
+            return
+
+        if isinstance(link, dict):
+            # presume that this dictionary are link kwargs
+            link.update(
+                {"field_name": field.field_name, "serializer_class": type(serializer)}
+            )
+            link = ChoicesOptionsLink(**link)
+
+        choices = self.choice_link_schema_generator.generate_schema(link)
+        if choices:
+            if link.field_name == field.field_name:
+                return choices
+        return
+
     def _map_serializer_field(
         self, field: Field, direction: str, bypass_extensions=False
     ) -> dict:
@@ -103,6 +134,7 @@ class AudomaAutoSchema(AutoSchema):
         Allows to use @extend_schema_field with `field` dict so that
         it gets updated instead of being overriden
         """
+
         has_annotation = (
             hasattr(field, "_spectacular_annotation")
             and "field" in field._spectacular_annotation
@@ -113,8 +145,23 @@ class AudomaAutoSchema(AutoSchema):
             field._spectacular_annotation = {}
 
         result = super()._map_serializer_field(
-            field, direction, bypass_extensions=False
+            field, direction, bypass_extensions=bypass_extensions
         )
+        if hasattr(field, "choices"):
+            result["x-choices"] = self._get_enum_choices_for_field(field)
+            result["description"] = create_choices_enum_description(
+                result["x-choices"]["choices"], field.field_name
+            )
+
+        serializer_type = "collect" if direction == "request" else "result"
+        serializer = self._get_serializer(serializer_type=serializer_type)
+        serializer = force_instance(serializer)
+
+        if hasattr(serializer, "choices_options_links"):
+            choices = self._get_link_choices_for_field(field, serializer)
+            if choices:
+                result["x-choices"] = choices
+
         if has_annotation:
             result.update(annotation["field"])
         return result
