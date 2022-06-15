@@ -14,7 +14,6 @@ from rest_framework.permissions import (
     OperandHolder,
     SingleOperandHolder,
 )
-from rest_framework.serializers import BaseSerializer
 from rest_framework.views import View
 
 
