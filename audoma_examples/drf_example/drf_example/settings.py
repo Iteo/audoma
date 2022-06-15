@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_nose",
 ]
 
 MIDDLEWARE = [
@@ -151,3 +152,12 @@ SPECTACULAR_SETTINGS = {
 
 CURRENCIES = ("USD", "EUR", "GBP", "JPY", "CNY", "INR", "AUD", "NZD", "CHF")
 PHONENUMBER_DEFAULT_FORMAT = "INTERNATIONAL"
+
+TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
+
+NOSE_ARGS = (
+    "--with-coverage",
+    "--cover-inclusive",
+    "--cover-package=audoma_api",
+    "--cover-min-percentage=90",
+)
