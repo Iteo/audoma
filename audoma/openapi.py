@@ -168,15 +168,14 @@ class AudomaAutoSchema(AutoSchema):
 
             # build properties
             properties = {}
-            # TODO - stop using __dict__ here, use something else
-            for key, value in err.__dict__.items():
+            for key, value in vars(err).items():
                 properties[key] = {key: {"type": type(value).__name__}}
 
             parsed_errors[err.status_code] = OpenApiResponse(
                 response={
                     "type": "object",
                     "properties": properties,
-                    "example": err.__dict__,
+                    "example": vars(err),
                 }
             )
         return parsed_errors
