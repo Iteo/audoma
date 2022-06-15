@@ -1,4 +1,3 @@
-import inspect
 from typing import (
     Any,
     List,
@@ -202,9 +201,31 @@ class ListSerializer(ResultSerializerClassMixin, serializers.ListSerializer):
 
 
 class BulkSerializerMixin:
+    @property
+    def id_attr(self):
+        return getattr(self.Meta, "id_field", "id")
+
+    @property
+    def id_lookup_field(self):
+        return self.fields.get(self.id_attr).source or self.id_attr
+
+    def validate(self, data):
+
+        pk_field_name = getattr(self.Meta, "id_field_db_field_name", "id")
+        if self.instance:
+            data_pk = data.get(self.id_attr)
+            existing_pks = [
+                str(x) if isinstance(x, UUID) else x
+                for x in self.instance.values_list(pk_field_name, flat=True)
+            ]
+            if data_pk not in existing_pks:
+                raise serializers.ValidationError(
+                    {self.id_attr: "Record with given key does not exist."}
+                )
+        return super().validate(data)
+
     def to_internal_value(self, data: dict) -> dict:
         ret = super().to_internal_value(data)
-
         id_attr = getattr(self.Meta, "id_field", "id")
         request_method = getattr(
             getattr(self.context.get("view"), "request"), "method", ""
@@ -232,35 +253,33 @@ class BulkSerializerMixin:
 class BulkListSerializer(ListSerializer):
     id_field = "id"
 
-    def update(self, queryset: QuerySet, all_validated_data: List[dict]) -> List[Any]:
-        id_attr = getattr(self.child.Meta, "id_field", "id")
-        all_validated_data_by_id = {i.pop(id_attr): i for i in all_validated_data}
+    @property
+    def id_attr(self):
+        return getattr(self.child.Meta, "id_field", "id")
 
-        if not all(
-            (
-                bool(i) and not inspect.isclass(i)
-                for i in all_validated_data_by_id.keys()
-            )
-        ):
-            raise serializers.ValidationError("")
+    @property
+    def id_lookup_field(self):
+        return self.child.fields.get(self.id_attr).source or self.id_attr
 
-        # since this method is given a queryset which can have many
-        # model instances, first find all objects to update
-        # and only then update the models
-        id_lookup_field = self.child.fields.get(id_attr).source or id_attr
-        objects_to_update = queryset.filter(
+    def data_by_id(self, data):
+        return {i.pop(self.id_attr): i for i in data}
+
+    def objects_to_update(self, queryset, data):
+        return queryset.filter(
             **{
-                "{}__in".format(id_lookup_field): all_validated_data_by_id.keys(),
+                "{}__in".format(self.id_lookup_field): data.keys(),
             }
         )
 
-        if len(all_validated_data_by_id) != objects_to_update.count():
-            raise serializers.ValidationError("Could not find all objects to update.")
+    def update(self, queryset: QuerySet, all_validated_data: List[dict]) -> List[Any]:
 
         updated_objects = []
+        all_validated_data_by_id = self.data_by_id(all_validated_data)
+
+        objects_to_update = self.objects_to_update(queryset, all_validated_data_by_id)
 
         for obj in objects_to_update:
-            obj_id = getattr(obj, id_attr)
+            obj_id = getattr(obj, self.id_attr)
             if isinstance(obj_id, UUID):
                 obj_id = str(obj_id)
             obj_validated_data = all_validated_data_by_id.get(obj_id)
