@@ -48,7 +48,7 @@ def postprocess_common_errors_section(result: dict, request, **kwargs) -> dict:
         exc_desc = ""
         exc_desc = f"Status Code: `{error.status_code}` \n\n"
         rendered_error_data = renderer.render(
-            data=error.__dict__, renderer_context={"indent": 4}
+            data=vars(error), renderer_context={"indent": 4}
         ).decode("utf-8")
 
         exc_desc += f"``` \n {rendered_error_data} \n ``` \n\n"

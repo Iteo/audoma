@@ -47,11 +47,11 @@ this = sys.modules[__name__]
 
 for field_name in field_names:
 
-    class Field(ExampleMixin, getattr(fields, field_name)):
-        pass
-
-    Field.__name__ = field_name
-    setattr(this, field_name, Field)
+    setattr(
+        this,
+        field_name,
+        type(field_name, (ExampleMixin, getattr(fields, field_name)), {}),
+    )
 
 
 class DecimalField(NumericExampleMixin, fields.DecimalField):
