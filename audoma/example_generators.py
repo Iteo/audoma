@@ -4,6 +4,15 @@ import lorem
 
 
 def generate_lorem_ipsum(min_length=20, max_length=80) -> str:
+    """
+    This function generates a random string of lorem ipsum text.
+        Args:
+            min_length (int): The minimum length of the string.
+            max_length (int): The maximum length of the string.
+
+        Returns:
+            str: A random string of lorem ipsum text.
+    """
     random_lorem = lorem.text()
     if len(random_lorem) < min_length:
         random_lorem += lorem.text()

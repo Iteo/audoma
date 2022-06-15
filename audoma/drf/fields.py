@@ -1,3 +1,9 @@
+"""
+This module is an override for default drf's field module.
+Most of those fields, are providing additional example functionality,
+and also has defined schema type.
+"""
+
 import sys
 
 import exrex
@@ -47,11 +53,11 @@ this = sys.modules[__name__]
 
 for field_name in field_names:
 
-    class Field(ExampleMixin, getattr(fields, field_name)):
-        pass
-
-    Field.__name__ = field_name
-    setattr(this, field_name, Field)
+    setattr(
+        this,
+        field_name,
+        type(field_name, (ExampleMixin, getattr(fields, field_name)), {}),
+    )
 
 
 class DecimalField(NumericExampleMixin, fields.DecimalField):

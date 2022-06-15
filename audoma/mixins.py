@@ -9,6 +9,16 @@ from audoma.examples import (
 
 
 class ExampleMixin:
+    """
+    A mixin class that adds an example to the field in documentation by overriding
+    `field` parameter in `_spectacular_annotation`.
+
+    Args:
+        audoma_example_class : Type[Example]
+            The class that will be used to create the example.
+            Depends on the type of field
+    """
+
     audoma_example_class = Example
 
     def __init__(self, *args, example=DEFAULT, **kwargs) -> None:
@@ -35,8 +45,16 @@ class ExampleMixin:
 
 
 class NumericExampleMixin(ExampleMixin):
+    """
+    A mixin class that adds an example to the field in documentation for numeric fields
+    """
+
     audoma_example_class = NumericExample
 
 
 class RegexExampleMixin(ExampleMixin):
+    """
+    A mixin class that adds an example to the field in documentation for regex fields
+    """
+
     audoma_example_class = RegexExample

@@ -9,10 +9,31 @@ from audoma.drf.generics import GenericAPIView
 
 
 class AudomaPagination(PageNumberPagination):
+    """
+    A simple page number based style that supports page numbers as
+    query parameters.
+
+    Note:
+        If this won't be used it'll cause less explicit pagination documentation.
+        This class does not provide any additional functionality.
+
+    Args:
+        page_size (int) - number of items per page - by default this is set to 25
+        max_page_size (int) - maximum number of items per page - by default this is set to 2000
+    """
+
     page_size = 25
     max_page_size = 2000
 
     def get_paginated_response_schema(self, schema: List[dict]) -> dict:
+        """
+        Simple method to add pagination information to the schema.
+
+        Args:
+            schema (List[dict]) - list of schema items
+        Returns:
+            Dictionary with pagination information including examples
+        """
         return {
             "type": "object",
             "properties": {
