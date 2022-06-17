@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 TARGET=$1
 
 if [[ $# -eq 0 ]] ; then
