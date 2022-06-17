@@ -212,7 +212,7 @@ class BulkSerializerMixin:
     def validate(self, data):
 
         pk_field_name = getattr(self.Meta, "id_field_db_field_name", "id")
-        if self.instance:
+        if self.instance and isinstance(self.instance, QuerySet):
             data_pk = data.get(self.id_attr)
             existing_pks = [
                 str(x) if isinstance(x, UUID) else x
