@@ -210,36 +210,36 @@ class BulkUpdateModelMixin(object):
         self.perform_update(serializer)
 
 
-class BulkDestroyModelMixin(object):
-    """
-    Destroy model instances.
-    """
+# class BulkDestroyModelMixin(object):
+#     """
+#     Destroy model instances.
+#     """
 
-    def allow_bulk_destroy(self, qs: Any, filtered: Any) -> bool:
-        """
-        Hook to ensure that the bulk destroy should be allowed.
-        By default this checks that the destroy is only applied to
-        filtered querysets.
-        """
-        return qs is not filtered
+#     def allow_bulk_destroy(self, qs: Any, filtered: Any) -> bool:
+#         """
+#         Hook to ensure that the bulk destroy should be allowed.
+#         By default this checks that the destroy is only applied to
+#         filtered querysets.
+#         """
+#         return qs is not filtered
 
-    def bulk_destroy(self, request: Request, *args, **kwargs) -> Response:
-        qs = self.get_queryset()
+#     def bulk_destroy(self, request: Request, *args, **kwargs) -> Response:
+#         qs = self.get_queryset()
 
-        filtered = self.filter_queryset(qs)
-        if not self.allow_bulk_destroy(qs, filtered):
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+#         filtered = self.filter_queryset(qs)
+#         if not self.allow_bulk_destroy(qs, filtered):
+#             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        self.perform_bulk_destroy(filtered)
+#         self.perform_bulk_destroy(filtered)
 
-        return Response(status=status.HTTP_204_NO_CONTENT)
+#         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    def perform_destroy(self, instance: object) -> None:
-        instance.delete()
+#     def perform_destroy(self, instance: object) -> None:
+#         instance.delete()
 
-    def perform_bulk_destroy(self, objects: Any) -> None:
-        for obj in objects:
-            self.perform_destroy(obj)
+#     def perform_bulk_destroy(self, objects: Any) -> None:
+#         for obj in objects:
+#             self.perform_destroy(obj)
 
 
 class ExampleMixin:

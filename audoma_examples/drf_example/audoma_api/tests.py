@@ -392,20 +392,51 @@ class AudomaBulkOperationsTest(APITestCase):
         self.assertEqual(qs.first().value, 1)
         self.assertEqual(qs.last().value, 2)
 
-    def test_bulk_delete_records(self):
-        ExampleSimpleModel.objects.bulk_create(
-            [
-                ExampleSimpleModel(name="EX1", value=1),
-                ExampleSimpleModel(name="EX2", value=2),
-            ]
-        )
-        resp = self.client.delete(
-            self.list_url, data=[{"name": "EX1"}, {"name": "EX2"}], format="json"
-        )
-        self.assertEqual(resp.status_code, 204)
-        self.assertEqual(
-            ExampleSimpleModel.objects.filter(name__in=["EX1", "EX2"]).count(), 0
-        )
+    # def test_bulk_delete_records(self):
+    #     ExampleSimpleModel.objects.bulk_create(
+    #         [
+    #             ExampleSimpleModel(name="EX1", value=1),
+    #             ExampleSimpleModel(name="EX2", value=2),
+    #         ]
+    #     )
+    #     resp = self.client.delete(
+    #         self.list_url, data=[{"name": "EX1"}, {"name": "EX2"}], format="json"
+    #     )
+    #     self.assertEqual(resp.status_code, 204)
+    #     self.assertEqual(
+    #         ExampleSimpleModel.objects.filter(name__in=["EX1", "EX2"]).count(), 0
+    #     )
+
+    def test_bulk_partial_update_records_invalid_pk(self):
+
+        updated_data = [
+            {
+                "id": 4,
+                "name": "test 1 updated",
+            },
+            {
+                "id": 5,
+                "name": "test 2 updated",
+            },
+        ]
+
+        resp = self.client.patch(self.list_url, updated_data, format="json")
+        self.assertEqual(resp.status_code, 400)
+
+    # def test_bulk_delete_validation(self):
+    #     ExampleSimpleModel.objects.bulk_create(
+    #         [
+    #             ExampleSimpleModel(name="EX1", value=1),
+    #             ExampleSimpleModel(name="EX2", value=2),
+    #         ]
+    #     )
+    #     resp = self.client.delete(
+    #         self.list_url, data=[{"name": "EX2"}, {"name": "EX3"}], format="json"
+    #     )
+    #     self.assertEqual(resp.status_code, 400)
+    #     self.assertEqual(
+    #         ExampleSimpleModel.objects.filter(name__in=["EX1", "EX2"]).count(), 0
+    #     )
 
 
 class AudomaViewsTestCase(SimpleTestCase):
