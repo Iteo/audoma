@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
 from rest_framework.settings import api_settings
 
-from django.core.exceptions import ValidationError
+from django.core import validators
 
 from audoma.examples import (
     DEFAULT,
@@ -182,7 +182,6 @@ class BulkUpdateModelMixin(object):
 
     def bulk_update(self, request: Request, *args, **kwargs) -> Response:
         partial = kwargs.pop("partial", False)
-
         # restrict the update to the filtered queryset
         serializer = self.get_serializer(
             self.filter_queryset(self.get_queryset()),
@@ -190,7 +189,6 @@ class BulkUpdateModelMixin(object):
             many=True,
             partial=partial,
         )
-
         serializer.is_valid(raise_exception=True)
         self.perform_bulk_update(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -218,18 +216,14 @@ class BulkUpdateModelMixin(object):
 #         filtered querysets.
 #         """
 #         return qs is not filtered
-
 #     def bulk_destroy(self, request: Request, *args, **kwargs) -> Response:
 #         qs = self.get_queryset()
-
 #         filtered = self.filter_queryset(qs)
 #         if not self.allow_bulk_destroy(qs, filtered):
 #             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 #         self.perform_bulk_destroy(filtered)
-
 #         return Response(status=status.HTTP_204_NO_CONTENT)
-
 #     def perform_destroy(self, instance: object) -> None:
 #         instance.delete()
 
