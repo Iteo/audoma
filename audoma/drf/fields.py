@@ -47,11 +47,11 @@ this = sys.modules[__name__]
 
 for field_name in field_names:
 
-    class Field(ExampleMixin, getattr(fields, field_name)):
-        pass
-
-    Field.__name__ = field_name
-    setattr(this, field_name, Field)
+    setattr(
+        this,
+        field_name,
+        type(field_name, (ExampleMixin, getattr(fields, field_name)), {}),
+    )
 
 
 class DecimalField(NumericExampleMixin, fields.DecimalField):
@@ -129,3 +129,12 @@ class CharField(ExampleMixin, fields.CharField):
 
 class MoneyField(NumericExampleMixin, MoneyField):
     pass
+
+
+class ChoiceField(ExampleMixin, fields.ChoiceField):
+    def __init__(self, choices, **kwargs):
+        if isinstance(choices, dict):
+            self.original_choices = list(choices.items())
+        else:
+            self.original_choices = choices
+        super().__init__(choices, **kwargs)

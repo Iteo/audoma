@@ -1,0 +1,17 @@
+name: Audoma test
+
+on: [push]
+
+jobs:
+  audoma-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run tests
+        run: |
+          echo "---> Building test image and running tests"
+          cd docker && docker-compose run --rm tests
+      - name: Install dependencies
+        run: pip install -r requirements_dev.txt
+      - name: Run static analysis
+        run: ./static_analysis.sh

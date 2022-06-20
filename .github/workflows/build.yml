@@ -1,0 +1,15 @@
+name: Audoma build
+
+on: [push]
+
+jobs:
+ audoma-build:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v2
+    - name: Install audoma
+      run: |
+        python3 --version
+        echo "hello world"
+        pip install -r requirements_dev.txt
+        pip install ./

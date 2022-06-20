@@ -160,6 +160,7 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
         audoma_models.CurrencyField: CharField,
         ModelJSONField: JSONField,
     }
+    serializer_choice_field = ChoiceField
 
     serializer_choice_field = ChoiceField
 

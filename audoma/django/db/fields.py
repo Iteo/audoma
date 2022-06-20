@@ -1,3 +1,10 @@
+"""Audoma Django model Fields
+This module contains all the fields from Django models with additional functionality.
+By inheriting from Audoma Mixins, an example is generated for each field (i.e. FloatField will have
+example generated based on field's min and max values).
+We can define custom example by simply passing `example` as an argument to the field.
+"""
+
 import random
 import sys
 
@@ -17,8 +24,7 @@ from django.db.models.fields import (  # noqa: F401
 
 from audoma.django import forms
 from audoma.example_generators import generate_lorem_ipsum
-
-from .mixins import ModelExampleMixin
+from audoma.mixins import ModelExampleMixin
 
 
 try:
@@ -62,9 +68,6 @@ class CurrencyField(ModelExampleMixin, djmoney_fields.CurrencyField):
 
 
 class MoneyField(ModelExampleMixin, djmoney_fields.MoneyField):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
     def add_currency_field(self, cls, name):
         """
         Adds CurrencyField instance to a model class and creates example in documentation.

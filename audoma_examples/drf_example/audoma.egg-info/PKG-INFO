@@ -1,0 +1,25 @@
+Metadata-Version: 1.1
+Name: audoma
+Version: 1.1.0
+Summary: API Automatic Documentation Maker - DRF-SPECTACULAR wrapper
+Home-page: UNKNOWN
+Author: ITEO
+Author-email: UNKNOWN
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: OS Independent
+Classifier: Environment :: Web Environment
+Classifier: Topic :: Documentation
+Classifier: Topic :: Software Development :: Code Generators
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Framework :: Django
+Classifier: Framework :: Django :: 2.2
+Classifier: Framework :: Django :: 3.0
+Classifier: Framework :: Django :: 3.1
+Classifier: Framework :: Django :: 3.2

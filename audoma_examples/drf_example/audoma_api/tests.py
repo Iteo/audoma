@@ -6,10 +6,7 @@ from datetime import (
 )
 
 import phonenumbers
-from audoma_api.models import (
-    ExampleModel,
-    ExampleSimpleModel,
-)
+from audoma_api.models import ExampleModel
 from audoma_api.serializers import (
     ExampleModelSerializer,
     ExampleSerializer,
@@ -85,13 +82,6 @@ class AudomaTests(SimpleTestCase):
     def test_model_mapping_all_field_serializer(self):
         example_model_properties = self.redoc_schemas["ExampleModel"]["properties"]
         self.assertEqual(len(ExampleModel._meta.fields), len(example_model_properties))
-
-    def test_filter_params_description_model_viewset(self):
-        choices_desc = "Filter by choice \n * `EX_1` - example 1\n * `EX_2` - example 2\n * `EX_3` - example 3\n"
-        docs_description = self.schema["paths"]["/model_examples/"]["get"][
-            "parameters"
-        ][0]["description"]
-        self.assertEqual(choices_desc, docs_description)
 
     def test_permission_description_extension_model_viewset(self):
         expected_permissions = ExampleModelViewSet.permission_classes
@@ -201,6 +191,69 @@ class AudomaTests(SimpleTestCase):
         ]["content"]
         self.assertEqual(len(example_schema.keys()), 1)
         self.assertEqual(list(example_schema.keys())[0], "multipart/form-data")
+
+    def test_filterset_class_description_in_query_params_schema(self):
+        choices_desc = "Filter by choices \n * `EX_1` - example 1\n * `EX_2` - example 2\n * `EX_3` - example 3\n"
+        docs_description = self.schema["paths"]["/model_examples/"]["get"][
+            "parameters"
+        ][0]["description"]
+        self.assertEqual(choices_desc, docs_description)
+
+    def test_filterset_fields_description_in_query_paramas_schema(self):
+        choices_desc = "Filter by engine_type \n * `1` - Petrol\n * `2` - Diesel\n * `3` - Electric\n * `4` - Hybrid\n"
+        docs_description = self.schema["paths"]["/car_viewset/"]["get"]["parameters"][
+            0
+        ]["description"]
+        self.assertEqual(choices_desc, docs_description)
+
+    def test_search_fields_description(self):
+        expected_search_description = (
+            "Search by: \n* `manufacturer(Exact matches.)` \n* `name` \n"
+        )
+
+        docs_description = self.schema["paths"]["/car_viewset/"]["get"]["parameters"]
+        search_docs_data = docs_description[-1]
+        self.assertEqual(search_docs_data["name"], "search")
+        self.assertEqual(search_docs_data["description"], expected_search_description)
+
+    def test_x_choices_enum_serializer(self):
+        expected_choices = {
+            1: "Sedan",
+            2: "Coupe",
+            3: "Hatchback",
+            4: "Pickup Truck",
+        }
+        choices_schema = self.schema["components"]["schemas"]["CarModel"]["properties"][
+            "body_type"
+        ]["x-choices"]["choices"]
+        for key, item in choices_schema.items():
+            self.assertEqual(item, expected_choices[key])
+
+    def test_x_choices_enum_paramteres(self):
+        expected_choices = {
+            1: "Petrol",
+            2: "Diesel",
+            3: "Electric",
+            4: "Hybrid",
+        }
+        choices_schema = self.schema["paths"]["/car_viewset/"]["get"]["parameters"][0][
+            "schema"
+        ]["x-choices"]["choices"]
+
+        for key, item in choices_schema.items():
+            self.assertEqual(item, expected_choices[key])
+
+    def test_x_choices_link_serializer(self):
+        expected_link = {
+            "operationRef": "#/paths/~1manufacturer_viewset~1",
+            "value": "$response.body#results/*/id",
+            "display": "$response.body#results/*/name",
+        }
+        link_schema = self.schema["components"]["schemas"]["CarModel"]["properties"][
+            "manufacturer"
+        ]["x-choices"]
+        for key, item in link_schema.items():
+            self.assertEqual(item, expected_link[key])
 
     def test_charfield_example_limits(self):
         charfield_redoc = self.redoc_schemas["Example"]["properties"][

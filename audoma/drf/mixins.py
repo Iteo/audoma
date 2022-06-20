@@ -5,7 +5,6 @@ from typing import (
     Union,
 )
 
-from drf_spectacular.drainage import set_override
 from rest_framework import (
     mixins,
     serializers,
@@ -150,7 +149,6 @@ class BulkCreateModelMixin(CreateModelMixin):
         bulk = isinstance(request.data, list)
         if not bulk:
             return super(BulkCreateModelMixin, self).create(request, *args, **kwargs)
-
         else:
             serializer = self.get_serializer(data=request.data, many=True)
             serializer.is_valid(raise_exception=True)
@@ -170,10 +168,8 @@ class BulkUpdateModelMixin(object):
 
     def get_object(self) -> Any:
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
-
         if lookup_url_kwarg in self.kwargs:
             return super().get_object()
-
         # If the lookup_url_kwarg is not present
         # get_object() is most likely called as part of options()
         # which by default simply checks for object permissions
@@ -240,37 +236,3 @@ class BulkUpdateModelMixin(object):
 #     def perform_bulk_destroy(self, objects: Any) -> None:
 #         for obj in objects:
 #             self.perform_destroy(obj)
-
-
-class ExampleMixin:
-    audoma_example_class = Example
-
-    def __init__(self, *args, example=DEFAULT, **kwargs) -> None:
-        self.audoma_example = self.audoma_example_class(self, example)
-        super().__init__(*args, **kwargs)
-        example = self.audoma_example.get_value()
-        if example is not DEFAULT:
-            has_annotation = (
-                hasattr(self, "_spectacular_annotation")
-                and "field" in self._spectacular_annotation
-                and isinstance(self._spectacular_annotation["field"], dict)
-            )
-            example_representation = self.audoma_example.to_representation(example)
-            field = {"example": example_representation}
-            if has_annotation:
-                field = self._spectacular_annotation["field"].copy()
-                field["example"] = example_representation
-
-            set_override(
-                self,
-                "field",
-                field,
-            )
-
-
-class NumericExampleMixin(ExampleMixin):
-    audoma_example_class = NumericExample
-
-
-class RegexExampleMixin(ExampleMixin):
-    audoma_example_class = RegexExample
