@@ -6,7 +6,10 @@ from datetime import (
 )
 
 import phonenumbers
-from audoma_api.models import ExampleModel
+from audoma_api.models import (
+    ExampleModel,
+    Manufacturer,
+)
 from audoma_api.serializers import (
     ExampleModelSerializer,
     ExampleSerializer,
@@ -375,10 +378,13 @@ class AudomaTests(SimpleTestCase):
 class AudomaBulkOperationsTest(APITestCase):
     def setUp(self):
         self.list_url = reverse("bulk-example-list")
-        ExampleSimpleModel.objects.bulk_create(
+        import ipdb
+
+        ipdb.set_trace()
+        Manufacturer.objects.bulk_create(
             [
-                ExampleSimpleModel(name="Example 1", value=1),
-                ExampleSimpleModel(name="Example 2", value=2),
+                Manufacturer(name="Example 1", slug_name="ex_1"),
+                Manufacturer(name="Example 2", slug_name="ex_2"),
             ]
         )
         return super().setUp()
@@ -387,18 +393,18 @@ class AudomaBulkOperationsTest(APITestCase):
         data = [
             {
                 "name": "test 1",
-                "value": 2138,
+                "slug_name": "2138",
             },
             {
                 "name": "test 2",
-                "value": 2137,
+                "slug_name": "2137",
             },
         ]
 
         resp = self.client.post(self.list_url, data, format="json")
         self.assertEqual(201, resp.status_code, resp.json())
 
-        qs = ExampleSimpleModel.objects.all()
+        qs = Manufacturer.objects.all()
         self.assertEqual(qs.count(), 4)
 
     def test_bulk_update_records(self):
@@ -407,22 +413,22 @@ class AudomaBulkOperationsTest(APITestCase):
             {
                 "id": 1,
                 "name": "test 1 updated",
-                "value": 11,
+                "slug_name": "11",
             },
             {
                 "id": 2,
                 "name": "test 2 updated",
-                "value": 22,
+                "slug_name": "22",
             },
         ]
 
         resp = self.client.put(self.list_url, updated_data, format="json")
-        qs = ExampleSimpleModel.objects.all()
+        qs = Manufacturer.objects.all()
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(qs.first().name, "test 1 updated")
         self.assertEqual(qs.last().name, "test 2 updated")
-        self.assertEqual(qs.first().value, 11)
-        self.assertEqual(qs.last().value, 22)
+        self.assertEqual(qs.first().slug_name, "11")
+        self.assertEqual(qs.last().slug_name, "22")
 
     def test_bulk_partial_update_records(self):
 
@@ -438,12 +444,12 @@ class AudomaBulkOperationsTest(APITestCase):
         ]
 
         resp = self.client.patch(self.list_url, updated_data, format="json")
-        qs = ExampleSimpleModel.objects.all()
+        qs = Manufacturer.objects.all()
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(qs.first().name, "test 1 updated")
         self.assertEqual(qs.last().name, "test 2 updated")
-        self.assertEqual(qs.first().value, 1)
-        self.assertEqual(qs.last().value, 2)
+        self.assertEqual(qs.first().slug_name, "1")
+        self.assertEqual(qs.last().slug_name, "2")
 
     # def test_bulk_delete_records(self):
     #     ExampleSimpleModel.objects.bulk_create(
