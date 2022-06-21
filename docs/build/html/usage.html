@@ -14,7 +14,6 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -113,9 +112,9 @@
            <div itemprop="articleBody">
 
   <section id="usage">
-<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h1>
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h1>
 <section id="viewset-defined-serializers">
-<span id="get-serializer-class"></span><h2>Viewset defined serializers<a class="headerlink" href="#viewset-defined-serializers" title="Permalink to this heading"></a></h2>
+<span id="get-serializer-class"></span><h2>Viewset defined serializers<a class="headerlink" href="#viewset-defined-serializers" title="Permalink to this headline"></a></h2>
 <div class="line-block">
 <div class="line">By, default Django Rest Framework provides two methods to get a serializer:</div>
 <div class="line"><cite>get_serializer</cite> and <cite>get_serializer_class</cite>.</div>
@@ -205,7 +204,7 @@
 </div>
 </section>
 <section id="permissions">
-<h2>Permissions<a class="headerlink" href="#permissions" title="Permalink to this heading"></a></h2>
+<h2>Permissions<a class="headerlink" href="#permissions" title="Permalink to this headline"></a></h2>
 <p>By default, in the <cite>drf-spectacular</cite> viewset permissions were not documented at all.
 Currently, permissions are being documented for each viewset separately.</p>
 <p>You don’t have to define anything extra, this is being handled just out of the box.
@@ -231,7 +230,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 </section>
 <section id="custom-choices">
-<span id="choices"></span><h2>Custom choices<a class="headerlink" href="#custom-choices" title="Permalink to this heading"></a></h2>
+<span id="choices"></span><h2>Custom choices<a class="headerlink" href="#custom-choices" title="Permalink to this headline"></a></h2>
 <div class="line-block">
 <div class="line">Audoma provides a convenient method of creating choices, which allows</div>
 <div class="line">referring to choices by their name.</div>
@@ -266,9 +265,9 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 </section>
 <section id="filters">
-<h2>Filters<a class="headerlink" href="#filters" title="Permalink to this heading"></a></h2>
+<h2>Filters<a class="headerlink" href="#filters" title="Permalink to this headline"></a></h2>
 <section id="default-filters">
-<h3>Default Filters<a class="headerlink" href="#default-filters" title="Permalink to this heading"></a></h3>
+<h3>Default Filters<a class="headerlink" href="#default-filters" title="Permalink to this headline"></a></h3>
 <div class="line-block">
 <div class="line">In <cite>drf</cite>, it’s possible to define <cite>filterset_fields</cite> and <cite>filterset_class</cite>.</div>
 <div class="line">By default, <cite>drf-spectacular`</cite> supports <cite>django-filters</cite>. Which are being documented.</div>
@@ -308,9 +307,9 @@ The only thing it is required is to define permissions on your viewset.</p>
 </section>
 </section>
 <section id="validators">
-<h2>Validators<a class="headerlink" href="#validators" title="Permalink to this heading"></a></h2>
+<h2>Validators<a class="headerlink" href="#validators" title="Permalink to this headline"></a></h2>
 <section id="exclusivefieldsvalidator">
-<h3>ExclusiveFieldsValidator<a class="headerlink" href="#exclusivefieldsvalidator" title="Permalink to this heading"></a></h3>
+<h3>ExclusiveFieldsValidator<a class="headerlink" href="#exclusivefieldsvalidator" title="Permalink to this headline"></a></h3>
 <div class="line-block">
 <div class="line">This is an additional validator, which allows for defining mutually exclusive fields in the serializer.</div>
 <div class="line">It validates if any of the fields have been given and if not all exclusive fields have been given.</div>
@@ -350,9 +349,9 @@ The only thing it is required is to define permissions on your viewset.</p>
 </section>
 </section>
 <section id="decorators">
-<h2>Decorators<a class="headerlink" href="#decorators" title="Permalink to this heading"></a></h2>
+<h2>Decorators<a class="headerlink" href="#decorators" title="Permalink to this headline"></a></h2>
 <section id="extend-schema-field">
-<h3>&#64;extend_schema_field<a class="headerlink" href="#extend-schema-field" title="Permalink to this heading"></a></h3>
+<h3>&#64;extend_schema_field<a class="headerlink" href="#extend-schema-field" title="Permalink to this headline"></a></h3>
 <div class="line-block">
 <div class="line">This decorator is a basic <cite>drf-spectacular</cite> decorator, but its behavior has been changed.</div>
 <div class="line">It allows passing the example to the field without using information about the field.</div>
@@ -376,7 +375,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 </section>
 <section id="audoma-action">
-<h3>&#64;audoma_action<a class="headerlink" href="#audoma-action" title="Permalink to this heading"></a></h3>
+<h3>&#64;audoma_action<a class="headerlink" href="#audoma-action" title="Permalink to this headline"></a></h3>
 <div class="line-block">
 <div class="line">This is one of the most complex features offered by audoma.</div>
 <div class="line">In fact this is an extension of action decorator, which by default is Django Rest Framewok functionality.</div>
@@ -384,7 +383,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 <div class="line">In the case of <cite>audoma_action</cite>, it is also possible to define additional parameters, such as:</div>
 </div>
 <section id="collectors">
-<h4>collectors<a class="headerlink" href="#collectors" title="Permalink to this heading"></a></h4>
+<h4>collectors<a class="headerlink" href="#collectors" title="Permalink to this headline"></a></h4>
 <div class="line-block">
 <div class="line">This param allows defining serializer class which will collect and process request data.</div>
 <div class="line">To define this, action must serve POST/PATCH or PUT method.</div>
@@ -453,7 +452,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 </section>
 <section id="results">
-<h4>results<a class="headerlink" href="#results" title="Permalink to this heading"></a></h4>
+<h4>results<a class="headerlink" href="#results" title="Permalink to this headline"></a></h4>
 <div class="line-block">
 <div class="line">This param allows defining custom results for each method and each response status code.</div>
 <div class="line">Results may be defined in three possible forms:</div>
@@ -504,7 +503,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 </section>
 <section id="errors">
-<h4>errors<a class="headerlink" href="#errors" title="Permalink to this heading"></a></h4>
+<h4>errors<a class="headerlink" href="#errors" title="Permalink to this headline"></a></h4>
 <div class="line-block">
 <div class="line">This param may be a list of classes and instances of exceptions, which are</div>
 <div class="line">allowed to rise in this action. Such behavior prevents rising, not defined exceptions, and allows</div>
@@ -544,7 +543,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 </section>
 <section id="ignore-view-collectors">
-<h4>ignore_view_collectors<a class="headerlink" href="#ignore-view-collectors" title="Permalink to this heading"></a></h4>
+<h4>ignore_view_collectors<a class="headerlink" href="#ignore-view-collectors" title="Permalink to this headline"></a></h4>
 <div class="line-block">
 <div class="line">Boolean variable which tells if audoma_action should fallback to</div>
 <div class="line">default way of retrieving collector from view, if the collector has not been passed</div>
@@ -554,9 +553,9 @@ The only thing it is required is to define permissions on your viewset.</p>
 </section>
 </section>
 <section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline"></a></h2>
 <section id="define-example-for-field">
-<h3>Define example for field<a class="headerlink" href="#define-example-for-field" title="Permalink to this heading"></a></h3>
+<h3>Define example for field<a class="headerlink" href="#define-example-for-field" title="Permalink to this headline"></a></h3>
 <div class="line-block">
 <div class="line">Above we described <a class="reference internal" href="#extend-schema-field"><span class="std std-ref">&#64;extend_schema_field</span></a> decorator which allows defining example for field.</div>
 <div class="line">For all fields defined in audoma, there are being examples generated automatically,</div>
@@ -573,7 +572,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 </section>
 <section id="define-custom-fields-with-auto-generated-examples">
-<h3>Define custom fields with auto-generated examples<a class="headerlink" href="#define-custom-fields-with-auto-generated-examples" title="Permalink to this heading"></a></h3>
+<h3>Define custom fields with auto-generated examples<a class="headerlink" href="#define-custom-fields-with-auto-generated-examples" title="Permalink to this headline"></a></h3>
 <div class="line-block">
 <div class="line">If you want to define your field with auto example generation,</div>
 <div class="line">it is possible, that your field class should inherit from the base <cite>ExampleMixin</cite> class,</div>
@@ -590,7 +589,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 </section>
 <section id="define-custom-example-classes">
-<h3>Define custom example classes<a class="headerlink" href="#define-custom-example-classes" title="Permalink to this heading"></a></h3>
+<h3>Define custom example classes<a class="headerlink" href="#define-custom-example-classes" title="Permalink to this headline"></a></h3>
 <div class="line-block">
 <div class="line">It is possible to define your custom example classes, by default audio has defined</div>
 <div class="line">two specific example classes inside the <cite>audoma.examples</cite> module:</div>
@@ -615,9 +614,9 @@ The only thing it is required is to define permissions on your viewset.</p>
 </section>
 </section>
 <section id="extra-fields">
-<h2>Extra Fields<a class="headerlink" href="#extra-fields" title="Permalink to this heading"></a></h2>
+<h2>Extra Fields<a class="headerlink" href="#extra-fields" title="Permalink to this headline"></a></h2>
 <section id="money-field">
-<h3>Money Field<a class="headerlink" href="#money-field" title="Permalink to this heading"></a></h3>
+<h3>Money Field<a class="headerlink" href="#money-field" title="Permalink to this headline"></a></h3>
 <div class="line-block">
 <div class="line">Our money field is an extension of the <cite>MoneyField</cite> known from <cite>django_money</cite>.</div>
 <div class="line">This field is defined as one field in the model, but it creates two fields in the database.</div>
@@ -636,7 +635,7 @@ The only thing it is required is to define permissions on your viewset.</p>
 </div>
 </section>
 <section id="phonenumberfield">
-<h3>PhoneNumberField<a class="headerlink" href="#phonenumberfield" title="Permalink to this heading"></a></h3>
+<h3>PhoneNumberField<a class="headerlink" href="#phonenumberfield" title="Permalink to this headline"></a></h3>
 <p>Audoma provides a <cite>PhoneNumberField</cite> which is an extension of the <cite>django-phonenumber-field</cite>.
 You can use it in your models straight away, just as the original <a class="reference external" href="https://github.com/stefanfoulis/django-phonenumber-field">PhoneNumberField</a>,
 and what we added here is an automatically generated example in documentation, based on country code.</p>
@@ -660,7 +659,7 @@ and what we added here is an automatically generated example in documentation, b
 </section>
 </section>
 <section id="serializer-field-links">
-<h2>Serializer Field links<a class="headerlink" href="#serializer-field-links" title="Permalink to this heading"></a></h2>
+<h2>Serializer Field links<a class="headerlink" href="#serializer-field-links" title="Permalink to this headline"></a></h2>
 <div class="line-block">
 <div class="line">Audoma allows defining links for serializer fields, which values</div>
 <div class="line">are related to other endpoints. This is useful if you want to limit value choices to</div>
@@ -697,9 +696,9 @@ and what we added here is an automatically generated example in documentation, b
 </ul>
 </section>
 <section id="schema-extensions">
-<h2>Schema Extensions<a class="headerlink" href="#schema-extensions" title="Permalink to this heading"></a></h2>
+<h2>Schema Extensions<a class="headerlink" href="#schema-extensions" title="Permalink to this headline"></a></h2>
 <section id="x-choices">
-<h3>x-choices<a class="headerlink" href="#x-choices" title="Permalink to this heading"></a></h3>
+<h3>x-choices<a class="headerlink" href="#x-choices" title="Permalink to this headline"></a></h3>
 <div class="line-block">
 <div class="line">This extension is being added to all fields which have limited choice to some range.</div>
 <div class="line">All fields which have defined choices as enum will have this included in their schema.</div>
