@@ -2,3 +2,13 @@ sphinx==4.3.1
 sphinx-rtd-theme==1.0.0
 readthedocs-sphinx-search==0.1.1
 Django>=2.2.15
+djangorestframework>=3.10,<=3.13.999
+exrex~=0.10.5
+django-phonenumber-field~=6.0.0
+django-macaddress~=1.8.0
+phonenumbers~=8.12.42
+django-extensions~=3.1.5
+django-filter~=21.1
+drf-spectacular~=0.21.2
+django-money~=2.1
+lorem~=0.1
