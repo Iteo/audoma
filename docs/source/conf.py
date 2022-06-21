@@ -17,8 +17,6 @@
 
 # -- Project information -----------------------------------------------------
 
-import os
-import sys
 
 import sphinx_rtd_theme  # noqa: F401
 
@@ -74,10 +72,10 @@ master_doc = "index"
 # This step is necessary to make sphinx-autodoc work properly.
 
 # I've simplified this a little to use append instead of insert.
-sys.path.append(os.path.abspath("../../audoma_examples/drf_example/"))
+# sys.path.append(os.path.abspath("../../audoma_examples/drf_example/"))
 
 # Specify settings module
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "drf_example.settings")
+# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "drf_example.settings")
 
 # Setup Django
-django.setup()
+# django.setup()
