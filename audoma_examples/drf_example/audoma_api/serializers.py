@@ -1,9 +1,11 @@
 from datetime import date
 
 from audoma_api.models import (
+    Car,
     ExampleFileModel,
     ExampleModel,
     ExamplePerson,
+    Manufacturer,
 )
 
 from audoma.choices import make_choices
@@ -55,6 +57,7 @@ class ExampleModelSerializer(serializers.ModelSerializer):
     phone_number = serializers.SerializerMethodField()
 
     class Meta:
+
         model = ExampleModel
         fields = "__all__"
         extra_kwargs = {"char_field": {"example": "lorem ipsum"}}
@@ -73,6 +76,29 @@ class ExamplePersonModelSerializer(serializers.ModelSerializer):
 class ExampleFileModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExampleFileModel
+        fields = "__all__"
+
+
+class ManufacturerModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Manufacturer
+        fields = "__all__"
+
+
+class CarModelSerializer(serializers.ModelSerializer):
+
+    choices_options_links = {
+        "manufacturer": {
+            "viewname": "manufacturer_viewset-list",
+            "value_field": "id",
+            "display_field": "name",
+        }
+    }
+
+    manufacturer = serializers.IntegerField()
+
+    class Meta:
+        model = Car
         fields = "__all__"
 
 
@@ -145,7 +171,7 @@ class ExampleOneFieldSerializer(serializers.Serializer):
 
     RATES = make_choices("RATE", ((0, "LIKE", "Like"), (1, "DISLIKIE", "Dislike")))
 
-    rate = serializers.ChoiceField(choices=RATES)
+    rate = serializers.ChoiceField(choices=RATES.get_choices())
 
     def save(self, **kwargs):
         return self.validated_data

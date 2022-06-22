@@ -135,3 +135,12 @@ class CharField(ExampleMixin, fields.CharField):
 
 class MoneyField(NumericExampleMixin, MoneyField):
     pass
+
+
+class ChoiceField(ExampleMixin, fields.ChoiceField):
+    def __init__(self, choices, **kwargs):
+        if isinstance(choices, dict):
+            self.original_choices = list(choices.items())
+        else:
+            self.original_choices = choices
+        super().__init__(choices, **kwargs)

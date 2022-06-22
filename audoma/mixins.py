@@ -58,3 +58,10 @@ class RegexExampleMixin(ExampleMixin):
     """
 
     audoma_example_class = RegexExample
+
+
+class ModelExampleMixin:
+    def __init__(self, *args, **kwargs) -> None:
+        if kwargs.get("example", None):
+            self.example = kwargs.pop("example", None)
+        super().__init__(*args, **kwargs)

@@ -1,6 +1,8 @@
 from typing import (
     List,
+    Tuple,
     Type,
+    Union,
 )
 
 from drf_spectacular.drainage import cache
@@ -50,3 +52,14 @@ def get_lib_doc_excludes_audoma() -> List[Type]:
             if c.endswith("APIView")
         ],
     ]
+
+
+def create_choices_enum_description(choices: Union[dict, List[Tuple]], field_name):
+
+    if not isinstance(choices, dict):
+        choices = dict(choices)
+
+    description = f"Filter by {field_name} \n"
+    for key, val in choices.items():
+        description += f" * `{key}` - {val}\n"
+    return description

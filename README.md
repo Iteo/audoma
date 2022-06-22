@@ -17,7 +17,7 @@ Main goals of this project are:
 Getting Started
 ----------------
 
-[Installation and configuration](docs/source/installation.rst)
+[Installation and configuration](https://audoma.readthedocs.io/en/latest/installation.html)
 
 
 Features
