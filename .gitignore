@@ -3,3 +3,6 @@
 /build/
 /venv/
 *.sqlite3
+docs/\.doctrees/
+# Sphinx documentation
+docs/_build/
