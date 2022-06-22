@@ -73,6 +73,14 @@ class Result:
 def result_serializer_class(
     SerializerClass: Type[serializers.BaseSerializer],
 ) -> Type[serializers.BaseSerializer]:
+    """
+    Helper function which wraps the serializer result if necessary.
+
+    Args:
+        * SerializerClass - serializer class which result should be wrapped
+
+    Returns: ResultSerializer class
+    """
     if SerializerClass not in embeded_serializer_classes:
         class_name = SerializerClass.__name__
         if class_name.endswith("Serializer"):
@@ -93,6 +101,10 @@ def result_serializer_class(
 
 
 class ResultSerializerClassMixin:
+    """
+    Allows to define wrap for serializer result.
+    """
+
     _wrap_result_serializer = settings.WRAP_RESULT_SERIALIZER
 
     @classmethod
@@ -103,6 +115,12 @@ class ResultSerializerClassMixin:
 
 
 class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
+    """
+    Extends default ModelSerializer,
+    modifies serializer_field_mapping (replaces some fields with audoma fields).
+    Adds support for generating audoma example for field.
+    """
+
     serializer_field_mapping = {
         models.AutoField: IntegerField,
         models.BigIntegerField: IntegerField,
@@ -143,6 +161,9 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
     def build_standard_field(
         self, field_name, model_field
     ) -> Tuple[Union[Type[Field], dict]]:
+        """
+        Adds support for mapping example from model fields to model serializer fields.
+        """
         field_class, field_kwargs = super().build_standard_field(
             field_name, model_field
         )

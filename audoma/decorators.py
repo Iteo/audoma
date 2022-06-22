@@ -36,8 +36,8 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class AudomaArgs:
-    results: Union[dict, BaseSerializer, str]
-    collectors: Union[dict, BaseSerializer]
+    results: Union[dict, Type[BaseSerializer], str]
+    collectors: Union[dict, Type[BaseSerializer]]
     errors: List[Union[Exception, Type[Exception]]]
 
 
@@ -46,6 +46,29 @@ class AudomaActionException(Exception):
 
 
 class audoma_action:
+    """
+    This is a custom action decorator which allows to define collectors, results and errors.
+    This decorator also applies the collect serializer if such has been defined.
+    It also prevents from raising not defined errors, so if you want to raise an exception
+    its' object or class has to be passed into audoma_action decorator.
+
+    Args:
+        collectors - collect serializers, it may be passed as a dict: {'http_method': serializer_class}
+                        or just as a serializer_class. Those serializer are being used to
+                        collect data from user.
+                        NOTE: - it is not possible to define collectors for SAFE_METHODS
+        results - response serializers/messages, it may be passed as a dict in three forms:
+                    * {'http_method': serializer_class}
+                    * {'http_method': {status_code: serializer_class, status_code: serializer_class}}
+                    * {status_code: serializer_class}
+                    * just as a serializer_class
+        errors - list of exception objects, list of exceptions which may be raised in decorated method.
+                    'audoma_action' will not allow raising any other exceptions than those
+        ignore_view_collectors - If set to True, decorator is ignoring view collect serializers.
+                    May be useful if we don't want to falback to default view collect serializer retrieval.
+
+    """
+
     def _sanitize_kwargs(self, kwargs: dict) -> dict:
         if kwargs.get("serializer_class", None):
             raise ImproperlyConfigured(
@@ -62,7 +85,9 @@ class audoma_action:
         This prevents defining Exception Type and same Type instance in errors list.
 
         Args:
-            * errors - list of error to be sanitazed
+            errors - list of error to be sanitazed
+
+        Returns sanitized errors list.
         """
         if not _errors:
             return _errors
@@ -102,26 +127,6 @@ class audoma_action:
         ignore_view_collectors: bool = False,
         **kwargs,
     ) -> None:
-        """
-        This is a custom action decorator which allows to define collectors, results and errors.
-        This decorator also applies the collect serializer if such has been defined.
-        It also prevents from raising not defined errors, so if you want to raise an exception
-        its' object or class has to be passed into audoma_action decorator.
-
-            * collectors - collect serializers, it may be passed as a dict: {'http_method': serializer_class}
-                            or just as a serializer_class. Those serializer are being used to
-                            collect data from user.
-                            NOTE: - it is not possible to define collectors for SAFE_METHODS
-            * results - response serializers/messages, it may be passed as a dict in three forms:
-                        * {'http_method': serializer_class}
-                        * {'http_method': {status_code: serializer_class, status_code: serializer_class}}
-                        * {status_code: serializer_class}
-                        or just as a serializer_class
-            * errors - list of exception objects, list of exceptions which may be raised in decorated method.
-                        'audoma_action' will not allow raising any other exceptions than those
-            * ignore_view_collectors - If set to True, decorator is ignoring view collect serializers.
-                        May be useful if we don't want to falback to default view collect serializer retrieval.
-        """
         self.collectors = collectors or {}
         self.results = results or {}
         self.ignore_view_collectors = ignore_view_collectors
@@ -148,7 +153,11 @@ class audoma_action:
         This is an internal helper method.
         Beacuse we accept errors as instances and classes
         it helps to determine which one is passed.
-        It returns the instance and the class of the passed error.
+
+        Args:
+            * error - error object or class
+
+        Returns: instance and class of passed exception.
         """
         if isclass(error):
             error_class = error
@@ -168,8 +177,10 @@ class audoma_action:
         of the same type as the processed error.
         It simply returns a list of those errors.
         Args:
-            * errors - list of errors, allowed to be risen in decorated view
-            * processed_error_class
+            errors - list of errors, allowed to be risen in decorated view
+            processed_error_class - an exception which has been raised in decorated view
+
+        Returns a List of exceptions and exception classes, with matching exception type.
         """
         type_matched_exceptions = []
         for error in errors:
@@ -195,9 +206,12 @@ class audoma_action:
         To ensure that errors are the same it checks if both errors, have the same content.
 
         Args:
-            * raised_error - error which has been risen
-            * catched_error - error catched in try/except block
-            * view - APIView object
+            raised_error - error which has been risen
+            catched_error - error catched in try/except block
+            view - APIView object
+
+        Returns:
+            True if both errors have the same content, False otherwise.
         """
         handler = view.get_exception_handler()
         handler_context = view.get_exception_handler_context()
@@ -229,9 +243,12 @@ class audoma_action:
         There will be additioanla exception raised or logged, depends on the DEBUG setting.
 
         Args:
-            * processed_error - the error which has been risen
-            * errors - list of errors which may be raised in decorated method
-            * view - APIView object
+            processed_error - the error which has been risen
+            errors - list of errors which may be raised in decorated method
+            view - APIView object
+
+        Returns:
+            processed_error instance if such error has been defined.
         """
         (
             processed_error_instance,
@@ -274,13 +291,17 @@ class audoma_action:
         """
         Retrieves collecotr serializer class and it's config variables.
         Args:
-            * request - request object
-            * func - decorated function
-            * view - view object, which action func belongs to
+            request - request object
+            func - decorated function
+            view - view object, which action func belongs to
 
-        Config variables:
-            * partial - says if serializer update should be partial or not.
-            * view_instance - instance retrieved from view
+        Returns:
+            Serializer class and it's config variables.
+
+            Config variables:
+                partial - says if serializer update should be partial or not.
+                view_instance - instance retrieved from view
+
         """
         collect_serializer_class = None
         partial = False
@@ -312,10 +333,13 @@ class audoma_action:
         Perform additional checks for variables returned by view action method.
 
         Args:
-            * code - status code of the response, returned as an int
-            * instance - instance which will be passed to the response serializer
-            * response_operation - serializer class, APIException or string instance which
-                        will be used to create the response
+            code - status code of the response, returned as an int
+            instance - instance which will be passed to the response serializer
+            response_operation - serializer class, APIException or string instance which
+                      will be used to create the response
+
+        Returns:
+            None
         """
 
         if code is None:
@@ -329,7 +353,17 @@ class audoma_action:
                     method may not be None if result operation is not str message"
             )
 
-    def __call__(self, func: Callable) -> Response:
+    def __call__(self, func: Callable) -> Callable:
+        """ "
+        Call of audoma_action decorator.
+        This is where the magic happends.
+
+        Args:
+            func - decorated function
+
+        Returns:
+            wrapper callable.
+        """
         func._audoma = AudomaArgs(
             collectors=self.collectors, results=self.results, errors=self.errors
         )
@@ -337,7 +371,7 @@ class audoma_action:
         func = self.framework_decorator(func)
 
         @wraps(func)
-        def wrapper(view: APIView, request: Request, *args, **kwargs):
+        def wrapper(view: APIView, request: Request, *args, **kwargs) -> Response:
             # extend errors too allow default errors occurance
             errors = func._audoma.errors
             errors += audoma_settings.COMMON_API_ERRORS + getattr(

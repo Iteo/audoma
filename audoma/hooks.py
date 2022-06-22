@@ -16,7 +16,7 @@ def preprocess_include_path_format(
     endpoints: Tuple[str, str, str, Callable], **kwargs
 ) -> List[Tuple[str, str, str, Callable]]:
     """
-    preprocessing hook that filters {format} prefdixed paths, in case
+    Preprocessing hook that filters {format} prefdixed paths, in case
     schema pattern prefix is used and {format} path params are wanted.
     """
     format_path = project_settings.SCHEMA_PATTERN_PREFIX
