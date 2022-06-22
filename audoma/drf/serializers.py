@@ -211,15 +211,16 @@ class BulkSerializerMixin:
         return self.fields.get(self.id_attr).source or self.id_attr
 
     def validate(self, data):
-
         pk_field_name = getattr(self.Meta, "id_field_db_field_name", "id")
-        if self.instance and isinstance(self.instance, QuerySet):
+
+        if not self.instance is None and isinstance(self.instance, QuerySet):
             data_pk = data.get(self.id_attr)
             existing_pks = [
                 str(x) if isinstance(x, UUID) else x
                 for x in self.instance.values_list(pk_field_name, flat=True)
             ]
             if data_pk not in existing_pks:
+                # import ipdb; ipdb.set_trace()
                 raise serializers.ValidationError(
                     {self.id_attr: "Record with given key does not exist."}
                 )
@@ -273,7 +274,6 @@ class BulkListSerializer(ListSerializer):
         )
 
     def update(self, queryset: QuerySet, all_validated_data: List[dict]) -> List[Any]:
-
         updated_objects = []
         all_validated_data_by_id = self.data_by_id(all_validated_data)
 

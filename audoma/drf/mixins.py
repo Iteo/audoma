@@ -15,14 +15,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
 from rest_framework.settings import api_settings
 
-from django.core import validators
-
-from audoma.examples import (
-    DEFAULT,
-    Example,
-    NumericExample,
-    RegexExample,
-)
+from django.core.exceptions import ValidationError
 
 
 class ActionModelMixin:

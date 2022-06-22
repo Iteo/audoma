@@ -11,6 +11,10 @@ from audoma_api.models import (
 from audoma.choices import make_choices
 from audoma.drf import serializers
 from audoma.drf.decorators import document_and_format
+from audoma.drf.serializers import (
+    BulkListSerializer,
+    BulkSerializerMixin,
+)
 from audoma.drf.validators import ExclusiveFieldsValidator
 
 
@@ -82,9 +86,10 @@ class ExampleFileModelSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class ManufacturerModelSerializer(serializers.ModelSerializer):
+class ManufacturerModelSerializer(BulkSerializerMixin, serializers.ModelSerializer):
     class Meta:
         model = Manufacturer
+        list_serializer_class = BulkListSerializer
         fields = "__all__"
 
 

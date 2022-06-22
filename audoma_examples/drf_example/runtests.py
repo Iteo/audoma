@@ -14,5 +14,10 @@ if __name__ == "__main__":
     call_command("migrate")
     TestRunner = get_runner(settings)
     test_runner = TestRunner()
-    failures = test_runner.run_tests((["audoma_api"]))
+    tests_to_run = ["audoma_api"]
+    try:
+        tests_to_run = [sys.argv[1]]
+    except IndexError:
+        pass
+    failures = test_runner.run_tests((tests_to_run))
     sys.exit(bool(failures))

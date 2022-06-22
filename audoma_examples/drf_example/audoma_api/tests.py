@@ -378,9 +378,6 @@ class AudomaTests(SimpleTestCase):
 class AudomaBulkOperationsTest(APITestCase):
     def setUp(self):
         self.list_url = reverse("bulk-example-list")
-        import ipdb
-
-        ipdb.set_trace()
         Manufacturer.objects.bulk_create(
             [
                 Manufacturer(name="Example 1", slug_name="ex_1"),
@@ -408,7 +405,6 @@ class AudomaBulkOperationsTest(APITestCase):
         self.assertEqual(qs.count(), 4)
 
     def test_bulk_update_records(self):
-
         updated_data = [
             {
                 "id": 1,
@@ -445,11 +441,11 @@ class AudomaBulkOperationsTest(APITestCase):
 
         resp = self.client.patch(self.list_url, updated_data, format="json")
         qs = Manufacturer.objects.all()
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 200, resp.json())
         self.assertEqual(qs.first().name, "test 1 updated")
         self.assertEqual(qs.last().name, "test 2 updated")
-        self.assertEqual(qs.first().slug_name, "1")
-        self.assertEqual(qs.last().slug_name, "2")
+        self.assertEqual(qs.first().slug_name, "ex_1")
+        self.assertEqual(qs.last().slug_name, "ex_2")
 
     # def test_bulk_delete_records(self):
     #     ExampleSimpleModel.objects.bulk_create(

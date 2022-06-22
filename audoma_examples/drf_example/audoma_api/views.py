@@ -168,9 +168,16 @@ class ExampleFileUploadViewSet(
 
 
 class ManufacturerViewSet(
-    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+    mixins.ActionModelMixin,
+    mixins.BulkCreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.BulkUpdateModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
 ):
-    queryset = Manufacturer.objects.none()
+    queryset = Manufacturer.objects.all()
     serializer_class = ManufacturerModelSerializer
 
 
