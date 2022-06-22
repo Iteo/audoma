@@ -60,11 +60,6 @@ audoma.django.db.fields
    :members:
 
 
-audoma.django.db.mixins
-========================
-.. automodule:: audoma.django.db.mixins
-   :members:
-   :undoc-members:
 
 audoma.django.forms.fields
 ===========================

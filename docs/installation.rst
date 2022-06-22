@@ -3,7 +3,7 @@ Installation
 ==============
 
 Python version
-===========
+==============
 Audoma supports and was tested for the following versions of python:
     * python 3.7
     * python 3.8
@@ -36,7 +36,7 @@ These distributions will be installed automatically when installing audoma (if y
 .. _lorem: https://pypi.org/project/lorem/
 
 Install and configure Audoma
-==============
+============================
 
 Using `pip`:
 
