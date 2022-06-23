@@ -190,7 +190,7 @@ class DisplayNameWritableField(serializers.ChoiceField):
         # serializer_field.parentu
         return self.original_choices.get(value, value)
 
-    def to_internal_value(self, data: str) -> Union[dict, ValidationError]:
+    def to_internal_value(self, data: str) -> dict:
         try:
             return self.choices_inverted_dict[data.title()]
         except KeyError:
@@ -213,7 +213,7 @@ class BulkSerializerMixin:
     def validate(self, data):
         pk_field_name = getattr(self.Meta, "id_field_db_field_name", "id")
 
-        if not self.instance is None and isinstance(self.instance, QuerySet):
+        if self.instance is not None and isinstance(self.instance, QuerySet):
             data_pk = data.get(self.id_attr)
             existing_pks = [
                 str(x) if isinstance(x, UUID) else x
