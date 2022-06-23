@@ -270,7 +270,7 @@ class AudomaAutoSchema(AutoSchema):
         if hasattr(field, "original_choices"):
             choices = field.original_choices
         else:
-            choices = field.choices
+            choices = field.choices.items()
         return {"choices": {key: value for key, value in choices}}
 
     def _get_link_choices_for_field(self, field, serializer):
