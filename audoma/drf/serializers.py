@@ -190,7 +190,7 @@ class DisplayNameWritableField(serializers.ChoiceField):
         # serializer_field.parentu
         return self.original_choices.get(value, value)
 
-    def to_internal_value(self, data: dict) -> Any:
+    def to_internal_value(self, data: str) -> Union[dict, ValidationError]:
         try:
             return self.choices_inverted_dict[data.title()]
         except KeyError:
@@ -220,7 +220,6 @@ class BulkSerializerMixin:
                 for x in self.instance.values_list(pk_field_name, flat=True)
             ]
             if data_pk not in existing_pks:
-                # import ipdb; ipdb.set_trace()
                 raise serializers.ValidationError(
                     {self.id_attr: "Record with given key does not exist."}
                 )

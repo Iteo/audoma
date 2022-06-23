@@ -2,7 +2,6 @@ from typing import (
     Any,
     Dict,
     List,
-    Union,
 )
 
 from rest_framework import (
@@ -149,7 +148,7 @@ class BulkCreateModelMixin(CreateModelMixin):
             serializer = self.get_result_serializer(serializer.instance, many=True)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def perform_bulk_create(self, serializer: Union[dict, BaseSerializer]) -> None:
+    def perform_bulk_create(self, serializer: BaseSerializer) -> None:
         self.perform_create(serializer)
 
 
@@ -190,10 +189,10 @@ class BulkUpdateModelMixin(object):
         kwargs["partial"] = True
         return self.bulk_update(request, *args, **kwargs)
 
-    def perform_update(self, serializer: Union[dict, BaseSerializer]) -> None:
+    def perform_update(self, serializer: BaseSerializer) -> None:
         serializer.save()
 
-    def perform_bulk_update(self, serializer: Union[dict, BaseSerializer]) -> None:
+    def perform_bulk_update(self, serializer: BaseSerializer) -> None:
         self.perform_update(serializer)
 
 
