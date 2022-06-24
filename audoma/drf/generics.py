@@ -25,11 +25,15 @@ class GenericAPIView(generics.GenericAPIView):
         Returns:
             Object of obtained serializer class.
         """
+        many = kwargs.get("many", False)
+
         serializer_type = kwargs.pop("serializer_type", "collect")
         serializer_class = kwargs.pop(
-            "serializer_class", self.get_serializer_class(type=serializer_type)
+            "serializer_class",
+            self.get_serializer_class(type=serializer_type, many=many),
         )
         kwargs["context"] = self.get_serializer_context()
+
         return serializer_class(*args, **kwargs)
 
     # needed by AudomaSwaggerAutoSchema
@@ -40,7 +44,9 @@ class GenericAPIView(generics.GenericAPIView):
         """
         return self.get_serializer(*args, serializer_type="result", **kwargs)
 
-    def get_serializer_class(self, type: str = "collect") -> Type[BaseSerializer]:
+    def get_serializer_class(
+        self, type: str = "collect", many: bool = False
+    ) -> Type[BaseSerializer]:
         """
         Extends defuault `get_serializer_class` method.
         This returns proper serializer_class for current request.
@@ -93,6 +99,6 @@ class GenericAPIView(generics.GenericAPIView):
             and hasattr(serializer_class, "get_result_serializer_class")
         ):
             assert callable(serializer_class.get_result_serializer_class)
-            serializer_class = serializer_class.get_result_serializer_class()
+            serializer_class = serializer_class.get_result_serializer_class(many=many)
 
         return serializer_class

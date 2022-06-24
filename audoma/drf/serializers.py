@@ -1,14 +1,17 @@
 from typing import (
     Any,
+    List,
     Tuple,
     Type,
     Union,
 )
+from uuid import UUID
 
 from rest_framework import serializers
 from rest_framework.serializers import *  # noqa: F403, F401
 
 from django.db import models
+from django.db.models import QuerySet
 
 from audoma import settings
 from audoma.django.db import models as audoma_models
@@ -66,12 +69,15 @@ embeded_serializer_classes = {}
 
 
 class Result:
-    def __init__(self, result: Any) -> None:
-        self.result = result
+    def __init__(self, result: Any, many: bool = False) -> Any:
+        if many:
+            self.results = result
+        else:
+            self.result = result
 
 
 def result_serializer_class(
-    SerializerClass: Type[serializers.BaseSerializer],
+    SerializerClass: Type[serializers.BaseSerializer], many: bool = False
 ) -> Type[serializers.BaseSerializer]:
     """
     Helper function which wraps the serializer result if necessary.
@@ -88,8 +94,24 @@ def result_serializer_class(
         else:
             class_name += "Result"
 
+        class ManyResultSerializer(serializers.Serializer):
+            results = SerializerClass(many=True)
+
+            def __init__(self, instance: Any = None, **kwargs) -> None:
+                instance = Result(instance, many=True)
+                super().__init__(instance=instance, **kwargs)
+
         class ResultSerializer(serializers.Serializer):
             result = SerializerClass()
+
+            def __new__(cls, *args, **kwargs) -> Serializer:
+                _many = kwargs.pop("many", False)
+
+                if _many:
+                    instance = ManyResultSerializer(*args, **kwargs)
+                else:
+                    instance = super().__new__(cls, *args, **kwargs)
+                return instance
 
             def __init__(self, instance: Any = None, **kwargs) -> None:
                 instance = Result(instance)
@@ -108,9 +130,11 @@ class ResultSerializerClassMixin:
     _wrap_result_serializer = settings.WRAP_RESULT_SERIALIZER
 
     @classmethod
-    def get_result_serializer_class(cls) -> Type[serializers.BaseSerializer]:
+    def get_result_serializer_class(
+        cls, many: bool = False
+    ) -> Type[serializers.BaseSerializer]:
         if cls._wrap_result_serializer:
-            return result_serializer_class(cls)
+            return result_serializer_class(cls, many=many)
         return cls
 
 
@@ -187,8 +211,101 @@ class DisplayNameWritableField(serializers.ChoiceField):
         # serializer_field.parentu
         return self.original_choices.get(value, value)
 
-    def to_internal_value(self, data: str) -> Any:
+    def to_internal_value(self, data: str) -> dict:
         try:
             return self.choices_inverted_dict[data.title()]
         except KeyError:
             raise serializers.ValidationError('"%s" is not valid choice.' % data)
+
+
+class ListSerializer(ResultSerializerClassMixin, serializers.ListSerializer):
+    pass
+
+
+class BulkSerializerMixin:
+    @property
+    def id_attr(self):
+        return getattr(self.Meta, "id_field", "id")
+
+    @property
+    def id_lookup_field(self):
+        return self.fields.get(self.id_attr).source or self.id_attr
+
+    def validate(self, data):
+        pk_field_name = getattr(self.Meta, "id_field_db_field_name", "id")
+
+        if self.instance is not None and isinstance(self.instance, QuerySet):
+            data_pk = data.get(self.id_attr)
+            existing_pks = [
+                str(x) if isinstance(x, UUID) else x
+                for x in self.instance.values_list(pk_field_name, flat=True)
+            ]
+            if data_pk not in existing_pks:
+                raise serializers.ValidationError(
+                    {self.id_attr: "Record with given key does not exist."}
+                )
+        return super().validate(data)
+
+    def to_internal_value(self, data: dict) -> dict:
+        ret = super().to_internal_value(data)
+        id_attr = getattr(self.Meta, "id_field", "id")
+        request_method = getattr(
+            getattr(self.context.get("view"), "request"), "method", ""
+        )
+
+        # add id_field field back to validated data
+        # since super by default strips out read-only fields
+        # hence id will no longer be present in validated_data
+
+        if all(
+            (
+                isinstance(self.root, BulkListSerializer),
+                id_attr,
+                request_method in ("PUT", "PATCH"),
+            )
+        ):
+            id_field = self.fields[id_attr]
+            id_value = id_field.get_value(data)
+
+            ret[id_attr] = id_value
+
+        return ret
+
+
+class BulkListSerializer(ListSerializer):
+    id_field = "id"
+
+    @property
+    def id_attr(self):
+        return getattr(self.child.Meta, "id_field", "id")
+
+    @property
+    def id_lookup_field(self):
+        return self.child.fields.get(self.id_attr).source or self.id_attr
+
+    def data_by_id(self, data):
+        return {i.pop(self.id_attr): i for i in data}
+
+    def objects_to_update(self, queryset, data):
+        return queryset.filter(
+            **{
+                "{}__in".format(self.id_lookup_field): data.keys(),
+            }
+        )
+
+    def update(self, queryset: QuerySet, all_validated_data: List[dict]) -> List[Any]:
+        updated_objects = []
+        all_validated_data_by_id = self.data_by_id(all_validated_data)
+
+        objects_to_update = self.objects_to_update(queryset, all_validated_data_by_id)
+
+        for obj in objects_to_update:
+            obj_id = getattr(obj, self.id_attr)
+            if isinstance(obj_id, UUID):
+                obj_id = str(obj_id)
+            obj_validated_data = all_validated_data_by_id.get(obj_id)
+            # use model serializer to actually update the model
+            # in case that method is overwritten
+            updated_objects.append(self.child.update(obj, obj_validated_data))
+
+        return updated_objects

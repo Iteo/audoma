@@ -44,6 +44,7 @@ def postprocess_common_errors_section(result: dict, request, **kwargs) -> dict:
     renderer = project_settings.REST_FRAMEWORK.get(
         "DEFAULT_RENDERER_CLASSES", api_settings.DEFAULT_RENDERER_CLASSES
     )[0]
+
     if not callable(renderer):
         renderer = import_string(renderer)
 

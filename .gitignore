@@ -1,7 +1,8 @@
 *.pyc
-/*.egg-info/
-/build/
-/venv/
+*.egg-info/
+build/
+venv/
+dist/
 *.sqlite3
 docs/\.doctrees/
 # Sphinx documentation

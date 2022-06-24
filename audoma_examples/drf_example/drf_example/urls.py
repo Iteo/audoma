@@ -28,13 +28,20 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
-from rest_framework import routers
 
 from django.contrib import admin
 from django.urls import re_path
 
+from audoma.drf import routers
 
+
+# special router to handle PATCH/PUT requests on list endpoints
+
+
+bulk_router = routers.BulkRouter()
 router = routers.DefaultRouter()
+
+bulk_router.register(r"bulk_endpoint", ManufacturerViewSet, "bulk-example")
 
 router.register(r"examples", ExampleViewSet, basename="examples")
 router.register(r"model_examples", ExampleModelViewSet, basename="model_examples")
@@ -63,7 +70,7 @@ router.register(
     basename="permissionless-model-examples",
 )
 
-urlpatterns = router.urls
+urlpatterns = router.urls + bulk_router.urls
 
 urlpatterns += [
     re_path("admin/", admin.site.urls),

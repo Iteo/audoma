@@ -6,6 +6,7 @@ from drf_spectacular.drainage import get_override
 from drf_spectacular.extensions import OpenApiSerializerExtension
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import (
+    build_array_type,
     error,
     force_instance,
     sanitize_specification_extensions,
@@ -27,6 +28,7 @@ from rest_framework.views import APIView
 from django.views import View
 
 from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
+from audoma.drf.serializers import BulkSerializerMixin
 from audoma.drf.validators import ExclusiveFieldsValidator
 from audoma.links import (
     ChoicesOptionsLink,
@@ -333,6 +335,29 @@ class AudomaAutoSchema(AutoSchema):
         if has_annotation:
             result.update(annotation["field"])
         return result
+
+    def _get_request_for_media_type(self, serializer):
+
+        schema, request_body_required = super()._get_request_for_media_type(serializer)
+
+        if isinstance(serializer, BulkSerializerMixin) and self.view.action != "list":
+            schema = {"oneOf": [build_array_type(schema), schema]}
+        return schema, request_body_required
+
+    def _get_response_for_code(self, serializer, status_code, media_types=None):
+
+        schema_resp = super()._get_response_for_code(
+            serializer, status_code, media_types
+        )
+
+        if isinstance(serializer, BulkSerializerMixin) and self.view.action != "list":
+            for media_type in schema_resp["content"]:
+                schema = schema_resp["content"][media_type]["schema"]
+                schema_resp["content"][media_type]["schema"] = {
+                    "oneOf": [build_array_type(schema), schema]
+                }
+
+        return schema_resp
 
     def _build_exclusive_fields_schema(
         self, schema: dict, exclusive_fields: typing.List[str]

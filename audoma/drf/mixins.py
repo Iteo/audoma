@@ -26,11 +26,15 @@ from typing import (
 
 from rest_framework import (
     mixins,
+    serializers,
     status,
 )
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.serializers import BaseSerializer
 from rest_framework.settings import api_settings
+
+from django.core.exceptions import ValidationError
 
 
 class ActionModelMixin:
@@ -134,9 +138,6 @@ class UpdateModelMixin(mixins.UpdateModelMixin):
 
 class DestroyModelMixin(mixins.DestroyModelMixin):
     def destroy(self, request: Request, *args, **kwargs) -> Response:
-        from rest_framework import serializers
-
-        from django.core.exceptions import ValidationError
 
         instance = self.get_object()
         try:
@@ -144,3 +145,100 @@ class DestroyModelMixin(mixins.DestroyModelMixin):
         except ValidationError as e:
             raise serializers.ValidationError({"detail": e.message})
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class BulkCreateModelMixin(CreateModelMixin):
+    """
+    Either create a single or many model instances in bulk by using the
+    Serializers ``many=True`` ability from Django REST >= 2.2.5.
+    .. note::
+        This mixin uses the same method to create model instances
+        as ``CreateModelMixin`` because both non-bulk and bulk
+        requests will use ``POST`` request method.
+    """
+
+    def create(self, request: Request, *args, **kwargs) -> Response:
+        bulk = isinstance(request.data, list)
+        if not bulk:
+            return super(BulkCreateModelMixin, self).create(request, *args, **kwargs)
+        else:
+            serializer = self.get_serializer(data=request.data, many=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_bulk_create(serializer)
+            serializer = self.get_result_serializer(serializer.instance, many=True)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def perform_bulk_create(self, serializer: BaseSerializer) -> None:
+        self.perform_create(serializer)
+
+
+class BulkUpdateModelMixin(object):
+    """
+    Update model instances in bulk by using the Serializers
+    ``many=True`` ability from Django REST >= 2.2.5.
+    """
+
+    def get_object(self) -> Any:
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        if lookup_url_kwarg in self.kwargs:
+            return super().get_object()
+        # If the lookup_url_kwarg is not present
+        # get_object() is most likely called as part of options()
+        # which by default simply checks for object permissions
+        # and raises permission denied if necessary.
+        # Here we don't need to check for general permissions
+        # and can simply return None since general permissions
+        # are checked in initial() which always gets executed
+        # before any of the API actions (e.g. create, update, etc)
+        return
+
+    def bulk_update(self, request: Request, *args, **kwargs) -> Response:
+        partial = kwargs.pop("partial", False)
+        # restrict the update to the filtered queryset
+        serializer = self.get_serializer(
+            self.filter_queryset(self.get_queryset()),
+            data=request.data,
+            many=True,
+            partial=partial,
+        )
+        serializer.is_valid(raise_exception=True)
+        self.perform_bulk_update(serializer)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def partial_bulk_update(self, request: Request, *args, **kwargs) -> Response:
+        kwargs["partial"] = True
+        return self.bulk_update(request, *args, **kwargs)
+
+    def perform_update(self, serializer: BaseSerializer) -> None:
+        serializer.save()
+
+    def perform_bulk_update(self, serializer: BaseSerializer) -> None:
+        self.perform_update(serializer)
+
+
+# class BulkDestroyModelMixin(object):
+#     """
+#     Destroy model instances.
+#     """
+
+#     def allow_bulk_destroy(self, qs: Any, filtered: Any) -> bool:
+#         """
+#         Hook to ensure that the bulk destroy should be allowed.
+#         By default this checks that the destroy is only applied to
+#         filtered querysets.
+#         """
+#         return qs is not filtered
+#     def bulk_destroy(self, request: Request, *args, **kwargs) -> Response:
+#         qs = self.get_queryset()
+#         filtered = self.filter_queryset(qs)
+#         if not self.allow_bulk_destroy(qs, filtered):
+#             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+#         self.perform_bulk_destroy(filtered)
+#         return Response(status=status.HTTP_204_NO_CONTENT)
+#     def perform_destroy(self, instance: object) -> None:
+#         instance.delete()
+
+#     def perform_bulk_destroy(self, objects: Any) -> None:
+#         for obj in objects:
+#             self.perform_destroy(obj)

@@ -6,7 +6,10 @@ from datetime import (
 )
 
 import phonenumbers
-from audoma_api.models import ExampleModel
+from audoma_api.models import (
+    ExampleModel,
+    Manufacturer,
+)
 from audoma_api.serializers import (
     ExampleModelSerializer,
     ExampleSerializer,
@@ -23,6 +26,7 @@ from rest_framework.permissions import BasePermission
 from rest_framework.test import (
     APIClient,
     APIRequestFactory,
+    APITestCase,
 )
 
 from django.conf import settings
@@ -369,6 +373,125 @@ class AudomaTests(SimpleTestCase):
             ],
             "Conflict has occured",
         )
+
+
+class AudomaBulkOperationsTest(APITestCase):
+    def setUp(self):
+        self.list_url = reverse("bulk-example-list")
+        Manufacturer.objects.bulk_create(
+            [
+                Manufacturer(name="Example 1", slug_name="ex_1"),
+                Manufacturer(name="Example 2", slug_name="ex_2"),
+            ]
+        )
+        return super().setUp()
+
+    def test_bulk_create_records(self):
+        data = [
+            {
+                "name": "test 1",
+                "slug_name": "2138",
+            },
+            {
+                "name": "test 2",
+                "slug_name": "2137",
+            },
+        ]
+
+        resp = self.client.post(self.list_url, data, format="json")
+        self.assertEqual(201, resp.status_code, resp.json())
+
+        qs = Manufacturer.objects.all()
+        self.assertEqual(qs.count(), 4)
+
+    def test_bulk_update_records(self):
+        updated_data = [
+            {
+                "id": 1,
+                "name": "test 1 updated",
+                "slug_name": "11",
+            },
+            {
+                "id": 2,
+                "name": "test 2 updated",
+                "slug_name": "22",
+            },
+        ]
+
+        resp = self.client.put(self.list_url, updated_data, format="json")
+        qs = Manufacturer.objects.all()
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(qs.first().name, "test 1 updated")
+        self.assertEqual(qs.last().name, "test 2 updated")
+        self.assertEqual(qs.first().slug_name, "11")
+        self.assertEqual(qs.last().slug_name, "22")
+
+    def test_bulk_partial_update_records(self):
+
+        updated_data = [
+            {
+                "id": 1,
+                "name": "test 1 updated",
+            },
+            {
+                "id": 2,
+                "name": "test 2 updated",
+            },
+        ]
+
+        resp = self.client.patch(self.list_url, updated_data, format="json")
+        qs = Manufacturer.objects.all()
+        self.assertEqual(resp.status_code, 200, resp.json())
+        self.assertEqual(qs.first().name, "test 1 updated")
+        self.assertEqual(qs.last().name, "test 2 updated")
+        self.assertEqual(qs.first().slug_name, "ex_1")
+        self.assertEqual(qs.last().slug_name, "ex_2")
+
+    # def test_bulk_delete_records(self):
+    #     ExampleSimpleModel.objects.bulk_create(
+    #         [
+    #             ExampleSimpleModel(name="EX1", value=1),
+    #             ExampleSimpleModel(name="EX2", value=2),
+    #         ]
+    #     )
+    #     resp = self.client.delete(
+    #         self.list_url, data=[{"name": "EX1"}, {"name": "EX2"}], format="json"
+    #     )
+    #     self.assertEqual(resp.status_code, 204)
+    #     self.assertEqual(
+    #         ExampleSimpleModel.objects.filter(name__in=["EX1", "EX2"]).count(), 0
+    #     )
+
+    def test_bulk_partial_update_records_invalid_pk(self):
+
+        updated_data = [
+            {
+                "id": 4,
+                "name": "test 1 updated",
+            },
+            {
+                "id": 5,
+                "name": "test 2 updated",
+            },
+        ]
+
+        resp = self.client.patch(self.list_url, updated_data, format="json")
+        self.assertEqual(resp.status_code, 400)
+
+    # def test_bulk_delete_validation(self):
+    #     ExampleSimpleModel.objects.bulk_create(
+    #         [
+    #             ExampleSimpleModel(name="EX1", value=1),
+    #             ExampleSimpleModel(name="EX2", value=2),
+    #         ]
+    #     )
+    #     resp = self.client.delete(
+    #         self.list_url, data=[{"name": "EX2"}, {"name": "EX3"}], format="json"
+    #     )
+    #     self.assertEqual(resp.status_code, 400)
+    #     self.assertEqual(
+    #         ExampleSimpleModel.objects.filter(name__in=["EX1", "EX2"]).count(), 0
+    #     )
 
 
 class AudomaViewsTestCase(SimpleTestCase):
