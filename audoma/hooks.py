@@ -8,6 +8,7 @@ from typing import (
 from rest_framework.settings import api_settings
 
 from django.conf import settings as project_settings
+from django.utils.module_loading import import_string
 
 from audoma import settings as audoma_settings
 
@@ -42,7 +43,12 @@ def postprocess_common_errors_section(result: dict, request, **kwargs) -> dict:
 
     renderer = project_settings.REST_FRAMEWORK.get(
         "DEFAULT_RENDERER_CLASSES", api_settings.DEFAULT_RENDERER_CLASSES
-    )[0]()
+    )[0]
+
+    if not callable(renderer):
+        renderer = import_string(renderer)
+
+    renderer = renderer()
 
     def generate_exception_desc(error):
         exc_desc = ""
