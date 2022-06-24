@@ -18,7 +18,7 @@ class AudomaDjangoFilterExtension(DjangoFilterExtension):
         self, auto_schema, model, filterset_class, field_name, filter_field
     ):
         choices = filter_field.extra.get("choices", None) or getattr(
-            filter_field, "choices"
+            filter_field, "choices", None
         )
 
         if choices:
