@@ -1,2 +1,0 @@
-audoma_api
-drf_example
