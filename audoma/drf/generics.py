@@ -5,8 +5,28 @@ from rest_framework.serializers import BaseSerializer
 
 
 class GenericAPIView(generics.GenericAPIView):
+
+    """
+    Extended GenericAPIView known from rest_framework.
+    This class extends `get_serializer` and `get_serializer_class` methods.
+    Also provides `get_result_serializer`, which is a shourtcut for `get_serializer` with proper param.
+    """
+
     def get_serializer(self, *args, **kwargs) -> BaseSerializer:
+        """
+        Passes additional param to `get_serializer_class`.
+
+        kwargs:
+            serializer_type - defines if serializer is collect or result serializer.
+                result serializer will be used to produce response, collect to process incoming data.
+            serializer_class - it is possible to pass serializer_class to get_serializer, this will
+                ends with returning passed serializer_class object.
+
+        Returns:
+            Object of obtained serializer class.
+        """
         many = kwargs.get("many", False)
+
         serializer_type = kwargs.pop("serializer_type", "collect")
         serializer_class = kwargs.pop(
             "serializer_class",
@@ -18,11 +38,26 @@ class GenericAPIView(generics.GenericAPIView):
 
     # needed by AudomaSwaggerAutoSchema
     def get_result_serializer(self, *args, **kwargs) -> BaseSerializer:
+        """
+        Shortuct for get_serializer.
+        Simply has serializer_type set to `result`
+        """
         return self.get_serializer(*args, serializer_type="result", **kwargs)
 
     def get_serializer_class(
         self, type: str = "collect", many: bool = False
     ) -> Type[BaseSerializer]:
+        """
+        Extends defuault `get_serializer_class` method.
+        This returns proper serializer_class for current request.
+
+        Args:
+            type - type of serializer to be returned, it may be collect or result serializer.
+
+        Returns:
+            This returns serializer_class
+
+        """
         assert self.action not in [
             "post",
             "put",
