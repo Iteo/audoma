@@ -22,6 +22,7 @@ from rest_framework.permissions import (
     OperandHolder,
     SingleOperandHolder,
 )
+from rest_framework.relations import RelatedField
 from rest_framework.serializers import BaseSerializer
 from rest_framework.views import APIView
 
@@ -317,7 +318,8 @@ class AudomaAutoSchema(AutoSchema):
         result = super()._map_serializer_field(
             field, direction, bypass_extensions=bypass_extensions
         )
-        if hasattr(field, "choices"):
+
+        if not isinstance(field, RelatedField) and hasattr(field, "choices"):
             result["x-choices"] = self._get_enum_choices_for_field(field)
             result["description"] = create_choices_enum_description(
                 result["x-choices"]["choices"], field.field_name

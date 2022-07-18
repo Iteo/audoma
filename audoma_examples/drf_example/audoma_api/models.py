@@ -54,12 +54,16 @@ def get_random_age():
     return random.randint(18, 80)
 
 
+class Country(models.Model):
+    name = models.CharField(max_length=225, example=get_countries)
+
+
 class ExamplePerson(models.Model):
     first_name = models.CharField(max_length=225, example="Adam")
     last_name = models.CharField(max_length=255, example="Smith")
     age = models.IntegerField(example=get_random_age)
     email = models.EmailField(example="example_person@example.com")
-    birth_country = models.CharField(max_length=255, example=get_countries)
+    birth_country = models.ForeignKey(Country, on_delete=models.CASCADE)
     residence_city = models.CharField(
         max_length=255, example=lazy(lambda: random.choice(example_cities), str)
     )
