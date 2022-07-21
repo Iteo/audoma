@@ -12,3 +12,4 @@ RUN /root/.pyenv/bin/pyenv install 3.7.13  && /root/.pyenv/bin/pyenv install 3.8
 RUN /root/.pyenv/bin/pyenv local 3.7.13 3.8.12 3.9.7
 
 ADD ./ /audoma
+RUN pip install .
