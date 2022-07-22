@@ -15,7 +15,7 @@ long_description = (here / "README.md").read_text()
 
 
 def get_reqiuired_packages():
-    with open(here / "requirements.txt") as f:
+    with open(here / "requirements/base.txt") as f:
         required = f.read().splitlines()
     try:
         django_version = pkg_resources.get_distribution("django").version
