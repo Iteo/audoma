@@ -230,9 +230,7 @@ class AudomaAutoSchema(AutoSchema):
 
         try:
             if isinstance(view, AudomaGenericAPIView):
-                if view.__class__.get_serializer == AudomaGenericAPIView.get_serializer:
-                    return view.get_serializer_class(type=serializer_type)()
-                return view.get_serializer()
+                return view.get_serializer_class(type=serializer_type)()
             elif isinstance(view, GenericAPIView):
                 # try to circumvent queryset issues with calling get_serializer. if view has NOT
                 # overridden get_serializer, its safe to use get_serializer_class.
