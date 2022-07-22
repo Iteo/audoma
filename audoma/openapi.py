@@ -444,11 +444,6 @@ class AudomaAutoSchema(AutoSchema):
     def get_operation(
         self, path, path_regex, path_prefix, method, registry: ComponentRegistry
     ):
-        self.registry = registry
-        self.path = path
-        self.path_regex = path_regex
-        self.path_prefix = path_prefix
-        self.method = method.upper()
         self.is_bulk = False
 
         if "bulk" in getattr(self.view, "action", "") and method in [
@@ -458,40 +453,4 @@ class AudomaAutoSchema(AutoSchema):
         ]:
             self.is_bulk = True
 
-        operation = {"operationId": self.get_operation_id()}
-
-        description = self.get_description()
-        if description:
-            operation["description"] = description
-
-        summary = self.get_summary()
-        if summary:
-            operation["summary"] = summary
-
-        parameters = self._get_parameters()
-        if parameters:
-            operation["parameters"] = parameters
-
-        tags = self.get_tags()
-        if tags:
-            operation["tags"] = tags
-
-        request_body = self._get_request_body()
-        if request_body:
-            operation["requestBody"] = request_body
-
-        auth = self.get_auth()
-        if auth:
-            operation["security"] = auth
-
-        deprecated = self.is_deprecated()
-        if deprecated:
-            operation["deprecated"] = deprecated
-
-        operation["responses"] = self._get_response_bodies()
-
-        extensions = self.get_extensions()
-        if extensions:
-            operation.update(sanitize_specification_extensions(extensions))
-
-        return operation
+        return super().get_operation(path, path_regex, path_prefix, method, registry)
