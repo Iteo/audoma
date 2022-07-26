@@ -1,3 +1,4 @@
+import re
 import typing
 from copy import deepcopy
 from inspect import isclass
@@ -6,6 +7,7 @@ from drf_spectacular.drainage import get_override
 from drf_spectacular.extensions import OpenApiSerializerExtension
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import (
+    ComponentRegistry,
     build_array_type,
     error,
     force_instance,
@@ -228,9 +230,7 @@ class AudomaAutoSchema(AutoSchema):
 
         try:
             if isinstance(view, AudomaGenericAPIView):
-                if view.__class__.get_serializer == AudomaGenericAPIView.get_serializer:
-                    return view.get_serializer_class(type=serializer_type)()
-                return view.get_serializer()
+                return view.get_serializer_class(type=serializer_type)()
             elif isinstance(view, GenericAPIView):
                 # try to circumvent queryset issues with calling get_serializer. if view has NOT
                 # overridden get_serializer, its safe to use get_serializer_class.
@@ -305,6 +305,17 @@ class AudomaAutoSchema(AutoSchema):
         Allows to use @extend_schema_field with `field` dict so that
         it gets updated instead of being overriden
         """
+        serializer_type = "collect" if direction == "request" else "result"
+        serializer = self._get_serializer(serializer_type=serializer_type)
+        serializer = force_instance(serializer)
+
+        if (
+            hasattr(serializer, "Meta")
+            and self.is_bulk
+            and field.field_name == getattr(serializer.Meta, "id_field", None)
+        ):
+            field.read_only = False
+            field.required = True
 
         has_annotation = (
             hasattr(field, "_spectacular_annotation")
@@ -325,10 +336,6 @@ class AudomaAutoSchema(AutoSchema):
                 result["x-choices"]["choices"], field.field_name
             )
 
-        serializer_type = "collect" if direction == "request" else "result"
-        serializer = self._get_serializer(serializer_type=serializer_type)
-        serializer = force_instance(serializer)
-
         if hasattr(serializer, "choices_options_links"):
             choices = self._get_link_choices_for_field(field, serializer)
             if choices:
@@ -341,8 +348,9 @@ class AudomaAutoSchema(AutoSchema):
     def _get_request_for_media_type(self, serializer):
 
         schema, request_body_required = super()._get_request_for_media_type(serializer)
-
-        if isinstance(serializer, BulkSerializerMixin) and self.view.action != "list":
+        if self.is_bulk:
+            schema = build_array_type(schema)
+        if isinstance(serializer, BulkSerializerMixin) and self.view.action == "create":
             schema = {"oneOf": [build_array_type(schema), schema]}
         return schema, request_body_required
 
@@ -352,13 +360,17 @@ class AudomaAutoSchema(AutoSchema):
             serializer, status_code, media_types
         )
 
-        if isinstance(serializer, BulkSerializerMixin) and self.view.action != "list":
+        if self.is_bulk:
+            for media_type in schema_resp["content"]:
+                schema = schema_resp["content"][media_type]["schema"]
+                schema_resp["content"][media_type]["schema"] = build_array_type(schema)
+
+        if isinstance(serializer, BulkSerializerMixin) and self.view.action == "create":
             for media_type in schema_resp["content"]:
                 schema = schema_resp["content"][media_type]["schema"]
                 schema_resp["content"][media_type]["schema"] = {
                     "oneOf": [build_array_type(schema), schema]
                 }
-
         return schema_resp
 
     def _build_exclusive_fields_schema(
@@ -403,3 +415,40 @@ class AudomaAutoSchema(AutoSchema):
             schema.update(sanitize_specification_extensions(extensions))
 
         return self._postprocess_serializer_schema(schema, serializer, direction)
+
+    def get_operation_id(self):
+        """override this for custom behaviour"""
+        tokenized_path = self._tokenize_path()
+
+        if self.is_bulk:
+            tokenized_path.append("bulk")
+
+        # replace dashes as they can be problematic later in code generation
+        tokenized_path = [t.replace("-", "_") for t in tokenized_path]
+
+        if self.method == "GET" and self._is_list_view():
+            action = "list"
+        else:
+            action = self.method_mapping[self.method.lower()]
+
+        if not tokenized_path:
+            tokenized_path.append("root")
+
+        if re.search(r"<drf_format_suffix\w*:\w+>", self.path_regex):
+            tokenized_path.append("formatted")
+
+        return "_".join(tokenized_path + [action])
+
+    def get_operation(
+        self, path, path_regex, path_prefix, method, registry: ComponentRegistry
+    ):
+        self.is_bulk = False
+
+        if "bulk" in getattr(self.view, "action", "") and method in [
+            "POST",
+            "PUT",
+            "PATCH",
+        ]:
+            self.is_bulk = True
+
+        return super().get_operation(path, path_regex, path_prefix, method, registry)
