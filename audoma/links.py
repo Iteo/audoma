@@ -63,7 +63,7 @@ def get_endpoint_pattern(endpoint_name: str, urlconf=None) -> str:
         if "format" not in p.pattern.regex.pattern:
             return str(p.pattern)
 
-    raise NoReverseMatch(f"There is no pattern with name f{endpoint_name}")
+    raise NoReverseMatch(f"There is no pattern with name {endpoint_name}")
 
 
 @dataclass

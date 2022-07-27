@@ -110,8 +110,8 @@ class audoma_action:
         for instance in instances:
             if type(instance) in types:
                 raise ImproperlyConfigured(
-                    f"Something that is not an Exception instance or class has been passed \
-                        to audoma_action errors list. The value which caused exception: {error}"
+                    f"Exception has been passed multiple times as an instance and as type, \
+                        exception type: {type(instance)}"
                 )
             else:
                 sanitized_errors.append(instance)
@@ -356,7 +356,7 @@ class audoma_action:
     def __call__(self, func: Callable) -> Callable:
         """ "
         Call of audoma_action decorator.
-        This is where the magic happends.
+        This is where the magic happens.
 
         Args:
             func - decorated function

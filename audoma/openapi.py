@@ -218,7 +218,6 @@ class AudomaAutoSchema(AutoSchema):
         action_serializers = self._extract_audoma_action_operations(
             view, serializer_type
         )
-
         if action_serializers:
             if (
                 isinstance(action_serializers, dict)
@@ -343,11 +342,13 @@ class AudomaAutoSchema(AutoSchema):
 
         if has_annotation:
             result.update(annotation["field"])
+
         return result
 
     def _get_request_for_media_type(self, serializer):
 
         schema, request_body_required = super()._get_request_for_media_type(serializer)
+        print(type(schema))
         if self.is_bulk:
             schema = build_array_type(schema)
         if isinstance(serializer, BulkSerializerMixin) and self.view.action == "create":
