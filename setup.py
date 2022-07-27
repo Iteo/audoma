@@ -41,7 +41,7 @@ django_classifiers = [
 
 setup(
     name=name,
-    version="1.1.0",
+    version="0.4.2",
     packages=find_packages(),
     install_requires=get_reqiuired_packages(),
     description=description,
