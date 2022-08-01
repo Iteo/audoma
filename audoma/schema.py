@@ -4,6 +4,8 @@ from drf_spectacular.contrib.django_filters import DjangoFilterExtension
 from drf_spectacular.extensions import OpenApiFilterExtension
 from rest_framework.filters import SearchFilter
 
+from audoma.plumbing import create_choices_enum_description
+
 
 class AudomaDjangoFilterExtension(DjangoFilterExtension):
 
@@ -15,12 +17,9 @@ class AudomaDjangoFilterExtension(DjangoFilterExtension):
     def resolve_filter_field(
         self, auto_schema, model, filterset_class, field_name, filter_field
     ):
-        from audoma.plumbing import create_choices_enum_description
-
         choices = filter_field.extra.get("choices", None) or getattr(
             filter_field, "choices", None
         )
-
         if choices:
             # set proper help-text
             filter_field.extra["help_text"] = filter_field.extra.get(

@@ -1,3 +1,5 @@
+import random
+import string
 from typing import (
     Any,
     Dict,
@@ -16,6 +18,8 @@ from rest_framework.request import Request
 from rest_framework.serializers import BaseSerializer
 from rest_framework.test import APIRequestFactory
 from rest_framework.viewsets import ViewSet
+
+from django.db.models import Model
 
 from audoma.decorators import audoma_action
 from audoma.drf.mixins import (
@@ -58,6 +62,29 @@ def create_basic_view(
     view_properties: Dict[str, Any] = None,
 ) -> ViewSet:
     return create_basic_view_class(docstring, view_baseclasses, view_properties)()
+
+
+def _get_random_name(k: int = 10):
+    word = "".join(random.choices(string.ascii_uppercase + string.ascii_lowercase, k=k))
+    return word
+
+
+def create_model_class(
+    fields_config: Dict[str, Field],
+    model_base_classes: Iterable[Type] = None,
+):
+    model_base_classes = model_base_classes or (Model,)
+
+    class Meta:
+        app_label = "audoma_api"
+
+    model_props = {"Meta": Meta, "__module__": "Example"}
+    model_props.update(fields_config)
+    model_name = _get_random_name()
+
+    model = type(model_name, model_base_classes, model_props)
+
+    return model
 
 
 def create_serializer_class(

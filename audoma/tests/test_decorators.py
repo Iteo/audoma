@@ -1,5 +1,6 @@
 from rest_framework.exceptions import (
-    NotAuthenticated,
+    APIException,
+    MethodNotAllowed,
     PermissionDenied,
 )
 from rest_framework.serializers import Serializer
@@ -202,7 +203,6 @@ class AudomaActionTestCase(TestCase):
             self.assertEqual(e.detail, "You are not allowed")
             self.assertEqual(e.status_code, 403)
 
-    # TODO - continue here
     @override_settings(DEBUG=True)
     def test_audoma_action_process_undefined_exception(self):
         request = self.factory.post("/custom_action/")
@@ -211,13 +211,13 @@ class AudomaActionTestCase(TestCase):
             request=request,
             action_kwargs={
                 "results": {201: self.example_result_serializer},
-                "methods": ["POST"],
+                "methods": ["GET"],
                 "detail": False,
                 "errors": [PermissionDenied("You are not allowed")],
             },
             returnables=(self.request_data, 201),
             view_properties={"serializer_class": self.example_collect_serializer},
-            raiseable=NotAuthenticated,
+            raiseable=MethodNotAllowed("POST"),
             raise_exception=True,
         )
         view.method = "post"
@@ -227,4 +227,43 @@ class AudomaActionTestCase(TestCase):
             view.custom_action(request)
         except Exception as e:
             self.assertEqual(type(e), AudomaActionException)
-            self.assertEqual(str(e), "")
+            self.assertEqual(
+                str(e),
+                f"There is no class or instance of {MethodNotAllowed} \
+                    defined in audoma_action errors.",
+            )
+
+    @override_settings(DEBUG=True)
+    def test_audoma_action_process_different_content_exception(self):
+        request = self.factory.post("/custom_action/")
+        request.data = self.request_data
+
+        class CustomException(APIException):
+            default_detail = "This does not seem to work"
+
+        raisable = CustomException("Something else happens")
+        view = create_view_with_custom_audoma_action(
+            request=request,
+            action_kwargs={
+                "results": {201: self.example_result_serializer},
+                "methods": ["GET"],
+                "detail": False,
+                "errors": [CustomException("Something happens")],
+            },
+            returnables=(self.request_data, 201),
+            view_properties={"serializer_class": self.example_collect_serializer},
+            raiseable=raisable,
+            raise_exception=True,
+        )
+        view.method = "post"
+        view.request = request
+        view.action = "custom_action"
+        try:
+            view.custom_action(request)
+        except Exception as e:
+            self.assertEqual(type(e), AudomaActionException)
+            self.assertEqual(
+                str(e),
+                f"Raised error: {raisable} has not been \
+                        defined in audoma_action errors.",
+            )
