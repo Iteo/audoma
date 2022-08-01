@@ -24,13 +24,13 @@ jobs:
           python-version: 3.8
 
       - name: Install pip dependencies
-        run: pip install -r requirements/packaging.txt
+        run: pip install -r requirements_dev.txt
 
       - name: Build the distributions
         run: python setup.py sdist bdist_wheel
 
       - name: Publish the package
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@tag/v1
         with:
           user: __token__
           password: ${{ secrets.AUDOMA_PYPI_TOKEN }}

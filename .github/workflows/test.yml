@@ -12,6 +12,6 @@ jobs:
           echo "---> Building test image and running tests"
           docker-compose -f docker/docker-compose.yml up tests
       - name: Install dependencies
-        run: pip install -r requirements/dev.txt
+        run: pip install -r requirements_dev.txt
       - name: Run static analysis
         run: ./static_analysis.sh

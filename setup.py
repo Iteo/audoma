@@ -1,10 +1,7 @@
 import pathlib
 
 import pkg_resources
-from setuptools import (
-    find_packages,
-    setup,
-)
+from setuptools import setup
 
 
 here = pathlib.Path(__file__).parent.resolve()
@@ -15,7 +12,7 @@ long_description = (here / "README.md").read_text()
 
 
 def get_reqiuired_packages():
-    with open(here / "requirements/base.txt") as f:
+    with open(here / "requirements.txt") as f:
         required = f.read().splitlines()
     try:
         django_version = pkg_resources.get_distribution("django").version
@@ -41,8 +38,8 @@ django_classifiers = [
 
 setup(
     name=name,
-    version="1.1.0",
-    packages=find_packages(),
+    version="0.4.2",
+    packages=["audoma"],
     install_requires=get_reqiuired_packages(),
     description=description,
     long_description_content_type="text/markdown",
