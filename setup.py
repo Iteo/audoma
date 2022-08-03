@@ -1,7 +1,10 @@
 import pathlib
 
 import pkg_resources
-from setuptools import setup
+from setuptools import (
+    find_packages,
+    setup,
+)
 
 
 here = pathlib.Path(__file__).parent.resolve()
@@ -39,7 +42,7 @@ django_classifiers = [
 setup(
     name=name,
     version="0.4.2",
-    packages=["audoma"],
+    packages=find_packages(),
     install_requires=get_reqiuired_packages(),
     description=description,
     long_description_content_type="text/markdown",
