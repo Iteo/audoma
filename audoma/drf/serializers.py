@@ -7,6 +7,7 @@ from typing import (
 )
 from uuid import UUID
 
+# TODO - fix this, this does not make any sense
 from rest_framework import serializers
 from rest_framework.serializers import *  # noqa: F403, F401
 

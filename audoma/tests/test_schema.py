@@ -72,9 +72,23 @@ class AudomaDjangoFilterExtensionTestCase(TestCase):
         result = self.extension.resolve_filter_field(
             self.view.schema, self.view.model, None, "company_rate", field
         )
+        self.assertIsInstance(result, list)
         self.assertEqual(
-            result[0]["schema"]["x-choices"],
-            {"choices": {"LIKE": "Like", "DISLIKIE": "Dislike"}},
+            result,
+            [
+                {
+                    "in": "query",
+                    "name": "company_rate",
+                    "schema": {
+                        "type": "string",
+                        "enum": ["DISLIKIE", "LIKE"],
+                        "x-choices": {
+                            "choices": {"LIKE": "Like", "DISLIKIE": "Dislike"}
+                        },
+                    },
+                    "description": "Filter by None \n * `LIKE` - Like\n * `DISLIKIE` - Dislike\n",
+                }
+            ],
         )
 
     def test_get_typed_choice_filter_x_choices(self):
@@ -100,6 +114,13 @@ class AudomaDjangoFilterExtensionTestCase(TestCase):
             result[0]["schema"]["x-choices"],
             {"choices": {"LIKE": "Like", "DISLIKIE": "Dislike"}},
         )
+
+    def test_get_x_choices_no_choices(self):
+        field = ChoiceFilter()
+        result = self.extension.resolve_filter_field(
+            self.view.schema, self.view.model, None, "company_rate", field
+        )
+        self.assertEqual(result, [])
 
 
 class SearchFilterExtensionTestCase(TestCase):
@@ -138,13 +159,13 @@ class SearchFilterExtensionTestCase(TestCase):
         self.view.search_fields = ["company_name", "city"]
         self.extension = SearchFilterExtension(target=SearchFilter())
 
-    def test_serach_filter_generate_default_description(self):
+    def test_search_filter_generate_default_description(self):
         result = self.extension.get_schema_operation_parameters(self.view.schema)
         self.assertEqual(
             result[0]["description"], "Search by: \n* `company_name` \n* `city` \n"
         )
 
-    def test_serach_filter_generate_custom_simple_description(self):
+    def test_search_filter_generate_custom_simple_description(self):
         self.extension.target.search_description = (
             "Some Custom description.\n {search_fields}"
         )

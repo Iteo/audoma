@@ -159,9 +159,12 @@ PHONENUMBER_DEFAULT_FORMAT = "INTERNATIONAL"
 TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
 
 NOSE_ARGS = (
-    "--with-coverage",
-    "--cover-inclusive",
-    "--cover-package=audoma_api",
-    "--cover-package=audoma",
-    "--cover-min-percentage=90",
+    # "--cover-erase",
+    # "--with-coverage",
+    # "--cover-inclusive",
+    # "--cover-package=audoma_api",
+    # "--cover-package=audoma",
+    # "--cover-min-percentage=90",
+    # "--cover-html",
+    # "--cover-html-dir=reports/",
 )

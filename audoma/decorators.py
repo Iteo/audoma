@@ -289,7 +289,7 @@ class audoma_action:
         self, request: Request, func: Callable, view: APIView
     ) -> Tuple[Type[BaseSerializer], bool, Any]:
         """
-        Retrieves collecotr serializer class and it's config variables.
+        Retrieves collector serializer class and it's config variables.
         Args:
             request - request object
             func - decorated function

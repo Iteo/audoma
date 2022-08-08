@@ -4,18 +4,23 @@ from typing import (
     Any,
     Dict,
     Iterable,
+    List,
     Tuple,
     Type,
     Union,
 )
 
+from attr import field
 from rest_framework.decorators import action
 from rest_framework.fields import (
     Field,
     SerializerMethodField,
 )
 from rest_framework.request import Request
-from rest_framework.serializers import BaseSerializer
+from rest_framework.serializers import (
+    BaseSerializer,
+    ModelSerializer,
+)
 from rest_framework.test import APIRequestFactory
 from rest_framework.viewsets import ViewSet
 
@@ -95,7 +100,16 @@ def create_serializer_class(
     validators = validators or []
 
     class ExampleSerializer(*serializer_base_classes):
-        ...
+        # Mock serializer save to prevent
+        # db connection for mocked serializer
+        def save(self, **kwargs):
+            if isinstance(self, ModelSerializer):
+                instance = self.Meta.model()
+                for item, value in self.validated_data.items():
+                    setattr(instance, item, value)
+                self.instance = instance
+                return instance
+            return self.validated_data
 
     for field_name, field in fields_config.items():
         setattr(ExampleSerializer, field_name, field)
@@ -115,6 +129,25 @@ def create_serializer(
     validators: Iterable[Any] = None,
 ) -> BaseSerializer:
     return create_serializer_class(fields_config, serializer_base_classes, validators)()
+
+
+def create_model_serializer_class(
+    meta_model: Model,
+    serializer_base_classes: Iterable[Type] = (ModelSerializer,),
+    meta_fields: Union[str, List[str]] = "__all__",
+    fields_config: Dict[str, Field] = {},
+    validators: Iterable[Any] = None,
+):
+    serializer = create_serializer_class(
+        fields_config, serializer_base_classes, validators
+    )
+
+    class Meta:
+        model = meta_model
+        fields = meta_fields
+
+    setattr(serializer, "Meta", Meta)
+    return serializer
 
 
 # TODO consider rewrite it using existing methods
