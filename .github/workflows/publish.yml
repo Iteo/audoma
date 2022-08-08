@@ -3,7 +3,7 @@ name: Publish audoma to PyPI
 on:
   push:
     tags:
-      - "v*.*.*"
+      - "*.*.*"
 
 jobs:
   publish:
