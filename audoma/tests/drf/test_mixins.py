@@ -337,26 +337,24 @@ class BulkCreateModelMixinTestCase(CommonMixinTestCase):
     #         "age": 47
     #     }]
     #     def save(me):
-    #         print("CHUOISDJKLFJKDJf")
     #         objs = []
     #         for x, d in enumerate(data):
     #             objs.append(self.model(id=x, name=d["name"], age=d["age"]))
     #         me.instance = objs
     #         return objs
+    #
     #     self.bulk_serializer_class.save = save
     #     self.view.serializer_class = self.bulk_serializer_class
+    #     request = self.factory.post("/example")
+    #     request.data = data
+    #     self.view.action = "create"
+    #     self.view.request = request
+    #     response = self.view.create(
+    #         request, success_status=201
+    #     )
+    #     self.assertEqual(response.status_code, 201)
+    #     print(response.data)
+    #     raise ValueError
 
-
-#
-#     request = self.factory.post("/example")
-#     request.data = data
-#     self.view.action = "create"
-#     self.view.request = request
-#     response = self.view.create(
-#         request, success_status=201
-#     )
-#     self.assertEqual(response.status_code, 201)
-#     print(response.data)
-#     raise ValueError
 
 # TODO - tests for BulkUpdate
