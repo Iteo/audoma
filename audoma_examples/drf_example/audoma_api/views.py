@@ -5,7 +5,6 @@ from datetime import (
     timedelta,
 )
 from decimal import Decimal
-from gc import collect
 
 from audoma_api.exceptions import (
     CustomBadRequestException,
@@ -50,7 +49,6 @@ from audoma.drf import (
     viewsets,
 )
 from audoma.drf.filters import DocumentedTypedChoiceFilter
-from audoma.drf.viewsets import AudomaPagination
 
 
 class ExampleViewSet(
@@ -212,7 +210,6 @@ class ExampleModelPermissionLessViewSet(
 ):
     serializer_class = ExampleModelSerializer
     queryset = ExampleModel.objects.all()
-    # pagination_class = AudomaPagination
 
     @audoma_action(
         detail=True,
