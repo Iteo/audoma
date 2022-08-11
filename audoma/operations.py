@@ -140,15 +140,15 @@ def apply_response_operation(
         return Response(instance, status=code)
 
     serializer_class = operation
+    serializer_kwargs = {
+        "instance": instance,
+        "many": many,
+        "context": {"request": view.request, "format": view.format_kwarg, "view": view},
+    }
 
-    if instance:
-        if isinstance(instance, Iterable) and not isinstance(instance, dict):
-            serializer_kwargs = {"data": instance, "many": True}
-        else:
-            serializer_kwargs = {"instance": instance, "many": False}
-    else:
-        serializer_kwargs = {"many": many}
-    serializer_kwargs.update({"context": {"request": view.request}})
+    if hasattr(serializer_class, "get_result_serializer_class"):
+        assert callable(serializer_class.get_result_serializer_class)
+        serializer_class = serializer_class.get_result_serializer_class(many=many)
 
     return_serializer = (
         serializer_class(**serializer_kwargs)
@@ -157,5 +157,4 @@ def apply_response_operation(
     )
 
     headers = view.get_success_headers(return_serializer.data)
-
     return Response(return_serializer.data, status=code, headers=headers)

@@ -124,6 +124,7 @@ class audoma_action:
         collectors: Union[dict, BaseSerializer] = None,
         results: Union[dict, BaseSerializer, str] = None,
         errors: List[Union[Exception, Type[Exception]]] = None,
+        many: bool = False,
         ignore_view_collectors: bool = False,
         **kwargs,
     ) -> None:
@@ -132,6 +133,7 @@ class audoma_action:
         self.ignore_view_collectors = ignore_view_collectors
 
         try:
+            self.many = many
             self.errors = self._sanitize_error(errors) or []
             self.kwargs = self._sanitize_kwargs(kwargs) or {}
             self.methods = kwargs.get("methods")
@@ -394,6 +396,7 @@ class audoma_action:
                     kwargs["collect_serializer"] = collect_serializer
 
                 instance, code = func(view, request, *args, **kwargs)
+                # TODO - add verification
 
             except Exception as processed_error:
                 self._process_error(processed_error, errors, view)
@@ -415,7 +418,7 @@ class audoma_action:
                 )
 
             return apply_response_operation(
-                response_operation, instance, code, view, many=not func.detail
+                response_operation, instance, code, view, many=self.many
             )
 
         return wrapper

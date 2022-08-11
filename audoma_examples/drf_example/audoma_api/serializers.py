@@ -60,14 +60,25 @@ class ExampleSerializer(serializers.Serializer):
         model = ExampleModel
 
 
+class ExampleModelListSerializer(serializers.ListSerializer):
+    _wrap_result_serializer = True
+
+    class Meta:
+        model = ExampleModel
+        fields = ["char_field", "text_field", "url", "date", "money"]
+        extra_kwargs = {"char_field": {"example": "lorem ipsum"}}
+
+
 class ExampleModelSerializer(serializers.ModelSerializer):
     phone_number = serializers.SerializerMethodField()
+    _wrap_result_serializer = True
 
     class Meta:
 
         model = ExampleModel
         fields = "__all__"
         extra_kwargs = {"char_field": {"example": "lorem ipsum"}}
+        list_serializer_class = ExampleModelListSerializer
 
     @document_and_format(serializers.PhoneNumberField)
     def get_phone_number(self, obj):
@@ -182,4 +193,4 @@ class ExampleOneFieldSerializer(serializers.Serializer):
     rate = serializers.ChoiceField(choices=RATES.get_choices())
 
     def save(self, **kwargs):
-        return self.validated_data
+        return self.data

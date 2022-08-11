@@ -5,6 +5,7 @@ from datetime import (
     timedelta,
 )
 from decimal import Decimal
+from gc import collect
 
 from audoma_api.exceptions import (
     CustomBadRequestException,
@@ -49,6 +50,7 @@ from audoma.drf import (
     viewsets,
 )
 from audoma.drf.filters import DocumentedTypedChoiceFilter
+from audoma.drf.viewsets import AudomaPagination
 
 
 class ExampleViewSet(
@@ -210,6 +212,7 @@ class ExampleModelPermissionLessViewSet(
 ):
     serializer_class = ExampleModelSerializer
     queryset = ExampleModel.objects.all()
+    # pagination_class = AudomaPagination
 
     @audoma_action(
         detail=True,
@@ -264,6 +267,9 @@ class ExampleModelPermissionLessViewSet(
     def improperly_defined_exception_example(self, request):
         raise CustomBadRequestException
 
+    def get_queryset(self):
+        return ExampleModel.objects.none()
+
     def get_object(self):
         return ExampleModel(
             char_field="TESTChar",
@@ -295,3 +301,10 @@ class ExampleModelPermissionLessViewSet(
     )
     def example_update_action(self, request, collect_serializer, pk=None):
         return collect_serializer.save(), 201
+
+    @audoma_action(
+        detail=False, many=True, methods=["get"], results=ExampleModelSerializer
+    )
+    def example_non_detail_many_action(self, request):
+        instance = self.get_queryset()
+        return instance, 200
