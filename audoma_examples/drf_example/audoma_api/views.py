@@ -300,8 +300,8 @@ class ExampleModelPermissionLessViewSet(
         return collect_serializer.save(), 201
 
     @audoma_action(
-        detail=False, many=True, methods=["get"], results=ExampleModelSerializer
+        detail=False, many=True, methods=["get"], results=ExamplePersonModelSerializer
     )
-    def example_non_detail_many_action(self, request):
-        instance = self.get_queryset()
+    def example_many_test_action(self, request):
+        instance = ExamplePerson.objects.none()
         return instance, 200

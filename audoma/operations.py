@@ -145,11 +145,6 @@ def apply_response_operation(
         "many": many,
         "context": {"request": view.request, "format": view.format_kwarg, "view": view},
     }
-
-    if hasattr(serializer_class, "get_result_serializer_class"):
-        assert callable(serializer_class.get_result_serializer_class)
-        serializer_class = serializer_class.get_result_serializer_class(many=many)
-
     return_serializer = (
         serializer_class(**serializer_kwargs)
         if serializer_class

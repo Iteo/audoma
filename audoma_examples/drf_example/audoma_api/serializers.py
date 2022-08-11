@@ -76,6 +76,8 @@ class ExampleModelSerializer(serializers.ModelSerializer):
 
 
 class ExamplePersonModelSerializer(serializers.ModelSerializer):
+    _wrap_result_serializer = True
+
     class Meta:
         model = ExamplePerson
         fields = "__all__"

@@ -657,7 +657,7 @@ class AudomaViewsTestCase(SimpleTestCase):
 
     def test_example_non_detail_many_action(self):
         response = self.client.get(
-            reverse("permissionless-model-examples-example-non-detail-many-action"),
+            reverse("permissionless-model-examples-example-many-test-action"),
             format="json",
         )
         self.assertEqual(response.status_code, 200)
