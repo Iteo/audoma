@@ -25,7 +25,6 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Model
 
 from audoma import settings as audoma_settings
-from audoma.drf.serializers import result_serializer_class
 from audoma.operations import (
     OperationExtractor,
     apply_response_operation,
