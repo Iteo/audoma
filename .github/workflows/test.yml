@@ -11,6 +11,10 @@ jobs:
         run: |
           echo "---> Building test image and running tests"
           cd docker && docker-compose run --rm tests
+      - name: Run test coverage report
+        run: |
+            echo "---> Building test image and running tests"
+            cd docker && docker-compose run --rm coverage
       - name: Install dependencies
         run: pip install -r requirements_dev.txt
       - name: Run static analysis

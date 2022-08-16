@@ -10,7 +10,6 @@ from typing import (
     Union,
 )
 
-from attr import field
 from rest_framework.decorators import action
 from rest_framework.fields import (
     Field,

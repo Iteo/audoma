@@ -8,3 +8,4 @@ ipdb==0.13.9
 django_nose==1.4.7
 sphinx==4.3.1
 sphinx-rtd-theme==1.0.0
+coverage==6.4.2

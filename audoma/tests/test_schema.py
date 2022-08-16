@@ -8,12 +8,8 @@ from rest_framework.filters import SearchFilter
 from rest_framework.serializers import Serializer
 from rest_framework.test import APIRequestFactory
 
-from django.conf import settings
 from django.db import models
-from django.test import (
-    TestCase,
-    override_settings,
-)
+from django.test import TestCase
 
 from audoma.choices import make_choices
 from audoma.drf import fields as audoma_fields

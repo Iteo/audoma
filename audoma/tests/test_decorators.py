@@ -6,7 +6,6 @@ from rest_framework.exceptions import (
 from rest_framework.serializers import Serializer
 from rest_framework.test import APIRequestFactory
 
-from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.test import (
     TestCase,

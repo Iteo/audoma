@@ -5,6 +5,11 @@ omit =
     */apps.py
     */__init__.py
     */settings.py
+source =
+        audoma
+        audoma_api
+        audoma.drf
+        audoma.django
 
 [report]
 omit =
@@ -13,3 +18,4 @@ omit =
     */apps.py
     */__init__.py
     */settings.py
+fail_under = 90

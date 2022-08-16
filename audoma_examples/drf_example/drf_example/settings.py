@@ -157,14 +157,3 @@ CURRENCIES = ("USD", "EUR", "GBP", "JPY", "CNY", "INR", "AUD", "NZD", "CHF")
 PHONENUMBER_DEFAULT_FORMAT = "INTERNATIONAL"
 
 TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
-
-NOSE_ARGS = (
-    # "--cover-erase",
-    # "--with-coverage",
-    # "--cover-inclusive",
-    # "--cover-package=audoma_api",
-    # "--cover-package=audoma",
-    # "--cover-min-percentage=90",
-    # "--cover-html",
-    # "--cover-html-dir=reports/",
-)

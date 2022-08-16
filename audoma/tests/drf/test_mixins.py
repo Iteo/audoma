@@ -10,10 +10,9 @@ from django.db.models import (
 )
 from django.test import TestCase
 
-from audoma.drf.mixins import (
+from audoma.drf.mixins import (  # BulkUpdateModelMixin,
     ActionModelMixin,
     BulkCreateModelMixin,
-    BulkUpdateModelMixin,
     CreateModelMixin,
     DestroyModelMixin,
     ListModelMixin,
