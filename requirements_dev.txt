@@ -10,3 +10,4 @@ sphinx==4.3.1
 sphinx-rtd-theme==1.0.0
 twine>=3.1.1
 wheel>=0.34.2
+coverage==6.4.2

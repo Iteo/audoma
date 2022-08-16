@@ -5,6 +5,7 @@ from inspect import isclass
 from typing import (
     Any,
     Callable,
+    Dict,
     Iterable,
     List,
     Tuple,
@@ -34,10 +35,18 @@ from audoma.operations import (
 logger = logging.getLogger(__name__)
 
 
+SerializersConfig = Union[
+    Dict[str, Dict[int, Union[str, Type[BaseSerializer]]]],
+    Dict[str, Union[str, Type[BaseSerializer]]],
+    str,
+    Type[BaseSerializer],
+]
+
+
 @dataclass
 class AudomaArgs:
-    results: Union[dict, Type[BaseSerializer], str]
-    collectors: Union[dict, Type[BaseSerializer]]
+    results: SerializersConfig
+    collectors: SerializersConfig
     errors: List[Union[Exception, Type[Exception]]]
 
 
@@ -119,16 +128,44 @@ class audoma_action:
         sanitized_errors += types
         return sanitized_errors
 
+    def _sanitize_results(
+        self, results: SerializersConfig, many: bool
+    ) -> SerializersConfig:
+        if not isinstance(results, dict):
+            parsed_result = results
+            if hasattr(parsed_result, "get_result_serializer_class"):
+                assert callable(parsed_result.get_result_serializer_class)
+                parsed_result = parsed_result.get_result_serializer_class(many=many)
+            return parsed_result
+
+        parsed_results = {}
+        for key, result in results.items():
+            parsed_result = result
+
+            if isinstance(result, dict):
+                parsed_result = self._sanitize_results(result, many)
+
+            elif hasattr(result, "get_result_serializer_class"):
+                assert callable(result.get_result_serializer_class)
+                parsed_result = result.get_result_serializer_class(many=many)
+
+            parsed_results[key] = parsed_result
+
+        return parsed_results
+
     def __init__(
         self,
-        collectors: Union[dict, BaseSerializer] = None,
-        results: Union[dict, BaseSerializer, str] = None,
+        collectors: SerializersConfig = None,
+        results: SerializersConfig = None,
         errors: List[Union[Exception, Type[Exception]]] = None,
+        many: bool = False,
         ignore_view_collectors: bool = False,
         **kwargs,
     ) -> None:
+        self.many = many
+
         self.collectors = collectors or {}
-        self.results = results or {}
+        self.results = self._sanitize_results(results, many) or {}
         self.ignore_view_collectors = ignore_view_collectors
 
         try:
@@ -136,7 +173,9 @@ class audoma_action:
             self.kwargs = self._sanitize_kwargs(kwargs) or {}
             self.methods = kwargs.get("methods")
             self.framework_decorator = action(**kwargs)
-            self.operation_extractor = OperationExtractor(collectors, results, errors)
+            self.operation_extractor = OperationExtractor(
+                self.collectors, self.results, self.errors
+            )
             if all(method in SAFE_METHODS for method in self.methods) and collectors:
                 raise ImproperlyConfigured(
                     "There should be no collectors defined if there are not create/update requests accepted."
@@ -394,6 +433,7 @@ class audoma_action:
                     kwargs["collect_serializer"] = collect_serializer
 
                 instance, code = func(view, request, *args, **kwargs)
+                # TODO - add verification
 
             except Exception as processed_error:
                 self._process_error(processed_error, errors, view)
@@ -415,7 +455,7 @@ class audoma_action:
                 )
 
             return apply_response_operation(
-                response_operation, instance, code, view, many=not func.detail
+                response_operation, instance, code, view, many=self.many
             )
 
         return wrapper

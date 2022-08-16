@@ -639,8 +639,8 @@ class AudomaViewsTestCase(SimpleTestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(json.loads(response.content)["char_field"], "TESTChar2")
-        self.assertEqual(json.loads(response.content)["email"], "changetest@iteo.com")
+        self.assertEqual(response.data["char_field"], "TESTChar2")
+        self.assertEqual(response.data["email"], "changetest@iteo.com")
 
     def test_example_update_action_put(self):
         data = self.data
@@ -653,4 +653,12 @@ class AudomaViewsTestCase(SimpleTestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(json.loads(response.content)["char_field"], "TESTChar2")
+        self.assertEqual(response.data["char_field"], "TESTChar2")
+
+    def test_example_non_detail_many_action(self):
+        response = self.client.get(
+            reverse("permissionless-model-examples-example-many-test-action"),
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 0)
