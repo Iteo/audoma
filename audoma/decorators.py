@@ -5,6 +5,7 @@ from inspect import isclass
 from typing import (
     Any,
     Callable,
+    Dict,
     Iterable,
     List,
     Tuple,
@@ -34,10 +35,18 @@ from audoma.operations import (
 logger = logging.getLogger(__name__)
 
 
+SerializersConfig = Union[
+    Dict[str, Dict[int, Union[str, Type[BaseSerializer]]]],
+    Dict[str, Union[str, Type[BaseSerializer]]],
+    str,
+    Type[BaseSerializer],
+]
+
+
 @dataclass
 class AudomaArgs:
-    results: Union[dict, Type[BaseSerializer], str]
-    collectors: Union[dict, Type[BaseSerializer]]
+    results: SerializersConfig
+    collectors: SerializersConfig
     errors: List[Union[Exception, Type[Exception]]]
 
 
@@ -120,8 +129,8 @@ class audoma_action:
         return sanitized_errors
 
     def _sanitize_results(
-        self, results: Union[dict, BaseSerializer, str], many: bool
-    ) -> Union[dict, BaseSerializer, str]:
+        self, results: SerializersConfig, many: bool
+    ) -> SerializersConfig:
         if not isinstance(results, dict):
             parsed_result = results
             if hasattr(parsed_result, "get_result_serializer_class"):
@@ -146,8 +155,8 @@ class audoma_action:
 
     def __init__(
         self,
-        collectors: Union[dict, BaseSerializer] = None,
-        results: Union[dict, BaseSerializer, str] = None,
+        collectors: SerializersConfig = None,
+        results: SerializersConfig = None,
         errors: List[Union[Exception, Type[Exception]]] = None,
         many: bool = False,
         ignore_view_collectors: bool = False,
