@@ -170,6 +170,8 @@ def create_view_with_custom_action(
     action_kwargs = action_kwargs or {}
 
     class ExampleView(*view_baseclasses):
+        permissions_classes = []
+
         @action(name=action_name, *action_args, **action_kwargs)
         def fun(self, *args, **kwargs):
             ...
