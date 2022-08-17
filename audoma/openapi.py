@@ -30,6 +30,7 @@ from rest_framework.views import APIView
 
 from django.views import View
 
+from audoma.decorators import SerializersConfig
 from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
 from audoma.drf.serializers import BulkSerializerMixin
 from audoma.drf.validators import ExclusiveFieldsValidator
@@ -137,8 +138,10 @@ class AudomaAutoSchema(AutoSchema):
         return getattr(view, action, None)
 
     def _parse_action_result_serializer(
-        self, serializer: typing.Type[BaseSerializer], many: bool = False
-    ):
+        self,
+        serializer: typing.Union[typing.Type[BaseSerializer], str],
+        many: bool = False,
+    ) -> typing.Union[BaseSerializer, str]:
         if isinstance(serializer, str):
             return OpenApiResponse(description=serializer)
         elif isclass(serializer) and issubclass(serializer, BaseSerializer):
@@ -147,8 +150,12 @@ class AudomaAutoSchema(AutoSchema):
         return serializer
 
     def _parse_action_result_serializers(
-        self, action_serializers, many: bool = False
-    ) -> dict:
+        self, action_serializers: SerializersConfig, many: bool = False
+    ) -> typing.Union[
+        typing.Dict[str, OpenApiResponse],
+        typing.Dict[str, BaseSerializer],
+        typing.Dict[str, typing.Dict[int, BaseSerializer]],
+    ]:
         if not action_serializers:
             return action_serializers
 
@@ -176,7 +183,7 @@ class AudomaAutoSchema(AutoSchema):
 
         return parsed_action_serializers
 
-    def _parse_action_errors(self, action_errors) -> dict:
+    def _parse_action_errors(self, action_errors) -> typing.Dict[int, OpenApiResponse]:
         if not action_errors:
             return action_errors
 
@@ -201,7 +208,13 @@ class AudomaAutoSchema(AutoSchema):
 
     def _extract_audoma_action_operations(
         self, view: View, serializer_type: str
-    ) -> dict:
+    ) -> typing.Union[
+        typing.Dict[str, OpenApiResponse],
+        typing.Dict[str, BaseSerializer],
+        typing.Dict[str, typing.Type[BaseSerializer]],
+        typing.Dict[str, typing.Dict[int, BaseSerializer]],
+        typing.Dict[int, OpenApiResponse],
+    ]:
         """
         Extracts the audoma action operations from the view
         """
@@ -227,7 +240,7 @@ class AudomaAutoSchema(AutoSchema):
         return action_serializers
 
     def _get_serializer(  # noqa: C901
-        self, serializer_type="collect"
+        self, serializer_type: str = "collect"
     ) -> typing.Union[BaseSerializer, typing.Type[BaseSerializer]]:
         view = self.view
         method = view.request.method
