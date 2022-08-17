@@ -30,6 +30,7 @@ from rest_framework.views import APIView
 
 from django.views import View
 
+from audoma.decorators import SerializersConfig
 from audoma.drf.generics import GenericAPIView as AudomaGenericAPIView
 from audoma.drf.serializers import BulkSerializerMixin
 from audoma.drf.validators import ExclusiveFieldsValidator
@@ -136,7 +137,25 @@ class AudomaAutoSchema(AutoSchema):
 
         return getattr(view, action, None)
 
-    def _parse_action_serializers(self, action_serializers) -> dict:
+    def _parse_action_result_serializer(
+        self,
+        serializer: typing.Union[typing.Type[BaseSerializer], str],
+        many: bool = False,
+    ) -> typing.Union[BaseSerializer, str]:
+        if isinstance(serializer, str):
+            return OpenApiResponse(description=serializer)
+        elif isclass(serializer) and issubclass(serializer, BaseSerializer):
+            print(many, serializer)
+            return serializer(many=many)
+        return serializer
+
+    def _parse_action_result_serializers(
+        self, action_serializers: SerializersConfig, many: bool = False
+    ) -> typing.Union[
+        typing.Dict[str, OpenApiResponse],
+        typing.Dict[str, BaseSerializer],
+        typing.Dict[str, typing.Dict[int, BaseSerializer]],
+    ]:
         if not action_serializers:
             return action_serializers
 
@@ -144,25 +163,27 @@ class AudomaAutoSchema(AutoSchema):
             return {"default": OpenApiResponse(description=action_serializers)}
 
         if not isinstance(action_serializers, dict):
-            return {"default": action_serializers}
+            action_serializer = self._parse_action_result_serializer(
+                action_serializers, many=many
+            )
+            return {"default": action_serializer}
 
         parsed_action_serializers = deepcopy(action_serializers)
 
         for method, method_serializers in action_serializers.items():
-            if isinstance(method_serializers, str):
-                parsed_action_serializers[method] = OpenApiResponse(
-                    description=method_serializers
-                )
-            elif isinstance(method_serializers, dict):
+            if isinstance(method_serializers, dict):
                 for code, item in method_serializers.items():
-                    if isinstance(item, str):
-                        parsed_action_serializers[method][code] = OpenApiResponse(
-                            description=item
-                        )
+                    parsed_action_serializers[method][
+                        code
+                    ] = self._parse_action_result_serializer(item, many=many)
+            else:
+                parsed_action_serializers[
+                    method
+                ] = self._parse_action_result_serializer(method_serializers, many=many)
 
         return parsed_action_serializers
 
-    def _parse_action_errors(self, action_errors) -> dict:
+    def _parse_action_errors(self, action_errors) -> typing.Dict[int, OpenApiResponse]:
         if not action_errors:
             return action_errors
 
@@ -187,19 +208,28 @@ class AudomaAutoSchema(AutoSchema):
 
     def _extract_audoma_action_operations(
         self, view: View, serializer_type: str
-    ) -> dict:
+    ) -> typing.Union[
+        typing.Dict[str, OpenApiResponse],
+        typing.Dict[str, BaseSerializer],
+        typing.Dict[str, typing.Type[BaseSerializer]],
+        typing.Dict[str, typing.Dict[int, BaseSerializer]],
+        typing.Dict[int, OpenApiResponse],
+    ]:
         """
         Extracts the audoma action operations from the view
         """
         action_function = self._extract_action_function(view)
         _audoma = getattr(action_function, "_audoma", None)
+        many = action_serializers = getattr(_audoma, "many", False)
         if not _audoma:
             return {}
 
         if serializer_type == "collect":
             action_serializers = getattr(_audoma, "collectors", None)
         else:
-            results = self._parse_action_serializers(getattr(_audoma, "results", None))
+            results = self._parse_action_result_serializers(
+                getattr(_audoma, "results", None), many
+            )
             errors = self._parse_action_errors(getattr(_audoma, "errors", {}))
             if results:
                 action_serializers = results
@@ -210,7 +240,7 @@ class AudomaAutoSchema(AutoSchema):
         return action_serializers
 
     def _get_serializer(  # noqa: C901
-        self, serializer_type="collect"
+        self, serializer_type: str = "collect"
     ) -> typing.Union[BaseSerializer, typing.Type[BaseSerializer]]:
         view = self.view
         method = view.request.method

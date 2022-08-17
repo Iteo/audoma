@@ -48,6 +48,7 @@ class AudomaArgs:
     results: SerializersConfig
     collectors: SerializersConfig
     errors: List[Union[Exception, Type[Exception]]]
+    many: bool
 
 
 class AudomaActionException(Exception):
@@ -404,7 +405,10 @@ class audoma_action:
             wrapper callable.
         """
         func._audoma = AudomaArgs(
-            collectors=self.collectors, results=self.results, errors=self.errors
+            collectors=self.collectors,
+            results=self.results,
+            errors=self.errors,
+            many=self.many,
         )
         # apply action decorator
         func = self.framework_decorator(func)
