@@ -11,6 +11,7 @@ here = pathlib.Path(__file__).parent.resolve()
 
 name = "audoma"
 description = "API Automatic Documentation Maker - DRF-SPECTACULAR wrapper"
+long_description = (here / "README.md").read_text()
 
 
 def get_reqiuired_packages():
@@ -40,10 +41,12 @@ django_classifiers = [
 
 setup(
     name=name,
-    version="1.1.0",
+    version="0.4.4",
     packages=find_packages(),
     install_requires=get_reqiuired_packages(),
     description=description,
+    long_description_content_type="text/markdown",
+    long_description=long_description,
     author="ITEO",
     classifiers=[
         "Intended Audience :: Developers",

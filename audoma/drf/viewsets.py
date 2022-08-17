@@ -1,5 +1,9 @@
+import json
 import random
-from typing import List
+from typing import (
+    Any,
+    List,
+)
 
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
@@ -62,12 +66,25 @@ class AudomaPagination(PageNumberPagination):
 class GenericViewSet(viewsets.ViewSetMixin, GenericAPIView):
     pagination_class = AudomaPagination
 
+    def _parse_response_data(self, response_data: List[Any]) -> List[str]:
+        parsed_data = []
+        for item in response_data:
+            if isinstance(item, str):
+                parsed_data.append(item)
+            else:
+                parsed_data.append(json.dumps(item))
+        return parsed_data
+
     def handle_exception(self, exc: Exception) -> Response:
         response = super().handle_exception(exc)
         if isinstance(response.data, dict):
             if response.status_code != 418:
                 for k in response.data:
                     if isinstance(response.data[k], list):
+                        if not all(isinstance(item, str) for item in response.data[k]):
+                            response.data[k] = self._parse_response_data(
+                                response.data[k]
+                            )
                         response.data[k] = " ".join(response.data[k])
                 response.data = {"errors": response.data}
         return response

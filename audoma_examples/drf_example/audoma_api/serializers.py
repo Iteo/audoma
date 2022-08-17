@@ -182,4 +182,4 @@ class ExampleOneFieldSerializer(serializers.Serializer):
     rate = serializers.ChoiceField(choices=RATES.get_choices())
 
     def save(self, **kwargs):
-        return self.validated_data
+        return self.data

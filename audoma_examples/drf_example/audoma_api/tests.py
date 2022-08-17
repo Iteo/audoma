@@ -404,6 +404,20 @@ class AudomaBulkOperationsTest(APITestCase):
         qs = Manufacturer.objects.all()
         self.assertEqual(qs.count(), 4)
 
+    def test_bulk_create_single_record(self):
+        data = (
+            {
+                "name": "test 2",
+                "slug_name": "2137",
+            },
+        )
+
+        resp = self.client.post(self.list_url, data, format="json")
+        self.assertEqual(201, resp.status_code, resp.json())
+
+        qs = Manufacturer.objects.all()
+        self.assertEqual(qs.count(), 3)
+
     def test_bulk_update_records(self):
         updated_data = [
             {
@@ -639,8 +653,8 @@ class AudomaViewsTestCase(SimpleTestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(json.loads(response.content)["char_field"], "TESTChar2")
-        self.assertEqual(json.loads(response.content)["email"], "changetest@iteo.com")
+        self.assertEqual(response.data["char_field"], "TESTChar2")
+        self.assertEqual(response.data["email"], "changetest@iteo.com")
 
     def test_example_update_action_put(self):
         data = self.data
@@ -653,4 +667,12 @@ class AudomaViewsTestCase(SimpleTestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(json.loads(response.content)["char_field"], "TESTChar2")
+        self.assertEqual(response.data["char_field"], "TESTChar2")
+
+    def test_example_non_detail_many_action(self):
+        response = self.client.get(
+            reverse("permissionless-model-examples-example-many-test-action"),
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 0)

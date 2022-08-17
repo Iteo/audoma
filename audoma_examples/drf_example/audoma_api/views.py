@@ -264,6 +264,9 @@ class ExampleModelPermissionLessViewSet(
     def improperly_defined_exception_example(self, request):
         raise CustomBadRequestException
 
+    def get_queryset(self):
+        return ExampleModel.objects.none()
+
     def get_object(self):
         return ExampleModel(
             char_field="TESTChar",
@@ -295,3 +298,10 @@ class ExampleModelPermissionLessViewSet(
     )
     def example_update_action(self, request, collect_serializer, pk=None):
         return collect_serializer.save(), 201
+
+    @audoma_action(
+        detail=False, many=True, methods=["get"], results=ExamplePersonModelSerializer
+    )
+    def example_many_test_action(self, request):
+        instance = ExamplePerson.objects.none()
+        return instance, 200

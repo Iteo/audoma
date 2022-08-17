@@ -1,10 +1,4 @@
 [run]
-omit =
-    */migrations/*
-    */admin.py
-    */apps.py
-    */__init__.py
-    */settings.py
 source =
         audoma
         audoma_api
@@ -12,10 +6,4 @@ source =
         audoma.django
 
 [report]
-omit =
-    */migrations/*
-    */admin.py
-    */apps.py
-    */__init__.py
-    */settings.py
 fail_under = 90
