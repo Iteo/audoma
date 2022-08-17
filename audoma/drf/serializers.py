@@ -105,7 +105,7 @@ def result_serializer_class(
             result = SerializerClass()
 
             def __new__(cls, *args, **kwargs) -> Serializer:
-                _many = kwargs.pop("many", many)
+                _many = kwargs.pop("many", False)
 
                 if _many:
                     instance = ManyResultSerializer(*args, **kwargs)

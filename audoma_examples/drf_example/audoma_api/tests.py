@@ -404,6 +404,20 @@ class AudomaBulkOperationsTest(APITestCase):
         qs = Manufacturer.objects.all()
         self.assertEqual(qs.count(), 4)
 
+    def test_bulk_create_single_record(self):
+        data = (
+            {
+                "name": "test 2",
+                "slug_name": "2137",
+            },
+        )
+
+        resp = self.client.post(self.list_url, data, format="json")
+        self.assertEqual(201, resp.status_code, resp.json())
+
+        qs = Manufacturer.objects.all()
+        self.assertEqual(qs.count(), 3)
+
     def test_bulk_update_records(self):
         updated_data = [
             {

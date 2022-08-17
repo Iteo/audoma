@@ -136,7 +136,24 @@ class AudomaAutoSchema(AutoSchema):
 
         return getattr(view, action, None)
 
-    def _parse_action_serializers(self, action_serializers) -> dict:
+    def _parse_action_serializer(
+        self,
+        serializer: typing.Type[BaseSerializer],
+        many: bool = False,
+        serializer_type: str = "collect",
+    ):
+        if isinstance(serializer, str):
+            return OpenApiResponse(description=serializer)
+        elif isclass(serializer) and issubclass(serializer, BaseSerializer):
+            if serializer == "collect":
+                return serializer()
+            else:
+                return serializer(many=many)
+        return serializer
+
+    def _parse_action_serializers(
+        self, action_serializers, many: bool = False, serializer_type: str = "collect"
+    ) -> dict:
         if not action_serializers:
             return action_serializers
 
@@ -149,16 +166,15 @@ class AudomaAutoSchema(AutoSchema):
         parsed_action_serializers = deepcopy(action_serializers)
 
         for method, method_serializers in action_serializers.items():
-            if isinstance(method_serializers, str):
-                parsed_action_serializers[method] = OpenApiResponse(
-                    description=method_serializers
-                )
-            elif isinstance(method_serializers, dict):
+            if isinstance(method_serializers, dict):
                 for code, item in method_serializers.items():
-                    if isinstance(item, str):
-                        parsed_action_serializers[method][code] = OpenApiResponse(
-                            description=item
-                        )
+                    parsed_action_serializers[method][
+                        code
+                    ] = self._parse_action_serializer(item)
+            else:
+                parsed_action_serializers[method] = self._parse_action_serializer(
+                    method_serializers
+                )
 
         return parsed_action_serializers
 
@@ -193,6 +209,7 @@ class AudomaAutoSchema(AutoSchema):
         """
         action_function = self._extract_action_function(view)
         _audoma = getattr(action_function, "_audoma", None)
+        many = action_serializers = getattr(_audoma, "many", False)
         if not _audoma:
             return {}
 
