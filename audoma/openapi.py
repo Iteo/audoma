@@ -136,23 +136,18 @@ class AudomaAutoSchema(AutoSchema):
 
         return getattr(view, action, None)
 
-    def _parse_action_serializer(
-        self,
-        serializer: typing.Type[BaseSerializer],
-        many: bool = False,
-        serializer_type: str = "collect",
+    def _parse_action_result_serializer(
+        self, serializer: typing.Type[BaseSerializer], many: bool = False
     ):
         if isinstance(serializer, str):
             return OpenApiResponse(description=serializer)
         elif isclass(serializer) and issubclass(serializer, BaseSerializer):
-            if serializer == "collect":
-                return serializer()
-            else:
-                return serializer(many=many)
+            print(many, serializer)
+            return serializer(many=many)
         return serializer
 
-    def _parse_action_serializers(
-        self, action_serializers, many: bool = False, serializer_type: str = "collect"
+    def _parse_action_result_serializers(
+        self, action_serializers, many: bool = False
     ) -> dict:
         if not action_serializers:
             return action_serializers
@@ -161,7 +156,10 @@ class AudomaAutoSchema(AutoSchema):
             return {"default": OpenApiResponse(description=action_serializers)}
 
         if not isinstance(action_serializers, dict):
-            return {"default": action_serializers}
+            action_serializer = self._parse_action_result_serializer(
+                action_serializers, many=many
+            )
+            return {"default": action_serializer}
 
         parsed_action_serializers = deepcopy(action_serializers)
 
@@ -170,11 +168,11 @@ class AudomaAutoSchema(AutoSchema):
                 for code, item in method_serializers.items():
                     parsed_action_serializers[method][
                         code
-                    ] = self._parse_action_serializer(item)
+                    ] = self._parse_action_result_serializer(item, many=many)
             else:
-                parsed_action_serializers[method] = self._parse_action_serializer(
-                    method_serializers
-                )
+                parsed_action_serializers[
+                    method
+                ] = self._parse_action_result_serializer(method_serializers, many=many)
 
         return parsed_action_serializers
 
@@ -216,7 +214,9 @@ class AudomaAutoSchema(AutoSchema):
         if serializer_type == "collect":
             action_serializers = getattr(_audoma, "collectors", None)
         else:
-            results = self._parse_action_serializers(getattr(_audoma, "results", None))
+            results = self._parse_action_result_serializers(
+                getattr(_audoma, "results", None), many
+            )
             errors = self._parse_action_errors(getattr(_audoma, "errors", {}))
             if results:
                 action_serializers = results
