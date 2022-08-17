@@ -18,7 +18,7 @@ from audoma import settings
 from audoma.django.db import models as audoma_models
 
 
-try:  # pragma: no cover
+try:
     from django.db.models import JSONField as ModelJSONField
 except ImportError:
     try:
@@ -29,7 +29,7 @@ except ImportError:
         ) from err
 
 
-from audoma.drf.fields import (  # NOQA # isort:skip # pragma: no cover
+from audoma.drf.fields import (  # NOQA # isort:skip
     BooleanField,
     CharField,
     ChoiceField,
@@ -69,7 +69,7 @@ from audoma.drf.fields import (  # NOQA # isort:skip # pragma: no cover
 embeded_serializer_classes = {}
 
 
-class Result:  # pragma no cover
+class Result:
     def __init__(self, result: Any, many: bool = False) -> Any:
         if many:
             self.results = result
@@ -178,8 +178,8 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
         audoma_models.MoneyField: MoneyField,
         audoma_models.CurrencyField: CharField,
         ModelJSONField: JSONField,
-    }  # pragma: no cover
-    serializer_choice_field = ChoiceField  # pragma: no cover
+    }
+    serializer_choice_field = ChoiceField
 
     def build_standard_field(
         self, field_name, model_field
@@ -195,9 +195,7 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
         return field_class, field_kwargs
 
 
-class Serializer(
-    ResultSerializerClassMixin, serializers.Serializer
-):  # pragma: no cover
+class Serializer(ResultSerializerClassMixin, serializers.Serializer):
     pass
 
 
@@ -219,9 +217,7 @@ class DisplayNameWritableField(serializers.ChoiceField):
             raise serializers.ValidationError('"%s" is not valid choice.' % data)
 
 
-class ListSerializer(
-    ResultSerializerClassMixin, serializers.ListSerializer
-):  # pragma: no cover
+class ListSerializer(ResultSerializerClassMixin, serializers.ListSerializer):
     pass
 
 

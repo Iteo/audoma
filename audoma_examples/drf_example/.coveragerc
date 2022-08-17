@@ -18,4 +18,4 @@ omit =
     */apps.py
     */__init__.py
     */settings.py
-fail_under = 90p
+fail_under = 90

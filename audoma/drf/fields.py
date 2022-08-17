@@ -45,13 +45,13 @@ field_names = [
     "JSONField",
     "ReadOnlyField",
     "SerializerMethodField",
-]  # pragma: no cover
+]
 
 
-this = sys.modules[__name__]  # pragma: no cover
+this = sys.modules[__name__]
 
 
-for field_name in field_names:  # pragma: no cover
+for field_name in field_names:
 
     setattr(
         this,
@@ -60,41 +60,41 @@ for field_name in field_names:  # pragma: no cover
     )
 
 
-class DecimalField(NumericExampleMixin, fields.DecimalField):  # pragma: no cover
+class DecimalField(NumericExampleMixin, fields.DecimalField):
     pass
 
 
-@extend_schema_field(OpenApiTypes.UUID)  # pragma: no cover
-class UUIDField(ExampleMixin, fields.UUIDField):  # pragma: no cover
+@extend_schema_field(OpenApiTypes.UUID)
+class UUIDField(ExampleMixin, fields.UUIDField):
     pass
 
 
-class IntegerField(NumericExampleMixin, fields.IntegerField):  # pragma: no cover
+class IntegerField(NumericExampleMixin, fields.IntegerField):
     pass
 
 
-class FloatField(NumericExampleMixin, fields.FloatField):  # pragma: no cover
+class FloatField(NumericExampleMixin, fields.FloatField):
     pass
 
 
-class RegexField(RegexExampleMixin, fields.RegexField):  # pragma: no cover
+class RegexField(RegexExampleMixin, fields.RegexField):
     pass
 
 
-class MACAddressField(RegexExampleMixin, fields.CharField):  # pragma: no cover
+class MACAddressField(RegexExampleMixin, fields.CharField):
     def __init__(self, **kwargs) -> None:
         self.regex = "^([0-9A-F]{2}:){5}([0-9A-F]{2})|([0-9A-F]{2}-){5}([0-9A-F]{2})$"
         self.validators = [validators.RegexValidator(self.regex)]
         super().__init__(**kwargs)
 
 
-@extend_schema_field(OpenApiTypes.DATE)  # pragma: no cover
-class DateField(ExampleMixin, fields.DateField):  # pragma: no cover
+@extend_schema_field(OpenApiTypes.DATE)
+class DateField(ExampleMixin, fields.DateField):
     pass
 
 
-@extend_schema_field(OpenApiTypes.TIME)  # pragma: no cover
-class TimeField(ExampleMixin, fields.TimeField):  # pragma: no cover
+@extend_schema_field(OpenApiTypes.TIME)
+class TimeField(ExampleMixin, fields.TimeField):
     pass
 
 
@@ -107,12 +107,12 @@ class TimeField(ExampleMixin, fields.TimeField):  # pragma: no cover
             )
         ),
     }
-)  # pragma: no cover
-class IPAddressField(ExampleMixin, fields.IPAddressField):  # pragma: no cover
+)
+class IPAddressField(ExampleMixin, fields.IPAddressField):
     pass
 
 
-@extend_schema_field(field={"format": "tel"})  # pragma: no cover
+@extend_schema_field(field={"format": "tel"})
 class PhoneNumberField(ExampleMixin, serializerfields.PhoneNumberField):
     def __init__(self, *args, **kwargs) -> None:
         example = kwargs.pop("example", None)
@@ -133,7 +133,7 @@ class CharField(ExampleMixin, fields.CharField):
         super().__init__(*args, example=example, **kwargs)
 
 
-class MoneyField(NumericExampleMixin, MoneyField):  # pragma: no cover
+class MoneyField(NumericExampleMixin, MoneyField):
     pass
 
 

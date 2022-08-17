@@ -1,8 +1,8 @@
-from decimal import Decimal  # pragma: no cover
+from decimal import Decimal
 
-from django.forms import DecimalField  # pragma: no cover
+from django.forms import DecimalField
 
 
-class MoneyField(DecimalField):  # pragma: no cover
+class MoneyField(DecimalField):
     def prepare_value(self, value) -> Decimal:
         return value.amount

@@ -119,11 +119,11 @@ class TextField(ModelExampleMixin, models.TextField):
             self.example = generate_lorem_ipsum()
 
 
-class MACAddressField(ModelExampleMixin, MACAddressField):  # pragma: no cover
+class MACAddressField(ModelExampleMixin, MACAddressField):
     pass
 
 
-class JSONField(ModelExampleMixin, JSONField):  # pragma: no cover
+class JSONField(ModelExampleMixin, JSONField):
     pass
 
 

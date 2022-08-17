@@ -226,7 +226,8 @@ class audoma_action:
             )
 
         return all(
-            getattr(raised_error_result, attr) == getattr(catched_error_result, attr)
+            getattr(raised_error_result, attr, None)
+            == getattr(catched_error_result, attr, None)
             for attr in ["status_code", "data", "headers"]
         )
 

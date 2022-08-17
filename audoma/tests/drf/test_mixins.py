@@ -4,10 +4,7 @@ from rest_framework.exceptions import (
 )
 from rest_framework.test import DjangoRequestFactory
 
-from django.db.models import (
-    QuerySet,
-    fields,
-)
+from django.db.models import fields
 from django.test import TestCase
 
 from audoma.drf.mixins import (  # BulkUpdateModelMixin,
