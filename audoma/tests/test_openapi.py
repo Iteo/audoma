@@ -276,7 +276,7 @@ class AudomaAutoSchemaTestCase(TestCase):
         serializer = view.schema._get_serializer(serializer_type="result")
 
         self.assertEqual(type(serializer), dict)
-        self.assertEqual(serializer["201"], result_serializer_class)
+        self.assertEqual(type(serializer["201"]), result_serializer_class)
 
         serializer = view.schema._get_serializer(serializer_type="collect")
         self.assertEqual(serializer, collect_serializer_class)

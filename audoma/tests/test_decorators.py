@@ -118,6 +118,7 @@ class AudomaActionTestCase(TestCase):
             returnables=(self.request_data, 201),
         )
         view.method = "post"
+        view.format_kwarg = "json"
         view.request = request
         view.action = "custom_action"
         response = view.custom_action(request)
@@ -168,6 +169,7 @@ class AudomaActionTestCase(TestCase):
             view_properties={"serializer_class": self.example_collect_serializer},
         )
         view.method = "post"
+        view.format_kwarg = "json"
         view.request = request
         view.action = "custom_action"
         response = view.custom_action(request)
@@ -209,12 +211,12 @@ class AudomaActionTestCase(TestCase):
         view = create_view_with_custom_audoma_action(
             request=request,
             action_kwargs={
-                "results": {201: self.example_result_serializer},
+                "results": {200: self.example_result_serializer},
                 "methods": ["GET"],
                 "detail": False,
                 "errors": [PermissionDenied("You are not allowed")],
             },
-            returnables=(self.request_data, 201),
+            returnables=(self.request_data, 200),
             view_properties={"serializer_class": self.example_collect_serializer},
             raiseable=MethodNotAllowed("POST"),
             raise_exception=True,
@@ -244,12 +246,12 @@ class AudomaActionTestCase(TestCase):
         view = create_view_with_custom_audoma_action(
             request=request,
             action_kwargs={
-                "results": {201: self.example_result_serializer},
+                "results": {200: self.example_result_serializer},
                 "methods": ["GET"],
                 "detail": False,
                 "errors": [CustomException("Something happens")],
             },
-            returnables=(self.request_data, 201),
+            returnables=(self.request_data, 200),
             view_properties={"serializer_class": self.example_collect_serializer},
             raiseable=raisable,
             raise_exception=True,
@@ -266,3 +268,30 @@ class AudomaActionTestCase(TestCase):
                 f"Raised error: {raisable} has not been \
                         defined in audoma_action errors.",
             )
+
+    def test_audoma_action_many_param_true(self):
+        request = self.factory.post("/custom_action/")
+        request.data = self.request_data
+
+        view = create_view_with_custom_audoma_action(
+            request=request,
+            action_kwargs={
+                "results": {200: self.example_result_serializer},
+                "methods": ["GET"],
+                "detail": False,
+                "many": True,
+            },
+            returnables=(
+                [
+                    self.request_data,
+                ],
+                200,
+            ),
+            view_properties={"serializer_class": self.example_collect_serializer},
+        )
+        view.method = "post"
+        view.request = request
+        view.format_kwarg = "json"
+        view.action = "custom_action"
+        response = view.custom_action(request)
+        self.assertIsInstance(response.data, list)
