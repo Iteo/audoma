@@ -136,7 +136,7 @@ class audoma_action:
             parsed_result = results
             if hasattr(parsed_result, "get_result_serializer_class"):
                 assert callable(parsed_result.get_result_serializer_class)
-                parsed_result = parsed_result.get_result_serializer_class(many=many)
+                parsed_result = parsed_result.get_result_serializer_class()
             return parsed_result
 
         parsed_results = {}
@@ -148,7 +148,7 @@ class audoma_action:
 
             elif hasattr(result, "get_result_serializer_class"):
                 assert callable(result.get_result_serializer_class)
-                parsed_result = result.get_result_serializer_class(many=many)
+                parsed_result = result.get_result_serializer_class()
 
             parsed_results[key] = parsed_result
 

@@ -149,7 +149,6 @@ def create_model_serializer_class(
     return serializer
 
 
-# TODO consider rewrite it using existing methods
 def create_view_with_custom_action(
     docstring: str = "Test View Doc",
     view_baseclasses: Iterable[Type] = None,

@@ -1,15 +1,19 @@
+from typing import OrderedDict
+
 from rest_framework.exceptions import (
     NotFound,
     ValidationError,
 )
 from rest_framework.test import DjangoRequestFactory
 
+from django.core import exceptions as django_exceptions
 from django.db.models import fields
 from django.test import TestCase
 
 from audoma.drf.mixins import (  # BulkUpdateModelMixin,
     ActionModelMixin,
     BulkCreateModelMixin,
+    BulkUpdateModelMixin,
     CreateModelMixin,
     DestroyModelMixin,
     ListModelMixin,
@@ -17,6 +21,7 @@ from audoma.drf.mixins import (  # BulkUpdateModelMixin,
     UpdateModelMixin,
 )
 from audoma.drf.serializers import (
+    BulkListSerializer,
     BulkSerializerMixin,
     ModelSerializer,
 )
@@ -288,7 +293,21 @@ class DestroyModelMixinTestCase(CommonMixinTestCase):
         response = self.view.destroy(request)
         self.assertEqual(response.status_code, 204)
 
-    # TODO - add tests to invoke validation error
+    def test_destroy_validation_error(self):
+        request = self.factory.delete("/example")
+        request.data = {"id": 1}
+
+        def perform_destroy(me):
+            raise django_exceptions.ValidationError("Some Validation error")
+
+        self.view.perform_destroy = perform_destroy
+        self.view.request = request
+        self.view.action = "destroy"
+        try:
+            self.view.destroy(request)
+        except Exception as e:
+            self.assertEqual(type(e), ValidationError)
+            self.assertEqual(str(e.detail["detail"]), "Some Validation error")
 
 
 class BulkCreateModelMixinTestCase(CommonMixinTestCase):
@@ -303,18 +322,30 @@ class BulkCreateModelMixinTestCase(CommonMixinTestCase):
             meta_fields=["name", "age"],
             serializer_base_classes=(BulkSerializerMixin, ModelSerializer),
         )
-        self.view.serializer_class = self.bulk_serializer_class
 
-    def test_create_not_bulk_success(self):
-        data = {"name": "John", "age": 47}
+        class ExampleBulkListSerializer(BulkListSerializer):
+            def save(me):
+                objs = []
+                for x, d in enumerate(me.data):
+                    objs.append(self.model(id=x, name=d["name"], age=d["age"]))
+                me.instance = objs
+                return objs
+
+        self.bulk_serializer_class.Meta.list_serializer_class = (
+            ExampleBulkListSerializer
+        )
 
         def save(me):
+            data = me.data
             me.instance = self.model(id=1, name=data["name"], age=data["age"])
             return me.instance
 
         self.bulk_serializer_class.save = save
+
         self.view.serializer_class = self.bulk_serializer_class
 
+    def test_create_not_bulk_success(self):
+        data = {"name": "John", "age": 47}
         request = self.factory.post("/example")
         request.data = data
         self.view.action = "create"
@@ -323,34 +354,155 @@ class BulkCreateModelMixinTestCase(CommonMixinTestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data, data)
 
-    # TODO - fix this test
-    # def test_create_is_bulk_success(self):
-    #     data = [{
-    #         "name": "Greg",
-    #         "age": 22
-    #     },{
-    #         "name": "John",
-    #         "age": 47
-    #     }]
-    #     def save(me):
-    #         objs = []
-    #         for x, d in enumerate(data):
-    #             objs.append(self.model(id=x, name=d["name"], age=d["age"]))
-    #         me.instance = objs
-    #         return objs
-    #
-    #     self.bulk_serializer_class.save = save
-    #     self.view.serializer_class = self.bulk_serializer_class
-    #     request = self.factory.post("/example")
-    #     request.data = data
-    #     self.view.action = "create"
-    #     self.view.request = request
-    #     response = self.view.create(
-    #         request, success_status=201
-    #     )
-    #     self.assertEqual(response.status_code, 201)
-    #     print(response.data)
-    #     raise ValueError
+    def test_create_is_bulk_success(self):
+        data = [{"name": "Greg", "age": 22}, {"name": "John", "age": 47}]
+        request = self.factory.post("/example")
+        request.data = data
+        self.view.action = "create"
+        self.view.request = request
+        response = self.view.create(request, success_status=201)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0], OrderedDict({"name": "Greg", "age": 22}))
+        self.assertEqual(response.data[1], OrderedDict({"name": "John", "age": 47}))
 
 
-# TODO - tests for BulkUpdate
+class BulkUpdateMixinTestCase(CommonMixinTestCase):
+    view_baseclasses = (BulkUpdateModelMixin, GenericViewSet)
+
+    def setUp(self):
+        super().setUp()
+
+        def get_queryset():
+            return [
+                self.model(id=1, name="Greg", age=22),
+                self.model(id=2, name="John", age=47),
+            ]
+
+        self.view.get_queryset = get_queryset
+        self.bulk_serializer_class = create_model_serializer_class(
+            meta_model=self.model,
+            meta_fields=["id", "name", "age"],
+            serializer_base_classes=(BulkSerializerMixin, ModelSerializer),
+        )
+
+        class ExampleBulkListSerializer(BulkListSerializer):
+            def save(me):
+                for _, d in enumerate(me.validated_data):
+                    for x, i in enumerate(me.instance):
+                        if i.id == d["id"]:
+                            for key, value in d.items():
+                                setattr(me.instance[x], key, value)
+
+                return me.instance
+
+        self.bulk_serializer_class.Meta.list_serializer_class = (
+            ExampleBulkListSerializer
+        )
+
+        def save(me):
+            data = me.data
+            me.instance = self.model(id=data["id"], name=data["name"], age=data["age"])
+            return me.instance
+
+        self.bulk_serializer_class.save = save
+
+        self.view.serializer_class = self.bulk_serializer_class
+
+    def test_bulk_update_not_many_success(self):
+        data = [{"id": 2, "name": "John", "age": 55}]
+        request = self.factory.put("/example")
+        request.data = data
+        self.view.action = "update"
+        self.view.request = request
+
+        def filter_queryset(queryset):
+            data = request.data if isinstance(request.data, list) else [request.data]
+            ids = [d["id"] for d in data]
+            filtered_queryset = []
+            for q in queryset:
+                if q.id not in ids:
+                    continue
+                filtered_queryset.append(q)
+            return filtered_queryset
+
+        self.view.filter_queryset = filter_queryset
+
+        response = self.view.bulk_update(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, [OrderedDict(data[0])])
+
+    def test_bulk_update_many_success(self):
+        data = [
+            {"id": 2, "name": "John", "age": 55},
+            {"id": 1, "name": "Zenon", "age": 11},
+        ]
+        request = self.factory.put("/example")
+        request.data = data
+        self.view.action = "update"
+        self.view.request = request
+
+        def filter_queryset(queryset):
+            data = request.data if isinstance(request.data, list) else [request.data]
+            ids = [d["id"] for d in data]
+            filtered_queryset = []
+            for q in queryset:
+                if q.id not in ids:
+                    continue
+                filtered_queryset.append(q)
+            return filtered_queryset
+
+        self.view.filter_queryset = filter_queryset
+
+        response = self.view.bulk_update(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, [OrderedDict(data[1]), OrderedDict(data[0])])
+
+    def test_partial_bulk_update_not_many_success(self):
+        data = [{"id": 2, "name": "Simon"}]
+        request = self.factory.put("/example")
+        request.data = data
+        self.view.action = "update"
+        self.view.request = request
+
+        def filter_queryset(queryset):
+            data = request.data if isinstance(request.data, list) else [request.data]
+            ids = [d["id"] for d in data]
+            filtered_queryset = []
+            for q in queryset:
+                if q.id not in ids:
+                    continue
+                filtered_queryset.append(q)
+            return filtered_queryset
+
+        self.view.filter_queryset = filter_queryset
+
+        response = self.view.bulk_update(request, partial=True)
+        self.assertEqual(response.status_code, 200)
+        data[0]["age"] = 47
+        self.assertEqual(response.data, [OrderedDict(data[0])])
+
+    def test_partial_bulk_update_many_success(self):
+        data = [{"id": 2, "name": "Simon"}, {"id": 1, "name": "Caroline"}]
+        request = self.factory.put("/example")
+        request.data = data
+        self.view.action = "update"
+        self.view.request = request
+
+        def filter_queryset(queryset):
+            data = request.data if isinstance(request.data, list) else [request.data]
+            ids = [d["id"] for d in data]
+            filtered_queryset = []
+            for q in queryset:
+                if q.id not in ids:
+                    continue
+                filtered_queryset.append(q)
+            return filtered_queryset
+
+        self.view.filter_queryset = filter_queryset
+
+        response = self.view.bulk_update(request, partial=True)
+        self.assertEqual(response.status_code, 200)
+        data[0]["age"] = 47
+        data[1]["age"] = 22
+        self.assertEqual(response.data, [OrderedDict(data[1]), OrderedDict(data[0])])

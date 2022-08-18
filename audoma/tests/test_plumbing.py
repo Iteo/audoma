@@ -42,7 +42,6 @@ class PlumbingTestCase(TestCase):
             "Filter by example_field \n * `1` - One\n * `2` - Two\n * `3` - Three\n",
         )
 
-    # TODO - find out how we should test this method
     def test_get_lib_doc_excludes_audoma(self):
         expected_exclude_list = [
             views.APIView,

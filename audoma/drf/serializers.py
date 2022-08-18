@@ -7,7 +7,6 @@ from typing import (
 )
 from uuid import UUID
 
-# TODO - fix this, this does not make any sense
 from rest_framework import serializers
 from rest_framework.serializers import *  # noqa: F403, F401
 
@@ -77,9 +76,8 @@ class Result:
             self.result = result
 
 
-# TODO - many param does nothing, this should be fixed
 def result_serializer_class(
-    SerializerClass: Type[serializers.BaseSerializer], many: bool = False
+    SerializerClass: Type[serializers.BaseSerializer],
 ) -> Type[serializers.BaseSerializer]:
     """
     Helper function which wraps the serializer result if necessary.

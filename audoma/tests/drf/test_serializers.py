@@ -22,30 +22,22 @@ class ResultTestCase(TestCase):
 
     def test_result_serializer_class_class_name_endswith_serializer(self):
         self.serializer_class.__name__ = "ExampleDetailSerializer"
-        wrapped_serializer = serializers.result_serializer_class(
-            self.serializer_class, many=False
-        )
+        wrapped_serializer = serializers.result_serializer_class(self.serializer_class)
         self.assertEqual(wrapped_serializer.__name__, "ExampleDetailResultSerializer")
 
     def test_result_serializer_class_different_class_name(self):
         self.serializer_class.__name__ = "Example"
-        wrapped_serializer = serializers.result_serializer_class(
-            self.serializer_class, many=False
-        )
+        wrapped_serializer = serializers.result_serializer_class(self.serializer_class)
         self.assertEqual(wrapped_serializer.__name__, "ExampleResult")
 
     def test_result_serializer_class_many(self):
         self.serializer_class.__name__ = "ExampleDetailSerializer"
-        wrapped_serializer = serializers.result_serializer_class(
-            self.serializer_class, many=True
-        )
+        wrapped_serializer = serializers.result_serializer_class(self.serializer_class)
         self.assertTrue(hasattr(wrapped_serializer(many=True).instance, "results"))
 
     def test_result_serializer_class_not_many(self):
         self.serializer_class.__name__ = "ExampleDetailSerializer"
-        wrapped_serializer = serializers.result_serializer_class(
-            self.serializer_class, many=False
-        )
+        wrapped_serializer = serializers.result_serializer_class(self.serializer_class)
         self.assertTrue(hasattr(wrapped_serializer().instance, "result"))
 
 
@@ -63,7 +55,7 @@ class ResultSerializerClassMixinTestCase(TestCase):
             fields_config=self.fields_config, serializer_base_classes=self.base_classes
         )
         serializer_class._wrap_result_serializer = True
-        new_serializer_class = serializer_class.get_result_serializer_class(many=True)
+        new_serializer_class = serializer_class.get_result_serializer_class()
         self.assertNotEqual(serializer_class, new_serializer_class)
         serializer = new_serializer_class(many=True)
         self.assertTrue(hasattr(serializer.instance, "results"))
@@ -75,7 +67,7 @@ class ResultSerializerClassMixinTestCase(TestCase):
             fields_config=self.fields_config, serializer_base_classes=self.base_classes
         )
         serializer_class._wrap_result_serializer = True
-        new_serializer_class = serializer_class.get_result_serializer_class(many=False)
+        new_serializer_class = serializer_class.get_result_serializer_class()
         self.assertNotEqual(serializer_class, new_serializer_class)
         serializer = new_serializer_class(many=False)
         self.assertTrue(hasattr(serializer.instance, "result"))
@@ -86,7 +78,7 @@ class ResultSerializerClassMixinTestCase(TestCase):
             fields_config=self.fields_config, serializer_base_classes=self.base_classes
         )
         serializer_class._wrap_result_serializer = False
-        new_serializer_class = serializer_class.get_result_serializer_class(many=False)
+        new_serializer_class = serializer_class.get_result_serializer_class()
         self.assertEqual(new_serializer_class, serializer_class)
 
     def test_no_wrap_serializer_class_not_many(self):
@@ -94,7 +86,7 @@ class ResultSerializerClassMixinTestCase(TestCase):
             fields_config=self.fields_config, serializer_base_classes=self.base_classes
         )
         serializer_class._wrap_result_serializer = False
-        new_serializer_class = serializer_class.get_result_serializer_class(many=False)
+        new_serializer_class = serializer_class.get_result_serializer_class()
         self.assertEqual(new_serializer_class, serializer_class)
 
 
@@ -144,8 +136,6 @@ class ModelSerializerTestCase(TestCase):
         field, field_kwargs = serializer.build_standard_field(
             "age", model_fields_config["age"]
         )
-        self.assertEqual(field, serializers.IntegerField)
-        # TODO - verify why integerfield does not generate examples
 
 
 class DisplayNamedWritableFieldTestCase(TestCase):
