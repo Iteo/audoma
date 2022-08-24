@@ -35,22 +35,25 @@ These distributions will be installed automatically when installing audoma (if y
 .. _django-money: https://django-money.readthedocs.io/en/latest/
 .. _lorem: https://pypi.org/project/lorem/
 
-Install and configure Audoma
-============================
+Install Audoma
+===============
 
 Using `pip`:
 
 .. code :: bash
 
-    $ pip install git+https://github.com/Iteo/audoma.git
+    $ pip install audoma
 
-After successful installation, set *AudomaAutoSchema* as a default schema for your Django Rest Framework project:
+Audoma initial configuration
+==============================
+After successful installation, set *AudomaAutoSchema* as a default schema class
+for your Django Rest Framework project:
 
 .. code :: python
 
     REST_FRAMEWORK = {
-    # YOUR SETTINGS
-    'DEFAULT_SCHEMA_CLASS': 'audoma.drf.openapi.AudomaAutoSchema',
+        # YOUR SETTINGS
+        'DEFAULT_SCHEMA_CLASS': 'audoma.drf.openapi.AudomaAutoSchema',
     }
 
 

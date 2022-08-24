@@ -145,7 +145,6 @@ class AudomaAutoSchema(AutoSchema):
         if isinstance(serializer, str):
             return OpenApiResponse(description=serializer)
         elif isclass(serializer) and issubclass(serializer, BaseSerializer):
-            print(many, serializer)
             return serializer(many=many)
         return serializer
 
