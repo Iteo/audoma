@@ -16,7 +16,7 @@ Serializer class custom configs
 | and returns it or its instance.
 
 | Audoma Extends this behavior by, first of all, enabling to
-| define `collect` and `result` serializer for given views, for all actions.
+| define `collect` and `result` serializer for given viewsets.
 
 | Example:
 
@@ -74,8 +74,6 @@ Serializer class custom configs
 
 | It is also possible for action to serve more than one http method.
 | In audoma it is allowed to assign different serializers for each of actions methods.
-| This may be usefull for example if you want to use different list post serializer
-| and list get serializer.
 
 | Example:
 
@@ -131,7 +129,7 @@ Serializer class custom configs
 
 | The most atomic way of defining serializer classes in audoma is to define serializer
 | per method, action and type.
-| This means that each actions method will have `result` and `collect` serializers.
+| This means that each actions http method will have `result` and `collect` serializers.
 
 | Example:
 
@@ -232,7 +230,7 @@ Serializer class custom configs
 
         @action(detail=True, methods=["post", "get", "put"])
         def count(self, request, *args, **kwargs):
-        code = 200
+            code = 200
             if request.method != "GET":
                 serializer = self.get_serializer(data=request.data, serializer_type="collect")
                 serializer.is_valid(raise_exception=True)
@@ -263,11 +261,11 @@ Serializer class custom configs
 
 | For the `count` action we have defined three serializers.
 | First two serializers handle collecting data for "`POST` and `PUT` HTTP methods.
-| The third serializer is common for all seved by `count` action mehtods, it is a result serializer.
+| The third serializer is common for all served by `count` HTTP mehtods, it is a result serializer.
 | No matter which method we will use, this is the serializer which will be used to return the result.
 | In this case, if there won't be further changes in `count` action
 | we may define `count_result_serializer_class` as `count_serializer_class`.
-| This will work the same way because of the traverse order defined in audoma.
+| This will work the same way because of the name traversing order defined in audoma.
 | But this solution may be problematic during introducing any changes.
 
 .. code :: python
@@ -279,7 +277,7 @@ Serializer class custom configs
     ...
 
 | The one last thing that left in this viewset is `serializer_class`.
-| This variable will be used by all other actions supported by thise viewset.
+| This variable will be used by all other actions supported by this viewset.
 | In the viewset definition there are few mixin classes passed, so those will
 | provide some basic functionalities to our viewset.
 
@@ -509,10 +507,7 @@ Custom choices
             return self.body_type is BODY_TYPE_CHOICES.SEDAN
 
 | Additionally it's worth mention that those choices will be shown in docs in fields' description.
-| Those will also appear in schema as x-choices.
-
-# TODO - add ref
-# TODO - verify x-choices
+| Those will also appear in schema as :ref:`x-choices`.
 
 
 Filters
@@ -604,8 +599,6 @@ Default Filters
 | With audoma you also get a display field of a choice, this may be useful to show display value
 | in a drop-down for example. This is being shown as mapping value - field
 
-# TODO - image
-
 
 | The next feature is schema extension which is not visible in swagger or redoc frontend.
 | This schema extension is :ref:`x-choices`. Which provides mapping for filter values.
@@ -661,13 +654,13 @@ Decorators
 @extend_schema_field
 ---------------------
 
-| This decorator is by default `drf-spectacular` decorator.
-| Audoma only changes its behaviour, in `drf-spectacular` using this decorator casued overriding
-| all informations about field. Audoma does not override information, it only updates available informations
+| This decorator is by default `drf-spectacular` feature.
+| Audoma only changes its behaviour, in `drf-spectacular` using this decorator causes overriding
+| all informations about field. Audoma does not override information, it only updates available information
 | with those passed to the decorator.
 
 | This may be very useful while defining examples.
-| We don't want to erase all other field informations
+| We don't want to erase all other field information
 | just because we want to define example for this field.
 | Also passing all field information  additionally just because we want
 | to define example seems unneccessary and redundant.
@@ -698,7 +691,9 @@ Decorators
 | This is one of the most complex features offered by audoma.
 | In fact this is an extension of action decorator, which by default is Django Rest Framewok functionality.
 | It also allows registering custom action for viewset.
-| In case of `audoma_action`, it is also possible to define additional parameters, such as:
+| In case of `audoma_action`, it changes a bit how action function should work,
+| using `audoma_action` you should not return response from action function, you should return
+| tuple of instance and status code, `audoma_action` will take care of create response out of it.
 
 Usage
 ^^^^^^
@@ -715,7 +710,7 @@ Usage
         CarListSerializer,
         CarWriteSerializer,
         CarDetailsSerializer,
-        CarCrateRateSerializer,
+        CarCreateRateSerializer,
         CarRateSerializer
     )
     from app.models import (
@@ -749,7 +744,7 @@ Usage
         @audoma_action(
             detail=True,
             methods=["get", "post"]
-            collectors=CarCreateRateSerialzer,
+            collectors=CarCreateRateSerializer,
             results=CarRateSerializer,
             errors=[CustomCarRateException]
         )
@@ -772,7 +767,7 @@ Usage
 | instance and status_code, the `audoma_action` decorator takes care
 | of creating the response from this.
 
-| Let's modify our example, let there be a custom exception risen.
+| Let's modify our example, let there be a custom exception raised.
 
 .. code-block :: python
    :linenos:
@@ -785,7 +780,7 @@ Usage
         CarListSerializer,
         CarWriteSerializer,
         CarDetailsSerializer,
-        CarCrateRateSerializer,
+        CarCreateRateSerializer,
         CarRateSerializer
     )
     from app.models import (
@@ -825,7 +820,7 @@ Usage
         @audoma_action(
             detail=True,
             methods=["get", "post"]
-            collectors=CarCreateRateSerialzer,
+            collectors=CarCreateRateSerializer,
             results=CarRateSerializer,
             errors=[CustomCarRateException]
         )
@@ -839,7 +834,7 @@ Usage
                     raise CustomCarRateException
             return instance, 200
 
-| After this change it is possible to rise any exception of type `CustomCarRateException` in rate action.
+| After this change it is possible to raise any exception of type `CustomCarRateException` in rate action.
 | Also this exception will be documented in this action schema.
 
 | Let's presume that we now want to return status code `201` and rate instance on `post`,
@@ -856,7 +851,7 @@ Usage
         CarListSerializer,
         CarWriteSerializer,
         CarDetailsSerializer,
-        CarCrateRateSerializer,
+        CarCreateRateSerializer,
         CarRateSerializer
     )
     from app.models import (
@@ -896,7 +891,7 @@ Usage
         @audoma_action(
             detail=False,
             methods=["get", "post"]
-            collectors=CarCreateRateSerialzer,
+            collectors=CarCreateRateSerializer,
             results={"post":{201: CarRateSerializer}, "get":{200: CarDetailsSerializer}},
             errors=[CustomCarException]
         )
@@ -929,7 +924,7 @@ Usage
         CarListSerializer,
         CarWriteSerializer,
         CarDetailsSerializer,
-        CarCrateRateSerializer,
+        CarCreateRateSerializer,
         CarRateSerializer
     )
     from app.models import (
@@ -969,7 +964,7 @@ Usage
         @audoma_action(
             detail=False,
             methods=["get", "post"]
-            collectors=CarCreateRateSerialzer,
+            collectors=CarCreateRateSerializer,
             results={"post":{201: CarRateSerializer}, "get":{200: CarDetailsSerializer}},
             errors=[CustomCarException]
         )
@@ -1028,7 +1023,7 @@ Usage
         CarListSerializer,
         CarWriteSerializer,
         CarDetailsSerializer,
-        CarCrateRateSerializer,
+        CarCreateRateSerializer,
         CarRateSerializer
     )
     from app.models import (
@@ -1068,7 +1063,7 @@ Usage
         @audoma_action(
             detail=False,
             methods=["get", "post"]
-            collectors=CarCreateRateSerialzer,
+            collectors=CarCreateRateSerializer,
             results={
                 "post":{201: CarRateSerializer},
                 "get":{200: CarDetailsSerializer, 204:"Rate service currently unavailable"}
@@ -1103,6 +1098,9 @@ Usage
 
 Params
 ^^^^^^^
+
+| Decorator `audoma_action` takse all params which may be passed to `action` decorator.
+| It also takes additional params, which we will describe below:
 
 collectors
 """"""""""""
@@ -1252,9 +1250,9 @@ ignore_view_collectors
 
 many
 """""
-| This param decides if the returned instance should be treated as many by serializer
-| Currently it can only be set to whole action, it is impossible to return instnace and
-| multiple instance from one action method using `audoma_action`.
+| This param decides if the returned instance should be treated as `many` by serializer
+| Currently it can only be set to whole action, it is impossible to return instance and
+| multiple instances from one action method using `audoma_action`.
 
 
 Examples
@@ -1308,7 +1306,7 @@ Define custom example classes
 * `NumericExample`
 * `RegexExample`
 
-And one general class:
+| And one general class:
 * `Example`
 
 | To define your example class, you should inherit from the `Example` class
@@ -1330,8 +1328,6 @@ Money Field
 
 | Our money field is an extension of the `MoneyField` known from `django_money`.
 | This field is defined as one field in the model, but it creates two fields in the database.
-
-| It creates a separate fields
 | There is nothing complex in this field usage, simply define it in your model:
 
 .. code :: python
@@ -1340,8 +1336,31 @@ Money Field
 
     class SalesmanStats(models.Model):
 
-        salesman = models.ForeignKey("sale.Salesman", on_delete=models.CASCADE)
+        salesman = models.ForeignKey("sale.Salesman"e, on_delete=models.CASCADE)
         earned = models.MoneyField(max_digits=14, decimal_places=2, default_currency="PLN")
+
+| Field defined on the model required passing to it two variables.
+| Currency and amount, in our case we have set the default currency, so passing currency is not obligatory.
+| Those values may be passed in few ways:
+
+.. code :: python
+
+    stats = SalesmanStats.objects.get(id=20)
+    # Simply pass Money object
+    stats.earned = Money("99900.23", "PLN")
+    # You may also pass thos variables to objects.create separately
+    sales = Salesman.objects.get(id=1)
+    stats = SalesmanStats.objects.create(
+        salesman=sales, earned_amount=120,
+        earned_courrency="PLN"
+    )
+    # In our case we defined the default currency, so it also may be
+    stats = SalesmanStats.objects.create(
+        salesman=sales, earned_amount=120
+    )
+    # To get the amount we type
+    print(stats.earned) # this will print 120
+    print(stats.earned.currency) # will print PLN
 
 
 PhoneNumberField
@@ -1368,7 +1387,7 @@ PhoneNumberField
 
 
 
-Above will result in the following example in the documentation:
+| Above will result in the following example in the documentation:
 
 .. code :: json
 
@@ -1424,13 +1443,11 @@ Schema Extensions
 
 x-choices
 ----------
-
-
-| This extension is being added to all fields which have limited choice to some range.
+| This extension is being added to all fields schema which have limited choice to some range.
 | All fields which have defined choices as enum will have this included in their schema.
 | If the filter field is also limited to choices this also will be included.
 
-| x-choices may have two different forms.
+| X-choices may have two different forms.
 | The first one when it's just a representation of choices enum.
 | Then it'll be a mapping:
 
@@ -1447,7 +1464,7 @@ x-choices
         }
     }
 
-| This is simplay a mapping of values to display values.
+| This is simply a mapping of values to display values.
 | This may be useful during displaying choices in for example drop-down.
 
 | The second form of x-choices is:
@@ -1466,4 +1483,4 @@ x-choices
 | This may be used to read limited choices from the related endpoint.
 | * operationRef - is a JSON pointer to ther related endpoint which should be accesible in this chema
 | * value - shows which field should be taken as a field value
-| * display - shows which field should be taken as field display value (be shown at frontend)
+| * display - shows which field should be taken as field display value
