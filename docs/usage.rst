@@ -10,14 +10,15 @@ Viewset defined serializers
 Serializer class custom configs
 --------------------------------
 
-| By, default Django Rest Framework provides two methods to get a serializer:
-| `get_serializer` and `get_serializer_class`.
-| Those methods check if `self` has the property called `serializer_class`
-| and returns it or its instance.
+| By, default Django Rest Framework provides a method to get a serializer - `get_serializer`.
+| This checks if viewset instance has set `serializer_class` property and returuns its instance.
+| Audoma Extends this behavior by, extending the number of possible serializer_class declarations.
 
-| Audoma Extends this behavior by, first of all, enabling to
-| define `collect` and `result` serializer for given viewsets.
+| First of all, you are allowed to define `collect` and `response` serializer$ classes for viewset.
+| Collect serializer will be used to collect and process request data.
+| Response serializers will be used to process data for the response.
 
+| Variable name pattern: `{type}_serializer_class` (type can be result or collect)
 | Example:
 
 .. code-block :: python
@@ -38,10 +39,11 @@ Serializer class custom configs
         collect_serializer_class = MyCollectSerializer
         result_serializer_class = MyResultSerializer
 
-| It is also possible to define a custom serializer for each action in the viewset.
+| Additionally audoma allows a definition of a custom serializer for each action in the viewset.
 | This is possible for generic drfs' actions and also for custom actions,
 | created with `@action` decorator.
 
+| Variable name pattern: `{action_name}_serializer_class`
 | Example:
 
 .. code-block :: python
@@ -73,8 +75,9 @@ Serializer class custom configs
             return Response(serializer.instance, status_code=200)
 
 | It is also possible for action to serve more than one http method.
-| In audoma it is allowed to assign different serializers for each of actions methods.
+| In audoma, it is allowed to assign different serializers for each of the actions HTTP methods.
 
+| Variable name pattern: `{http_method}_{action_name}_serializer_class`
 | Example:
 
 .. code-block :: python
@@ -96,8 +99,10 @@ Serializer class custom configs
         post_list_serializer_class = MyBulkCreateSerializer
 
 
-| Each action may also define different `collect` and `result` serializer.
+| Back to `collect` and `result` serializers.
+| Each action may have defined different `collect` and `result` serializer classes.
 
+| Variable name pattern: `{action_name}_{type}_serializer_class` (type can be result or collect)
 | Example:
 
 .. code-block :: python
@@ -129,8 +134,9 @@ Serializer class custom configs
 
 | The most atomic way of defining serializer classes in audoma is to define serializer
 | per method, action and type.
-| This means that each actions http method will have `result` and `collect` serializers.
+| This means that each action's http method will have `result` and `collect` serializer classes.
 
+| Variable name pattern: `{htp_method}_{action_name}_{type}_serializer_class` (type can be result or collect)
 | Example:
 
 .. code-block :: python
@@ -171,7 +177,7 @@ Serializer class custom configs
 
 | As you surely presume, all of those serializer classes
 | variables may be defined on one viewset at once
-| Than those will be traversed in the defined order.
+| Then those will be traversed in the defined order.
 | The first one matching will be used.
 
 | Let's take an example viewset:
@@ -245,10 +251,10 @@ Serializer class custom configs
 
 
 | Let's examine the above example.
-| Action search has two serializers defined, both are defined for post method.
-| One of those will be used to collect data, other to return the result.
+| Action search has two serializers defined, both are defined for the POST method.
+| One of those will be used to collect data, the other to return the result.
 | In this case we may also simplify the serializer classes variable names,
-| beacuse search only serves post method, so we may also name those variables like this:
+| because search only serves the POST method, so we may also name those variables like this:
 
 .. code :: python
 
@@ -262,7 +268,7 @@ Serializer class custom configs
 | For the `count` action we have defined three serializers.
 | First two serializers handle collecting data for "`POST` and `PUT` HTTP methods.
 | The third serializer is common for all served by `count` HTTP mehtods, it is a result serializer.
-| No matter which method we will use, this is the serializer which will be used to return the result.
+| No matter which method we will use, this is the serializer that will be used to return the result.
 | In this case, if there won't be further changes in `count` action
 | we may define `count_result_serializer_class` as `count_serializer_class`.
 | This will work the same way because of the name traversing order defined in audoma.
@@ -276,12 +282,12 @@ Serializer class custom configs
     count_serializer_class = MyCountResultSerializer
     ...
 
-| The one last thing that left in this viewset is `serializer_class`.
+| The one last thing that is left in this viewset is `serializer_class`.
 | This variable will be used by all other actions supported by this viewset.
 | In the viewset definition there are few mixin classes passed, so those will
 | provide some basic functionalities to our viewset.
 
-| If this is going to be necessary it is possible to create sepparate serializer for those actions also.
+| If this is going to be necessary it is possible to create a separate serializer for those actions also.
 
 | Example:
 
@@ -358,15 +364,15 @@ Serializer class custom configs
 
 Serializer classes name traverse order
 ---------------------------------------
-| After examining above examples, it is obious that there is some defined order
-| while traversing defined variables. Variable which will be used as serializer
-| class are being picked in this order:
+| After examining the above examples, it is obvious that there is some defined order
+| while traversing defined variables. The variable which will be used as the serializer
+| class is being picked in this order:
 
-* `{method}_{action}_{type}_serializer_class`
-* `{action}_{type}_serializer_class`
-* `{method}_{action}_serializer_class`
-* `{action}_serializer_class`
-* `common_{type}_serializer_class`
+* `{htp_method}_{action_name}_{type}_serializer_class` (type can be result or collect)
+* `{action_name}_{type}_serializer_class` (type can be result or collect)
+* `{http_method}_{action_name}_serializer_class`
+* `{action_name}_serializer_class`
+* `common_{type}_serializer_class` (type can be result or collect)
 * `serializer_class`
 
 | For all serializers defined this way, there is also support for proper documentation in api schema.
@@ -386,7 +392,7 @@ Example:
    :linenos:
 
     from rest_framework.decorators import action
-    from rest_framework.response import Response
+    .. from rest_framework.response import Response
 
     from audoma.drf import viewsets
     from example_app.serializers import (
@@ -467,14 +473,14 @@ Example:
             result_serializer = self.get_result_serializer(instance=instance)
             return Response(result_serializer.data, status=code)
 
-| Currently there is no way to cosutomize this behaviour in audoma.
+| Currently there is no way to customize this behavior in audoma.
 
 .. _choices:
 
 Custom choices
 ==============
-| Audoma provides new way of defining choices and new choices class
-| which allows to call choice by it's name.\
+| Audoma provides a new way of defining choices and new choices class
+| which allows calling choice by its name.
 
 | Example definition and usage:
 
@@ -506,8 +512,8 @@ Custom choices
         def is_sedan(self):
             return self.body_type is BODY_TYPE_CHOICES.SEDAN
 
-| Additionally it's worth mention that those choices will be shown in docs in fields' description.
-| Those will also appear in schema as :ref:`x-choices`.
+| Additionally it's worth mentioning that those choices will be shown in docs in the fields description.
+| Those will also appear in the schema as :ref:`x-choices`.
 
 
 Filters
@@ -518,7 +524,7 @@ Default Filters
 
 | In `drf`, it's possible to define `filterset_fields` and `filterset_class`.
 | By default, `drf-spectacular`` supports `django-filters`. Which are being documented.
-| Audoma has been tested with default drfs filter backend and `DjangoFilterBackend`.
+| Audoma has been tested with the default DRFs filter backend and `DjangoFilterBackend`.
 | For more accurate documentation, we recommend using `DjangoFilterBackend` as the default one.
 | Filters and search fields are being documented out of the box automatically.
 
@@ -592,18 +598,18 @@ Default Filters
         filterset_class = CarFilter
         search_fields = ["=manufacturer", "name"]
 
-| Audoma extends documenting filters by two main features.
+| Audoma extends documenting filters with two main features.
 
 | Additional enum documentation in field description:
 | In `drf-spectacular`, enums are being shown only as values possible to pass to the filter.
-| With audoma you also get a display field of a choice, this may be useful to show display value
+| With audoma, you also get a display field of a choice, this may be useful to show display value
 | in a drop-down for example. This is being shown as mapping value - field
 
 
 | The next feature is schema extension which is not visible in swagger or redoc frontend.
 | This schema extension is :ref:`x-choices`. Which provides mapping for filter values.
-| Passing x-choices in schema allows frontend developer to use mapping to show display/value fields
-| without looking into field description.
+| Passing x-choices in schema allows frontend developers to use mapping to show display/value fields
+| without looking into a field description.
 
 
 Validators
@@ -618,7 +624,7 @@ ExclusiveFieldsValidator
 | This validator takes params:
 
 * fields - list or a tuple of field names
-* message - string message, which will replace default validator message
+* message - string message, which will replace the default validator message
 * required - boolean which determines if any of the fields must be given
 * message_required - a message which will be displayed if one of the fields is required,
     and none has been passed
@@ -655,15 +661,15 @@ Decorators
 ---------------------
 
 | This decorator is by default `drf-spectacular` feature.
-| Audoma only changes its behaviour, in `drf-spectacular` using this decorator causes overriding
-| all informations about field. Audoma does not override information, it only updates available information
+| Audoma only changes its behavior, in `drf-spectacular` using this decorator causes overriding
+| all informations about the field. Audoma does not override information, it only updates available information
 | with those passed to the decorator.
 
 | This may be very useful while defining examples.
 | We don't want to erase all other field information
-| just because we want to define example for this field.
-| Also passing all field information  additionally just because we want
-| to define example seems unneccessary and redundant.
+| just because we want to define an example for this field.
+| Also passing all field information additionally just because we want
+| to define an example seems unnecessary and redundant.
 
 | Example:
 
@@ -682,23 +688,23 @@ Decorators
     class CustomExampleFloatField(FloatField):
         pass
 
-| Above we simply add default example for all
+| Above we simply add a default example for all
 | fields which will be of class `CustomExampleFloatField`.
 
 
 @audoma_action
 ---------------
-| This is one of the most complex features offered by audoma.
-| In fact this is an extension of action decorator, which by default is Django Rest Framewok functionality.
+| This is one of the most complex features offered by audoma, an extension of an action decorator.
+| Decorator by default is Django Rest Framework functionality.
 | It also allows registering custom action for viewset.
-| In case of `audoma_action`, it changes a bit how action function should work,
-| using `audoma_action` you should not return response from action function, you should return
-| tuple of instance and status code, `audoma_action` will take care of create response out of it.
+| In the case of `audoma_action`, it changes a bit how action function should work,
+| using `audoma_action` you should not return a response from action function, you should return
+| tuple of instance and status code, `audoma_action` will take care of creating response out of it.
 
 Usage
 ^^^^^^
 
-| Let's take an example vieset:
+| Let's take an example viewset:
 
 .. code-block :: python
    :linenos:
@@ -709,7 +715,7 @@ Usage
     from app.serializers import (
         CarListSerializer,
         CarWriteSerializer,
-        CarDetailsSerializer,
+        CarDetailsSerializer,ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
         CarCreateRateSerializer,
         CarRateSerializer
     )
@@ -759,11 +765,11 @@ Usage
 | Let's examine the above example.
 | We've created the viewset with some initial actions served, and serializers assigned to those actions.
 
-| Next we've defined new custom action calle `rate`.
+| Next we've defined a new custom action called `rate`.
 | This action serves `get` and `post` methods, in case of this action '
-| we use single result and collect serializers.
+| we use a single result and collect serializers.
 
-| As you may see, `audoma_action` method does not return default response, it returns
+| As you may see, `audoma_action` method does not return the default response, it returns
 | instance and status_code, the `audoma_action` decorator takes care
 | of creating the response from this.
 
@@ -906,11 +912,11 @@ Usage
                     raise CustomCarException
                 return instance, 200
 
-| Now we use different serializers for each method, depended on returned status code.
-| Each of these serializer is using different model, `audoma_action` makes such situations super easy.
+| Now we use different serializers for each method, depending on returned status code.
+| Each of this serializer is using different model, `audoma_action` makes such situations super easy.
 
 
-| Let's take different example, we have an action which should return string message, depends on
+| Let's take a different example, we have an action that should return a string message, depending on
 | current car state.
 
 .. code-block :: python
@@ -987,18 +993,18 @@ Usage
         )
         def active(self, request, pk=None):
             instance = self.get_object(pk=pk)
-            if instnace.active:
+            if instance.active:
                 return None, 200
             return "Car is unavailable", 200
 
 
-| This action may return None, or string, but as you may see in results we have also string defined.
-| The string defaut in the results it is a string which will be message returned by default.
-| The default message will be returned if instance is None.
-| If returned string instance won't be None, than the returned instance will be
+| This action may return `None` or `string`, but as you may see in the results we have also string defined.
+| The string default in the results it is a string which will be the message returned by default.
+| The default message will be returned if the instance is `None`.
+| If returned string instance won't be None, then the returned instance will be
 | included in the response.
 
-| While returning string message as an instnace, audoma simply wraps this message into `json`.
+| While returning string message as an instance, audoma simply wraps this message into `json`.
 | Wrapped message would look like this:
 
 .. code :: json
@@ -1008,8 +1014,8 @@ Usage
     }
 
 | It's clear that we can combine those results, so in one action
-| we may return string instance, and model instance.
-| Let's modify our rate function, that it'll return default message if rating is disabled.
+| we may return string instance and model instance.
+| Let's modify our rate function, so it'll return the default message if the rating is disabled.
 
 .. code-block :: python
    :linenos:
@@ -1092,14 +1098,14 @@ Usage
         )
         def active(self, request, pk=None):
             instance = self.get_object(pk=pk)
-            if instnace.active:
+            if instance.active:
                 return None, 200
             return "Car is unavailable", 200
 
 Params
 ^^^^^^^
 
-| Decorator `audoma_action` takse all params which may be passed to `action` decorator.
+| Decorator `audoma_action` takes all params which may be passed to the `action` decorator.
 | It also takes additional params, which we will describe below:
 
 collectors
@@ -1121,9 +1127,9 @@ collectors
                 collectors=ExampleOneFieldSerializer,
             )
 
-    * As dictionary with http methods as keys and serializer classes as values.
+    * A dictionary with HTTP methods as keys and serializer classes as values.
 
-        This allows to define different collector for each http method.
+        This allows defining different collector for each HTTP method.
 
         .. code :: python
 
@@ -1146,7 +1152,7 @@ collectors
 
     | If you are using collectors it is important to remember,
     | that your action method should accept additional kwarg `collect_serializer`
-    | which will be validated collector instance.
+    | which will be a validated collector instance.
 
 results
 """""""""
@@ -1155,7 +1161,7 @@ results
 
     * Serializer class or which must inherit from `serializers.BaseSerializer` or string variable
 
-        In this case the serializer class passed will be used to produce every response
+        In this case, the serializer class passed will be used to produce every response
         coming from this action.
 
         .. code :: python
@@ -1167,9 +1173,9 @@ results
                 results=ExampleModelSerializer,
             )
 
-    * As dictionary with http methods as keys and serializer classes ot string variables as values.
+    * A dictionary with HTTP methods as keys and serializer classes or string variables as values.
 
-        In This case, there will be different response serializer for each http method.
+        In This case, there will be a different response serializer for each HTTP method.
 
         .. code :: python
 
@@ -1181,8 +1187,8 @@ results
             )
 
 
-    * As dictionary with http methods as keys and dictionaries as values.
-        Those dictionaries has status codes as keys and serializer classes or string variables
+    * A dictionary with HTTP methods as keys and dictionaries as values.
+        Those dictionaries have status codes as keys and serializer classes or string variables
         as values.
 
         .. code-block :: python
@@ -1250,19 +1256,19 @@ ignore_view_collectors
 
 many
 """""
-| This param decides if the returned instance should be treated as `many` by serializer
-| Currently it can only be set to whole action, it is impossible to return instance and
+| This param decides if the returned instance should be treated as `many` by a serializer
+| Currently it can only be set to the concrete action, it is impossible to return a instance and
 | multiple instances from one action method using `audoma_action`.
 
 
 Examples
 ========
 
-Define example for field
+Define an example for the field
 --------------------------
 
-| Above we described :ref:`@extend_schema_field` decorator which allows defining example for field.
-| For all fields defined in audoma, there are being examples generated automatically,
+| Above we described :ref:`@extend_schema_field` decorator which allows defining example for the field.
+| For all fields defined in audoma, there are examples generated automatically,
 | but you may also pass your example as a field parameter.
 
 | Example:
@@ -1341,14 +1347,14 @@ Money Field
 
 | Field defined on the model required passing to it two variables.
 | Currency and amount, in our case we have set the default currency, so passing currency is not obligatory.
-| Those values may be passed in few ways:
+| Those values may be passed in a few ways:
 
 .. code :: python
 
     stats = SalesmanStats.objects.get(id=20)
-    # Simply pass Money object
+    # Simply pass the Money object
     stats.earned = Money("99900.23", "PLN")
-    # You may also pass thos variables to objects.create separately
+    # You may also pass those variables to objects.create separately
     sales = Salesman.objects.get(id=1)
     stats = SalesmanStats.objects.create(
         salesman=sales, earned_amount=120,
@@ -1387,7 +1393,7 @@ PhoneNumberField
 
 
 
-| Above will result in the following example in the documentation:
+| The above code will result in the following example in the documentation:
 
 .. code :: json
 
@@ -1481,6 +1487,6 @@ x-choices
 
 | This x-choices is a reference to a different endpoint.
 | This may be used to read limited choices from the related endpoint.
-| * operationRef - is a JSON pointer to ther related endpoint which should be accesible in this chema
+| * operationRef - is a JSON pointer to the related endpoint which should be accessible in this chema
 | * value - shows which field should be taken as a field value
 | * display - shows which field should be taken as field display value
