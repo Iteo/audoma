@@ -12,13 +12,13 @@ Serializer class custom configs
 
 | By, default Django Rest Framework provides a method to get a serializer - `get_serializer`.
 | This checks if viewset instance has set `serializer_class` property and returuns its instance.
-| Audoma Extends this behavior by, extending the number of possible serializer_class declarations.
+| Audoma Extends this behavior by, extending the number of possible serializer class declarations.
 
-| First of all, you are allowed to define `collect` and `response` serializer$ classes for viewset.
+| First of all, you are allowed to define `collect` and `response` serializer classes for viewset.
 | Collect serializer will be used to collect and process request data.
 | Response serializers will be used to process data for the response.
 
-| Variable name pattern: `{type}_serializer_class` (type can be result or collect)
+| Variable name pattern: `common_{type}_serializer_class` (type can be result or collect)
 | Example:
 
 .. code-block :: python
@@ -36,8 +36,8 @@ Serializer class custom configs
         mixins.ListModelMixin,
         viewsets.GenericViewSet
     ):
-        collect_serializer_class = MyCollectSerializer
-        result_serializer_class = MyResultSerializer
+        common_collect_serializer_class = MyCollectSerializer
+        common_result_serializer_class = MyResultSerializer
 
 | Additionally audoma allows a definition of a custom serializer for each action in the viewset.
 | This is possible for generic drfs' actions and also for custom actions,
@@ -74,7 +74,7 @@ Serializer class custom configs
             serializer.save()
             return Response(serializer.instance, status_code=200)
 
-| It is also possible for action to serve more than one http method.
+| It is also possible for action to serve more than one HTTP method.
 | In audoma, it is allowed to assign different serializers for each of the actions HTTP methods.
 
 | Variable name pattern: `{http_method}_{action_name}_serializer_class`
@@ -134,7 +134,7 @@ Serializer class custom configs
 
 | The most atomic way of defining serializer classes in audoma is to define serializer
 | per method, action and type.
-| This means that each action's http method will have `result` and `collect` serializer classes.
+| This means that each action's HTTP method will have `result` and `collect` serializer classes.
 
 | Variable name pattern: `{htp_method}_{action_name}_{type}_serializer_class` (type can be result or collect)
 | Example:
@@ -180,7 +180,7 @@ Serializer class custom configs
 | Then those will be traversed in the defined order.
 | The first one matching will be used.
 
-| Let's take an example viewset:
+| Let's have a look at an example viewset:
 
 .. code-block :: python
    :linenos:
@@ -267,7 +267,7 @@ Serializer class custom configs
 
 | For the `count` action we have defined three serializers.
 | First two serializers handle collecting data for "`POST` and `PUT` HTTP methods.
-| The third serializer is common for all served by `count` HTTP mehtods, it is a result serializer.
+| The third serializer is common for all served by `count` HTTP methods, it is a result serializer.
 | No matter which method we will use, this is the serializer that will be used to return the result.
 | In this case, if there won't be further changes in `count` action
 | we may define `count_result_serializer_class` as `count_serializer_class`.
@@ -381,7 +381,7 @@ Permissions
 ===========
 
 By default, in the `drf-spectacular` viewset permissions were not documented at all.
-Currently, permissions are being documented for each viewset separately.
+In audoma, permissions are being documented for each viewset separately.
 
 You don't have to define anything extra, this is being handled just out of the box.
 The only thing it is required is to define permissions on your viewset.
@@ -473,7 +473,8 @@ Example:
             result_serializer = self.get_result_serializer(instance=instance)
             return Response(result_serializer.data, status=code)
 
-| Currently there is no way to customize this behavior in audoma.
+| Currently there is no way to customize this behavior in audoma, also it is
+| not possible to disable permissions documentation.
 
 .. _choices:
 
@@ -524,9 +525,9 @@ Default Filters
 
 | In `drf`, it's possible to define `filterset_fields` and `filterset_class`.
 | By default, `drf-spectacular`` supports `django-filters`. Which are being documented.
-| Audoma has been tested with the default DRFs filter backend and `DjangoFilterBackend`.
-| For more accurate documentation, we recommend using `DjangoFilterBackend` as the default one.
-| Filters and search fields are being documented out of the box automatically.
+| Audoma has been tested with the default DRFs filter backend and `django_filters.rest_framework.DjangoFilterBackend`.
+| For more accurate documentation, we recommend using `django_filters.rest_framework.DjangoFilterBackend` as the default one.
+| Filters and search fields are being documented out of the box.
 
 | Example:
 
@@ -602,14 +603,15 @@ Default Filters
 
 | Additional enum documentation in field description:
 | In `drf-spectacular`, enums are being shown only as values possible to pass to the filter.
-| With audoma, you also get a display field of a choice, this may be useful to show display value
-| in a drop-down for example. This is being shown as mapping value - field
+| With audoma, you also get a display value of enum field.
+| This is being shown as:
+    * api value - display value
 
 
-| The next feature is schema extension which is not visible in swagger or redoc frontend.
+| The next feature is schema extension which is not visible in OpenApi frontend.
 | This schema extension is :ref:`x-choices`. Which provides mapping for filter values.
-| Passing x-choices in schema allows frontend developers to use mapping to show display/value fields
-| without looking into a field description.
+| Passing x-choices in schema allows frontend developers to use mapping
+| to show display/value fields without looking into a field description.
 
 
 Validators
@@ -626,10 +628,9 @@ ExclusiveFieldsValidator
 * fields - list or a tuple of field names
 * message - string message, which will replace the default validator message
 * required - boolean which determines if any of the fields must be given
-* message_required - a message which will be displayed if one of the fields is required,
-    and none has been passed
+* message_required - a message which will be displayed if one of the fields is required, and none has been passed
 
-| Usage is quite simple:
+| Usage is simple:
 
 .. code-block :: python
    :linenos:
@@ -659,6 +660,7 @@ Decorators
 
 @extend_schema_field
 ---------------------
+| `Spectacular Docs <https://drf-spectacular.readthedocs.io/en/latest/customization.html?highlight=extend_schema_field#step-3-extend-schema-field-and-type-hints>`_
 
 | This decorator is by default `drf-spectacular` feature.
 | Audoma only changes its behavior, in `drf-spectacular` using this decorator causes overriding
@@ -694,11 +696,13 @@ Decorators
 
 @audoma_action
 ---------------
+| `DRFs action docs <https://www.django-rest-framework.org/api-guide/viewsets/#marking-extra-actions-for-routing>`
+
 | This is one of the most complex features offered by audoma, an extension of an action decorator.
 | Decorator by default is Django Rest Framework functionality.
 | It also allows registering custom action for viewset.
-| In the case of `audoma_action`, it changes a bit how action function should work,
-| using `audoma_action` you should not return a response from action function, you should return
+| In the case of `audoma_action`, it changes a bit how the action function should work,
+| using `audoma_action` action function should not return a `Response` object, it should return
 | tuple of instance and status code, `audoma_action` will take care of creating response out of it.
 
 Usage
@@ -715,7 +719,7 @@ Usage
     from app.serializers import (
         CarListSerializer,
         CarWriteSerializer,
-        CarDetailsSerializer,ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+        CarDetailsSerializer,
         CarCreateRateSerializer,
         CarRateSerializer
     )
@@ -844,7 +848,7 @@ Usage
 | Also this exception will be documented in this action schema.
 
 | Let's presume that we now want to return status code `201` and rate instance on `post`,
-| but on `get` we want to return car instance with random rate and status code `200`.
+| but on `get` we want to return the car instance with random rate and status code `200`.
 
 .. code-block :: python
    :linenos:
@@ -912,7 +916,7 @@ Usage
                     raise CustomCarException
                 return instance, 200
 
-| Now we use different serializers for each method, depending on returned status code.
+| Now we use different a serializer for each method, depending on returned status code.
 | Each of this serializer is using different model, `audoma_action` makes such situations super easy.
 
 
@@ -999,7 +1003,7 @@ Usage
 
 
 | This action may return `None` or `string`, but as you may see in the results we have also string defined.
-| The string default in the results it is a string which will be the message returned by default.
+| The string default in the results is a string that will be the message returned by default.
 | The default message will be returned if the instance is `None`.
 | If returned string instance won't be None, then the returned instance will be
 | included in the response.
@@ -1013,7 +1017,7 @@ Usage
         "message": "Car is available"
     }
 
-| It's clear that we can combine those results, so in one action
+| We can combine those results, so in one action
 | we may return string instance and model instance.
 | Let's modify our rate function, so it'll return the default message if the rating is disabled.
 
@@ -1127,9 +1131,7 @@ collectors
                 collectors=ExampleOneFieldSerializer,
             )
 
-    * A dictionary with HTTP methods as keys and serializer classes as values.
-
-        This allows defining different collector for each HTTP method.
+    * A dictionary with HTTP methods as keys and serializer classes as values. This allows defining different collector for each HTTP method.
 
         .. code :: python
 
@@ -1159,10 +1161,7 @@ results
 | This param allows defining custom results for each method and each response status code.
 | Results param may be passed as:
 
-    * Serializer class or which must inherit from `serializers.BaseSerializer` or string variable
-
-        In this case, the serializer class passed will be used to produce every response
-        coming from this action.
+    * Serializer class or which must inherit from `serializers.BaseSerializer` or string variable In this case, the serializer class passed will be used to produce every response coming from this action.
 
         .. code :: python
 
@@ -1173,9 +1172,7 @@ results
                 results=ExampleModelSerializer,
             )
 
-    * A dictionary with HTTP methods as keys and serializer classes or string variables as values.
-
-        In This case, there will be a different response serializer for each HTTP method.
+    * A dictionary with HTTP methods as keys and serializer classes or string variables as values. In This case, there will be a different response serializer for each HTTP method.
 
         .. code :: python
 
@@ -1187,9 +1184,7 @@ results
             )
 
 
-    * A dictionary with HTTP methods as keys and dictionaries as values.
-        Those dictionaries have status codes as keys and serializer classes or string variables
-        as values.
+    * A dictionary with HTTP methods as keys and dictionaries as values. Those dictionaries have status codes as keys and serializer classes or string variables as values.
 
         .. code-block :: python
 
@@ -1312,7 +1307,7 @@ Define custom example classes
 * `NumericExample`
 * `RegexExample`
 
-| And one general class:
+| And one base class:
 * `Example`
 
 | To define your example class, you should inherit from the `Example` class
@@ -1331,6 +1326,8 @@ Extra Fields
 
 Money Field
 ------------
+
+| `django_money docs <https://github.com/django-money/django-money#readme>`_
 
 | Our money field is an extension of the `MoneyField` known from `django_money`.
 | This field is defined as one field in the model, but it creates two fields in the database.
@@ -1371,6 +1368,8 @@ Money Field
 
 PhoneNumberField
 ----------------
+
+`django-phonenumber-field docs <https://github.com/stefanfoulis/django-phonenumber-field>`_
 
 | Audoma provides a `PhoneNumberField` which is an extension of the `django-phonenumber-field`.
 | You can use it in your models straight away, just as the original `PhoneNumberField`_,
