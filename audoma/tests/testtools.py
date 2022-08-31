@@ -45,8 +45,8 @@ def create_basic_view_class(
     view_baseclasses = view_baseclasses or (
         ListModelMixin,
         RetrieveModelMixin,
-        GenericViewSet,
         ActionModelMixin,
+        GenericViewSet,
     )
     view_properties = view_properties or {}
 
@@ -161,8 +161,8 @@ def create_view_with_custom_action(
     view_baseclasses = view_baseclasses or (
         ListModelMixin,
         RetrieveModelMixin,
-        GenericViewSet,
         ActionModelMixin,
+        GenericViewSet,
     )
     view_properties = view_properties or {}
     action_args = action_args or ()
@@ -182,6 +182,7 @@ def create_view_with_custom_action(
 
     serializer_name = f"{action_name}_serializer_class"
     ExampleView.fun.__name__ = action_name
+    ExampleView.action_name = ExampleView.fun
 
     if action_serializer_class is not None:
         setattr(ExampleView, serializer_name, action_serializer_class)
@@ -204,8 +205,8 @@ def create_view_with_custom_audoma_action(
     view_baseclasses = view_baseclasses or (
         ListModelMixin,
         RetrieveModelMixin,
-        GenericViewSet,
         ActionModelMixin,
+        GenericViewSet,
     )
     view_properties = view_properties or {}
     action_args = action_args or ()

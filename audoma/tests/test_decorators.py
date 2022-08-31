@@ -196,6 +196,7 @@ class AudomaActionTestCase(TestCase):
         )
         view.method = "post"
         view.request = request
+        view.format_kwarg = "json"
         view.action = "custom_action"
         try:
             view.custom_action(request)
@@ -223,6 +224,7 @@ class AudomaActionTestCase(TestCase):
         )
         view.method = "post"
         view.request = request
+        view.format_kwarg = "json"
         view.action = "custom_action"
         try:
             view.custom_action(request)
@@ -258,6 +260,7 @@ class AudomaActionTestCase(TestCase):
         )
         view.method = "post"
         view.request = request
+        view.format_kwarg = "json"
         view.action = "custom_action"
         try:
             view.custom_action(request)
@@ -271,7 +274,7 @@ class AudomaActionTestCase(TestCase):
 
     def test_audoma_action_many_param_true(self):
         request = self.factory.post("/custom_action/")
-        request.data = self.request_data
+        request.data = [self.request_data]
 
         view = create_view_with_custom_audoma_action(
             request=request,

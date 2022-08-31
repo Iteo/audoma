@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from inspect import isclass
 from typing import (
-    Iterable,
     List,
     Type,
     Union,
@@ -108,48 +107,3 @@ class OperationExtractor:
             return self._extract_collect_operation(request)
         else:
             raise ValueError("Unknown operation_category")
-
-
-def apply_response_operation(
-    operation: Union[str, APIException, Type[BaseSerializer]],
-    instance: Union[Iterable, str, APIException, Model],
-    code: int,
-    view: View,
-    many: bool,
-) -> Response:
-    """
-    Applies response operation for automa_action decorator.
-    Args:
-        * operation: response operation wich will be applied, it may be a string message, APIException object, or
-            resoponse serializer_class instance
-        * instance: instance which will be returned in a response. It may be iterable, string, ApiException object,
-            or simply model instance. If it's dict/model instance it'll be serialized.
-        * code - response status code, this should be given as an integer
-        * view - view instance for which the response will be returned.
-        * many - boolean value which determines whether the serializer
-            will handle multiple instances, or just singular instnace.
-
-    Returns: Response object.
-    """
-    if isinstance(operation, APIException):
-        raise operation
-
-    if isinstance(operation, str):
-        instance = instance or operation
-        instance = {"message": instance}
-        return Response(instance, status=code)
-
-    serializer_class = operation
-    serializer_kwargs = {
-        "instance": instance,
-        "many": many,
-        "context": {"request": view.request, "format": view.format_kwarg, "view": view},
-    }
-    return_serializer = (
-        serializer_class(**serializer_kwargs)
-        if serializer_class
-        else view.get_result_serializer(**serializer_kwargs)
-    )
-
-    headers = view.get_success_headers(return_serializer.data)
-    return Response(return_serializer.data, status=code, headers=headers)

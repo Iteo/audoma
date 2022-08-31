@@ -133,7 +133,7 @@ class ResultSerializerClassMixin:
         cls, many: bool = False
     ) -> Type[serializers.BaseSerializer]:
         if cls._wrap_result_serializer:
-            return result_serializer_class(cls, many=many)
+            return result_serializer_class(cls)
         return cls
 
 
@@ -306,3 +306,8 @@ class BulkListSerializer(ListSerializer):
             updated_objects.append(self.child.update(obj, obj_validated_data))
 
         return updated_objects
+
+
+class DefaultMessageSerializer(Serializer):
+
+    message = CharField(max_length=255)
