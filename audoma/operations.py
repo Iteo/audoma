@@ -8,11 +8,7 @@ from typing import (
 
 from rest_framework.exceptions import APIException
 from rest_framework.request import Request
-from rest_framework.response import Response
 from rest_framework.serializers import BaseSerializer
-
-from django.db.models import Model
-from django.views import View
 
 
 @dataclass

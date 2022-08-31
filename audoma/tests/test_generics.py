@@ -184,5 +184,6 @@ class GenericAPIViewTestCase(TestCase):
             self.assertEquals(type(e), AssertionError)
             self.assertEquals(
                 str(e),
-                "'ExampleView' should either include a `serializer_class`  attribute, or override the `get_serializer_class()` method.",
+                "'ExampleView' should either include a `serializer_class` "
+                + " attribute, or override the `get_serializer_class()` method.",
             )
