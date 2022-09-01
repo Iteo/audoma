@@ -99,6 +99,6 @@ class GenericAPIView(generics.GenericAPIView):
             and hasattr(serializer_class, "get_result_serializer_class")
         ):
             assert callable(serializer_class.get_result_serializer_class)
-            serializer_class = serializer_class.get_result_serializer_class(many=many)
+            serializer_class = serializer_class.get_result_serializer_class()
 
         return serializer_class

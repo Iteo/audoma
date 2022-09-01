@@ -77,7 +77,7 @@ class Result:
 
 
 def result_serializer_class(
-    SerializerClass: Type[serializers.BaseSerializer], many: bool = False
+    SerializerClass: Type[serializers.BaseSerializer],
 ) -> Type[serializers.BaseSerializer]:
     """
     Helper function which wraps the serializer result if necessary.
@@ -106,7 +106,6 @@ def result_serializer_class(
 
             def __new__(cls, *args, **kwargs) -> Serializer:
                 _many = kwargs.pop("many", False)
-
                 if _many:
                     instance = ManyResultSerializer(*args, **kwargs)
                 else:
@@ -131,10 +130,10 @@ class ResultSerializerClassMixin:
 
     @classmethod
     def get_result_serializer_class(
-        cls, many: bool = False
+        cls,
     ) -> Type[serializers.BaseSerializer]:
         if cls._wrap_result_serializer:
-            return result_serializer_class(cls, many=many)
+            return result_serializer_class(cls)
         return cls
 
 
@@ -178,8 +177,6 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
         audoma_models.CurrencyField: CharField,
         ModelJSONField: JSONField,
     }
-    serializer_choice_field = ChoiceField
-
     serializer_choice_field = ChoiceField
 
     def build_standard_field(
