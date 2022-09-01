@@ -1,3 +1,9 @@
 [run]
-source = audoma_api
+source =
+        audoma
+        audoma_api
+        audoma.drf
+        audoma.django
+
+[report]
 fail_under = 90

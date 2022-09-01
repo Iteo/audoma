@@ -120,8 +120,8 @@ class audoma_action:
         for instance in instances:
             if type(instance) in types:
                 raise ImproperlyConfigured(
-                    f"Something that is not an Exception instance or class has been passed \
-                        to audoma_action errors list. The value which caused exception: {error}"
+                    f"Exception has been passed multiple times as an instance and as type, \
+                        exception type: {type(instance)}"
                 )
             else:
                 sanitized_errors.append(instance)
@@ -136,7 +136,7 @@ class audoma_action:
             parsed_result = results
             if hasattr(parsed_result, "get_result_serializer_class"):
                 assert callable(parsed_result.get_result_serializer_class)
-                parsed_result = parsed_result.get_result_serializer_class(many=many)
+                parsed_result = parsed_result.get_result_serializer_class()
             return parsed_result
 
         parsed_results = {}
@@ -148,7 +148,7 @@ class audoma_action:
 
             elif hasattr(result, "get_result_serializer_class"):
                 assert callable(result.get_result_serializer_class)
-                parsed_result = result.get_result_serializer_class(many=many)
+                parsed_result = result.get_result_serializer_class()
 
             parsed_results[key] = parsed_result
 
@@ -266,7 +266,8 @@ class audoma_action:
             )
 
         return all(
-            getattr(raised_error_result, attr) == getattr(catched_error_result, attr)
+            getattr(raised_error_result, attr, None)
+            == getattr(catched_error_result, attr, None)
             for attr in ["status_code", "data", "headers"]
         )
 
@@ -313,7 +314,7 @@ class audoma_action:
                     break
             if not error_match:
                 raise AudomaActionException(
-                    "Raised error: {processed_error_instance} has not been \
+                    f"Raised error: {processed_error_instance} has not been \
                         defined in audoma_action errors."
                 )
 
@@ -329,7 +330,7 @@ class audoma_action:
         self, request: Request, func: Callable, view: APIView
     ) -> Tuple[Type[BaseSerializer], bool, Any]:
         """
-        Retrieves collecotr serializer class and it's config variables.
+        Retrieves collector serializer class and it's config variables.
         Args:
             request - request object
             func - decorated function
@@ -396,7 +397,7 @@ class audoma_action:
     def __call__(self, func: Callable) -> Callable:
         """ "
         Call of audoma_action decorator.
-        This is where the magic happends.
+        This is where the magic happens.
 
         Args:
             func - decorated function

@@ -247,7 +247,6 @@ class AudomaAutoSchema(AutoSchema):
         action_serializers = self._extract_audoma_action_operations(
             view, serializer_type
         )
-
         if action_serializers:
             if (
                 isinstance(action_serializers, dict)
@@ -372,6 +371,7 @@ class AudomaAutoSchema(AutoSchema):
 
         if has_annotation:
             result.update(annotation["field"])
+
         return result
 
     def _get_request_for_media_type(self, serializer):
