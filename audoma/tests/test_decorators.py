@@ -196,6 +196,7 @@ class AudomaActionTestCase(TestCase):
         )
         view.method = "post"
         view.request = request
+        view.format_kwarg = "json"
         view.action = "custom_action"
         try:
             view.custom_action(request)
@@ -224,6 +225,7 @@ class AudomaActionTestCase(TestCase):
         view.method = "post"
         view.request = request
         view.action = "custom_action"
+        view.format_kwarg = "json"
         try:
             view.custom_action(request)
         except Exception as e:
@@ -258,6 +260,7 @@ class AudomaActionTestCase(TestCase):
         )
         view.method = "post"
         view.request = request
+        view.format_kwarg = "json"
         view.action = "custom_action"
         try:
             view.custom_action(request)
