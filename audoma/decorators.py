@@ -432,7 +432,11 @@ class audoma_action:
                         view_instance,
                         data=request.data,
                         partial=partial,
-                        context={"request": request},
+                        context={
+                            "request": request,
+                            "format": view.format_kwarg,
+                            "view": view,
+                        },
                         many=self.many,
                     )
                     collect_serializer.is_valid(raise_exception=True)
