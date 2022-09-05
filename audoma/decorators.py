@@ -433,6 +433,7 @@ class audoma_action:
                         data=request.data,
                         partial=partial,
                         context={"request": request},
+                        many=self.many,
                     )
                     collect_serializer.is_valid(raise_exception=True)
                     kwargs["collect_serializer"] = collect_serializer
