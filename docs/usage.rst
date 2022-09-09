@@ -392,7 +392,7 @@ Example:
    :linenos:
 
     from rest_framework.decorators import action
-    .. from rest_framework.response import Response
+    from rest_framework.response import Response
 
     from audoma.drf import viewsets
     from example_app.serializers import (
@@ -641,7 +641,6 @@ ExclusiveFieldsValidator
 
     class MutuallyExclusiveExampleSerializer(serializers.Serializer):
         class Meta:
-
             validators = [
                 ExclusiveFieldsValidator(
                     fields=[
@@ -1338,7 +1337,6 @@ Money Field
     from audoma.django.db import models
 
     class SalesmanStats(models.Model):
-
         salesman = models.ForeignKey("sale.Salesman"e, on_delete=models.CASCADE)
         earned = models.MoneyField(max_digits=14, decimal_places=2, default_currency="PLN")
 
@@ -1385,7 +1383,6 @@ PhoneNumberField
     from audoma.django.db import models
 
     class SalesmanStats(models.Model):
-
         salesman = models.ForeignKey("sale.Salesman", on_delete=models.CASCADE)
         earned = models.MoneyField(max_digits=14, decimal_places=2, default_currency="PLN")
         phone_number = models.PhoneNumberField(region="GB")
