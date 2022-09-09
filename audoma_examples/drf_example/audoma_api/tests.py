@@ -404,6 +404,27 @@ class AudomaBulkOperationsTest(APITestCase):
         qs = Manufacturer.objects.all()
         self.assertEqual(qs.count(), 4)
 
+    def test_bulk_nested_errors(self):
+        data = [
+            {
+                "name": "test 1",
+            },
+            {
+                "name": "test 2",
+            },
+        ]
+
+        resp = self.client.post(self.list_url, data, format="json")
+        self.assertEqual(400, resp.status_code)
+        content = json.loads(resp.content)
+        self.assertEqual(
+            content["errors"],
+            [
+                {"slug_name": ["This field is required."]},
+                {"slug_name": ["This field is required."]},
+            ],
+        )
+
     def test_bulk_create_single_record(self):
         data = (
             {

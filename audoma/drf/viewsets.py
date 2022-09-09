@@ -87,4 +87,6 @@ class GenericViewSet(viewsets.ViewSetMixin, GenericAPIView):
                             )
                         response.data[k] = " ".join(response.data[k])
                 response.data = {"errors": response.data}
+        elif isinstance(response.data, list):
+            response.data = {"errors": response.data}
         return response
