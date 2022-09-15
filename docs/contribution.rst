@@ -16,7 +16,6 @@ Issues
 =======
 
 | Please include to each submitted issue:
-
     * Brief description of the issue
     * Stack trace if there has been an exception raised
     * Code that caused the issue
@@ -26,17 +25,11 @@ Pull requests
 ==============
 | We also welcome pull requests with fixes or new features.
 | We strongly advise you to stick to these rules, during creating pull requests:
-
-    * Test your changes before creating pull requests, your code
-        has to pass the whole test suite to get merged.
-        The best way will be by launching docker tests, included with the project
+    * Test your changes before creating pull requests, your code has to pass the whole test suite to get merged. The best way will be by launching docker tests, included with the project
     * Use linters included in audoma
     * Write your own tests for your changes
-    * If your changes are not trivial consider creating an issue first with changes proposal to get
-        some early feedback
-    * If you are introducing a new feature, please add an example for
-        this feature in audoma example application
-
+    * If your changes are not trivial consider creating an issue first with changes proposal to get some early feedback
+    * If you are introducing a new feature, please add an example for this feature in audoma example application
 
 Running unit tests
 ======================
@@ -45,10 +38,8 @@ Running unit tests
 | `docker-compose -f docker/docker-compose.yml up tests`
 | This will run the whole testing process.
 
-
 Example application
 ====================
-
 | Audoma has included an example Django/DRF application to demonstrate its possibilities.
 | Every supported feature should have its representation in an example application
 
