@@ -382,39 +382,6 @@ class AudomaAutoSchemaTestCase(TestCase):
             {"choices": {"SMALL": "small", "MEDIUM": "medium", "LARGE": "large"}},
         )
 
-    # def test_map_serializer_field_audoma_links_fields_success(self):
-    #     fields_config = {
-    #         "company_name": audoma_fields.CharField(max_length=255),
-    #         "company_size": audoma_fields.CharField()
-    #     }
-    #     serializer_class = create_serializer_class(
-    #         fields_config=fields_config,
-    #         serializer_base_classes=[Serializer]
-    #     )
-    #     serializer_class.choices_options_links = {
-    #         "company_size": {
-    #             "viewname": "company_size",
-    #             "value_field": "id",
-    #             "display_field": "name",
-    #         }
-    #     }
-    #     serializer = serializer_class()
-    #     serializer_fields = serializer.fields
-    #     request = self.factory.get("/example/")
-    #     view = create_basic_view(
-    #         view_properties={
-    #             "serializer_class": serializer_class
-    #         }
-    #     )
-    #     view.request = request
-    #     view.action = "retrieve"
-    #     view.schema = AudomaAutoSchema()
-    #     mapped_field = view.schema._map_serializer_field(
-    #         serializer_fields["company_size"], direction="response"
-    #     )
-    #     self.assertEqual(type(mapped_field), dict)
-    #     self.assertEqual(type(mapped_field["x-choices"]), dict)
-
     def test_get_request_for_media_type_is_bulk_create(self):
         fields_config = {
             "company_name": audoma_fields.CharField(max_length=255),

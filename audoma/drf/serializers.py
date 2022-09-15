@@ -130,7 +130,7 @@ class ResultSerializerClassMixin:
 
     @classmethod
     def get_result_serializer_class(
-        cls, many: bool = False
+        cls,
     ) -> Type[serializers.BaseSerializer]:
         if cls._wrap_result_serializer:
             return result_serializer_class(cls)

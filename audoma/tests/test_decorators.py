@@ -226,6 +226,7 @@ class AudomaActionTestCase(TestCase):
         view.request = request
         view.format_kwarg = "json"
         view.action = "custom_action"
+        view.format_kwarg = "json"
         try:
             view.custom_action(request)
         except Exception as e:

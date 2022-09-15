@@ -16,10 +16,10 @@ It's build on the top of `drf-spectacular` and extends some of its functionaliti
 
    installation.rst
    usage.rst
-   testing_and_example_application.rst
-   overview.rst
+   contribution.rst
    license.rst
    changelog.rst
+   overview.rst
 
 
 
