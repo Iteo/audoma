@@ -324,6 +324,10 @@ collectors
     def detail_action(self, request, collect_serializer, pk=None):
         ...
 
+| If you are using PATCH or PUT method for your action, you may ask how to pass an instance
+| to your collect serializer. You simply have to override `get_object` method on your viewset, and make
+| it return the object you want to pass to collect serializer as an instance for given action and method.
+
 | This parameter is optional, so you don't have to pass collectors. If collectors won't be passed, and
 | request method will be in `[PUT, POST, PATCH]` then by default, audoma_action fill fallback to default
 | `get_serializer_class` method for audoma.
@@ -331,7 +335,7 @@ collectors
 **Important**
 
 | If you are using collectors it is important to remember,
-| that your method should tak additional kwarg `collect_serializer` which will be
+| that your method should take additional kwarg `collect_serializer` which will be
 | validated collector instance.
 
 results

@@ -23,6 +23,7 @@ from rest_framework.views import APIView
 from django.conf import settings as project_settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Model
+from django.http import Http404
 
 from audoma import settings as audoma_settings
 
@@ -315,9 +316,11 @@ class audoma_action:
         instance = None
 
         if request.method not in SAFE_METHODS:
+            try:
+                instance = view.get_object() or None
+            except (AssertionError, Http404):
+                instance = None
 
-            if func.detail and request.method in ["PUT", "PATCH"]:
-                instance = view.get_object()
             partial = True if request.method.lower() == "patch" else False
 
             collect_serializer = view.get_serializer(
