@@ -1,4 +1,5 @@
 from collections import namedtuple
+from copy import deepcopy
 
 from drf_spectacular.contrib.django_filters import DjangoFilterExtension
 from drf_spectacular.extensions import OpenApiFilterExtension
@@ -67,12 +68,13 @@ class SearchFilterExtension(OpenApiFilterExtension):
         return transformed_fields
 
     def _preprocess_fields(self, fields):
+        new_fields = deepcopy(fields)
         for x, field in enumerate(fields):
             for keyword, description in self.SEARCH_PARAMS.items():
                 if keyword in field:
-                    fields[x] = field.replace(keyword, "")
-                    fields[x] += f"({description})"
-        return fields
+                    new_fields[x] = field.replace(keyword, "")
+                    new_fields[x] += f"({description})"
+        return new_fields
 
     def _get_processed_search_fields(self, fields):
         transformed_fields = {}
