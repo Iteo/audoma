@@ -224,6 +224,7 @@ class AudomaActionTestCase(TestCase):
         )
         view.method = "post"
         view.request = request
+        view.format_kwarg = "json"
         view.action = "custom_action"
         view.format_kwarg = "json"
         try:

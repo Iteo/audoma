@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from functools import wraps
 from inspect import isclass
 from typing import (
-    Any,
     Callable,
     Dict,
     Iterable,
@@ -24,12 +23,9 @@ from rest_framework.views import APIView
 from django.conf import settings as project_settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Model
+from django.http import Http404
 
 from audoma import settings as audoma_settings
-from audoma.operations import (
-    OperationExtractor,
-    apply_response_operation,
-)
 
 
 logger = logging.getLogger(__name__)
@@ -76,7 +72,6 @@ class audoma_action:
                     'audoma_action' will not allow raising any other exceptions than those
         ignore_view_collectors - If set to True, decorator is ignoring view collect serializers.
                     May be useful if we don't want to falback to default view collect serializer retrieval.
-
     """
 
     def _sanitize_kwargs(self, kwargs: dict) -> dict:
@@ -129,31 +124,6 @@ class audoma_action:
         sanitized_errors += types
         return sanitized_errors
 
-    def _sanitize_results(
-        self, results: SerializersConfig, many: bool
-    ) -> SerializersConfig:
-        if not isinstance(results, dict):
-            parsed_result = results
-            if hasattr(parsed_result, "get_result_serializer_class"):
-                assert callable(parsed_result.get_result_serializer_class)
-                parsed_result = parsed_result.get_result_serializer_class()
-            return parsed_result
-
-        parsed_results = {}
-        for key, result in results.items():
-            parsed_result = result
-
-            if isinstance(result, dict):
-                parsed_result = self._sanitize_results(result, many)
-
-            elif hasattr(result, "get_result_serializer_class"):
-                assert callable(result.get_result_serializer_class)
-                parsed_result = result.get_result_serializer_class()
-
-            parsed_results[key] = parsed_result
-
-        return parsed_results
-
     def __init__(
         self,
         collectors: SerializersConfig = None,
@@ -166,7 +136,7 @@ class audoma_action:
         self.many = many
 
         self.collectors = collectors or {}
-        self.results = self._sanitize_results(results, many) or {}
+        self.results = results
         self.ignore_view_collectors = ignore_view_collectors
 
         try:
@@ -174,9 +144,6 @@ class audoma_action:
             self.kwargs = self._sanitize_kwargs(kwargs) or {}
             self.methods = kwargs.get("methods")
             self.framework_decorator = action(**kwargs)
-            self.operation_extractor = OperationExtractor(
-                self.collectors, self.results, self.errors
-            )
             if all(method in SAFE_METHODS for method in self.methods) and collectors:
                 raise ImproperlyConfigured(
                     "There should be no collectors defined if there are not create/update requests accepted."
@@ -326,9 +293,9 @@ class audoma_action:
             )
         raise processed_error_instance
 
-    def _retrieve_collect_serializer_class_with_config(
+    def _get_collect_serializer_instance(
         self, request: Request, func: Callable, view: APIView
-    ) -> Tuple[Type[BaseSerializer], bool, Any]:
+    ) -> BaseSerializer:
         """
         Retrieves collector serializer class and it's config variables.
         Args:
@@ -344,25 +311,28 @@ class audoma_action:
                 view_instance - instance retrieved from view
 
         """
-        collect_serializer_class = None
+        collect_serializer = None
         partial = False
-        view_instance = None
+        instance = None
 
         if request.method not in SAFE_METHODS:
-            collect_serializer_class = self.operation_extractor.extract_operation(
-                request, operation_category="collect"
+            try:
+                instance = view.get_object() or None
+            except (AssertionError, Http404):
+                instance = None
+
+            partial = True if request.method.lower() == "patch" else False
+
+            collect_serializer = view.get_serializer(
+                serializer_type="collect",
+                instance=instance,
+                data=request.data,
+                partial=partial,
+                context={"request": request, "format": view.format_kwarg, "view": view},
+                many=self.many,
             )
 
-            if not collect_serializer_class and not self.ignore_view_collectors:
-                collect_serializer_class = view.get_serializer_class()
-            # Get object if collect serializer is used to update existing instance
-            if func.detail and request.method in ["PUT", "PATCH"]:
-                view_instance = view.get_object()
-                partial = True if request.method.lower() == "patch" else False
-            else:
-                partial = False
-                view_instance = None
-        return collect_serializer_class, partial, view_instance
+        return collect_serializer
 
     def _action_return_checks(
         self,
@@ -421,24 +391,11 @@ class audoma_action:
             errors += audoma_settings.COMMON_API_ERRORS + getattr(
                 project_settings, "COMMON_API_ERRORS", []
             )
-            (
-                collect_serializer_class,
-                partial,
-                view_instance,
-            ) = self._retrieve_collect_serializer_class_with_config(request, func, view)
             try:
-                if collect_serializer_class:
-                    collect_serializer = collect_serializer_class(
-                        view_instance,
-                        data=request.data,
-                        partial=partial,
-                        context={
-                            "request": request,
-                            "format": view.format_kwarg,
-                            "view": view,
-                        },
-                        many=self.many,
-                    )
+                collect_serializer = self._get_collect_serializer_instance(
+                    request, func, view
+                )
+                if collect_serializer:
                     collect_serializer.is_valid(raise_exception=True)
                     kwargs["collect_serializer"] = collect_serializer
 
@@ -449,12 +406,15 @@ class audoma_action:
                 self._process_error(processed_error, errors, view)
 
             try:
-                response_operation = self.operation_extractor.extract_operation(
-                    request, code=code
-                )
-
-                self._action_return_checks(
-                    code=code, instance=instance, response_operation=response_operation
+                response_serializer = view.get_result_serializer(
+                    instance=instance,
+                    context={
+                        "request": request,
+                        "format": view.format_kwarg,
+                        "view": view,
+                    },
+                    many=self.many,
+                    status_code=code,
                 )
             except AudomaActionException as e:
                 if project_settings.DEBUG:
@@ -464,8 +424,10 @@ class audoma_action:
                         processing action function execution result"
                 )
 
-            return apply_response_operation(
-                response_operation, instance, code, view, many=self.many
+            return Response(
+                response_serializer.data,
+                status=code,
+                headers=view.get_success_headers(response_serializer.data),
             )
 
         return wrapper

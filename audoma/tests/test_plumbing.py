@@ -80,6 +80,7 @@ class PlumbingTestCase(TestCase):
             audoma_mixins.UpdateModelMixin,
             audoma_serializers.BaseSerializer,
             audoma_serializers.BulkListSerializer,
+            audoma_serializers.DefaultMessageSerializer,
             audoma_serializers.HyperlinkedModelSerializer,
             audoma_serializers.ListSerializer,
             audoma_serializers.ModelSerializer,

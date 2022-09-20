@@ -217,11 +217,10 @@ class AudomaAutoSchema(AutoSchema):
         """
         Extracts the audoma action operations from the view
         """
-        action_function = self._extract_action_function(view)
-        _audoma = getattr(action_function, "_audoma", None)
-        many = action_serializers = getattr(_audoma, "many", False)
-        if not _audoma:
-            return {}
+        _audoma = view.get_audoma_action_config()
+        if _audoma is None:
+            return None
+        many = _audoma.many
 
         if serializer_type == "collect":
             action_serializers = getattr(_audoma, "collectors", None)
@@ -236,29 +235,24 @@ class AudomaAutoSchema(AutoSchema):
             else:
                 action_serializers = errors
 
+        method = view.request.method.lower()
+        if isinstance(action_serializers, dict) and method in action_serializers:
+            action_serializers = action_serializers[method]
+
         return action_serializers
 
     def _get_serializer(  # noqa: C901
         self, serializer_type: str = "collect"
     ) -> typing.Union[BaseSerializer, typing.Type[BaseSerializer]]:
         view = self.view
-        method = view.request.method
-
-        action_serializers = self._extract_audoma_action_operations(
-            view, serializer_type
-        )
-        if action_serializers:
-            if (
-                isinstance(action_serializers, dict)
-                and method.lower() in action_serializers
-            ):
-                return action_serializers[method.lower()]
-            else:
-                return action_serializers
-
         try:
             if isinstance(view, AudomaGenericAPIView):
-                return view.get_serializer_class(type=serializer_type)()
+                action_serializers = self._extract_audoma_action_operations(
+                    view, serializer_type
+                )
+                if action_serializers:
+                    return action_serializers
+                return view.get_serializer_class(serializer_type=serializer_type)()
             elif isinstance(view, GenericAPIView):
                 # try to circumvent queryset issues with calling get_serializer. if view has NOT
                 # overridden get_serializer, its safe to use get_serializer_class.

@@ -306,3 +306,8 @@ class BulkListSerializer(ListSerializer):
             updated_objects.append(self.child.update(obj, obj_validated_data))
 
         return updated_objects
+
+
+class DefaultMessageSerializer(Serializer):
+
+    message = CharField(max_length=255)

@@ -268,6 +268,9 @@ class ExampleModelPermissionLessViewSet(
         return ExampleModel.objects.none()
 
     def get_object(self):
+        if self.action != "example_update_action":
+            return None
+
         return ExampleModel(
             char_field="TESTChar",
             phone_number="+18888888822",

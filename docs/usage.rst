@@ -1142,6 +1142,10 @@ collectors
             )
 
 
+| If you are using PATCH or PUT method for your action, you may ask how to pass an instance
+| to your collect serializer. You simply have to override `get_object` method on your viewset, and make
+| it return the object you want to pass to collect serializer as an instance for given action and method.
+
 .. note::
 
     | Passing collectors is optional, so you don't have to pass them.
