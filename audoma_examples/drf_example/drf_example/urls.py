@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from audoma_api.views import (
+    CarDetailViewset,
     CarViewSet,
     ExampleFileUploadViewSet,
     ExampleModelPermissionLessViewSet,
@@ -28,6 +29,7 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+from rest_framework.authtoken import views
 
 from django.contrib import admin
 from django.urls import re_path
@@ -61,6 +63,7 @@ router.register(
     CarViewSet,
     basename="car_viewset",
 )
+router.register(r"edit_car_viewset", CarDetailViewset, basename="car_edit_viewset")
 router.register(
     r"mutually-exclusive", MutuallyExclusiveViewSet, basename="mutually-exclusive"
 )
@@ -81,4 +84,5 @@ urlpatterns += [
         name="swagger-ui",
     ),
     re_path(r"^redoc/$", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+    re_path(r"^api-token-auth/", views.obtain_auth_token),
 ]

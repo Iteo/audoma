@@ -4,9 +4,11 @@ from datetime import (
     date,
     timedelta,
 )
+from typing import OrderedDict
 
 import phonenumbers
 from audoma_api.models import (
+    Car,
     ExampleModel,
     Manufacturer,
 )
@@ -33,6 +35,7 @@ from django.conf import settings
 from django.shortcuts import reverse
 from django.test import (
     SimpleTestCase,
+    TestCase,
     override_settings,
 )
 
@@ -529,7 +532,7 @@ class AudomaBulkOperationsTest(APITestCase):
     #     )
 
 
-class AudomaViewsTestCase(SimpleTestCase):
+class AudomaViewsTestCase(TestCase):
     def setUp(self):
         super().setUp()
         self.data = {
@@ -697,3 +700,125 @@ class AudomaViewsTestCase(SimpleTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 0)
+
+    def test_car_detail_create_no_tag_names_failure(self):
+        m = Manufacturer.objects.create(name="Volov", slug_name="volvo")
+        response = self.client.post(
+            reverse("car_edit_viewset-list"),
+            data={
+                "name": "SomeName",
+                "body_type": 1,
+                "engine_size": 1.9,
+                "engine_type": 2,
+                "manufacturer": m.id,
+                "tags": [{"name": None}, {"name": None}],
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertDictEqual(
+            response.data,
+            {
+                "errors": {
+                    "tags": '{"name": ["This field may not be null."]} {"name": ["This field may not be null."]}'
+                }
+            },
+        )
+
+    def test_car_detail_create_success(self):
+        m = Manufacturer.objects.create(name="Volov", slug_name="volvo")
+        response = self.client.post(
+            reverse("car_edit_viewset-list"),
+            data={
+                "name": "SomeName",
+                "body_type": 1,
+                "engine_size": 1.9,
+                "engine_type": 2,
+                "manufacturer": m.id,
+                "tags": [{"name": "Tag"}],
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertDictEqual(
+            response.data,
+            {
+                "id": 1,
+                "name": "SomeName",
+                "body_type": 1,
+                "manufacturer": 1,
+                "engine_size": 1.9,
+                "engine_type": 2,
+                "tags": [OrderedDict([("name", "Tag")])],
+            },
+        )
+
+    def test_car_detail_update_no_tag_names_failure(self):
+        m = Manufacturer.objects.create(name="Volov", slug_name="volvo")
+        car = Car.objects.create(
+            **{
+                "name": "SomeName",
+                "body_type": 1,
+                "engine_size": 1.9,
+                "engine_type": 2,
+                "manufacturer": m,
+            }
+        )
+        response = self.client.put(
+            reverse("car_edit_viewset-detail", kwargs={"id": car.id}),
+            data={
+                "name": "SomeName",
+                "body_type": 1,
+                "engine_size": 1.9,
+                "engine_type": 2,
+                "manufacturer": m.id,
+                "tags": [{"name": None}, {"name": None}],
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertDictEqual(
+            response.data,
+            {
+                "errors": {
+                    "tags": '{"name": ["This field may not be null."]} {"name": ["This field may not be null."]}'
+                }
+            },
+        )
+
+    def test_car_detail_update_success(self):
+        m = Manufacturer.objects.create(name="Volov", slug_name="volvo")
+        car = Car.objects.create(
+            **{
+                "name": "SomeName",
+                "body_type": 1,
+                "engine_size": 1.9,
+                "engine_type": 2,
+                "manufacturer": m,
+            }
+        )
+        response = self.client.put(
+            reverse("car_edit_viewset-detail", kwargs={"id": car.id}),
+            data={
+                "name": "SomeName",
+                "body_type": 1,
+                "engine_size": 1.9,
+                "engine_type": 2,
+                "manufacturer": m.id,
+                "tags": [{"name": "Tag"}],
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(
+            response.data,
+            {
+                "id": 1,
+                "name": "SomeName",
+                "body_type": 1,
+                "manufacturer": 1,
+                "engine_size": 1.9,
+                "engine_type": 2,
+                "tags": [OrderedDict([("name", "Tag")])],
+            },
+        )

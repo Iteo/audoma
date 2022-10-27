@@ -1,11 +1,13 @@
-import json
 import random
 from typing import (
     Any,
+    Dict,
     List,
+    Union,
 )
 
 from rest_framework import viewsets
+from rest_framework.exceptions import ErrorDetail
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
@@ -66,13 +68,29 @@ class AudomaPagination(PageNumberPagination):
 class GenericViewSet(viewsets.ViewSetMixin, GenericAPIView):
     pagination_class = AudomaPagination
 
-    def _parse_response_data(self, response_data: List[Any]) -> List[str]:
+    def _parse_single_response_data_item(self, item):
+        if isinstance(item, str):
+            return item
+        elif isinstance(item, ErrorDetail):
+            return str(item)
+        elif isinstance(item, list) or isinstance(item, dict):
+            return self._parse_response_data(item)
+        else:
+            raise Exception
+
+    def _parse_response_data(
+        self, response_data: Union[List[Any], Dict[Any, Any]]
+    ) -> Union[List[Any], Dict[Any, Any]]:
         parsed_data = []
-        for item in response_data:
-            if isinstance(item, str):
-                parsed_data.append(item)
-            else:
-                parsed_data.append(json.dumps(item))
+        if isinstance(response_data, list):
+            for item in response_data:
+                parsed_data.append(self._parse_single_response_data_item(item))
+        elif isinstance(response_data, dict):
+            for key, item in response_data.items():
+                item = self._parse_single_response_data_item(item)
+                parsed_data.append((key, item))
+            parsed_data = dict(parsed_data)
+
         return parsed_data
 
     def handle_exception(self, exc: Exception) -> Response:
@@ -85,7 +103,6 @@ class GenericViewSet(viewsets.ViewSetMixin, GenericAPIView):
                             response.data[k] = self._parse_response_data(
                                 response.data[k]
                             )
-                        response.data[k] = " ".join(response.data[k])
                 response.data = {"errors": response.data}
         elif isinstance(response.data, list):
             response.data = {"errors": response.data}
