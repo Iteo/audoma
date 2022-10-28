@@ -24,6 +24,7 @@ from audoma_api.views import (
 from drf_example.urls import router
 from drf_spectacular.generators import SchemaGenerator
 from phonenumber_field.phonenumber import to_python
+from rest_framework.exceptions import ErrorDetail
 from rest_framework.permissions import BasePermission
 from rest_framework.test import (
     APIClient,
@@ -365,16 +366,16 @@ class AudomaTests(SimpleTestCase):
         ]
         responses_docs = docs["get"]["responses"]
         self.assertEqual(
-            responses_docs["400"]["content"]["application/json"]["schema"]["example"][
-                "detail"
-            ],
-            "Custom Bad Request Exception",
-        )
-        self.assertEqual(
             responses_docs["409"]["content"]["application/json"]["schema"]["example"][
                 "detail"
             ],
             "Conflict has occured",
+        )
+        self.assertEqual(
+            responses_docs["400"]["content"]["application/json"]["schema"]["example"][
+                "detail"
+            ],
+            "Custom Bad Request Exception",
         )
 
 
@@ -613,7 +614,7 @@ class AudomaViewsTestCase(TestCase):
         )
         content = json.loads(response.content)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(content["errors"]["rate"], "This field is required.")
+        self.assertEqual(content["errors"]["rate"], ["This field is required."])
 
     def test_specific_rate_get_success(self):
         response = self.client.get(
@@ -720,7 +721,22 @@ class AudomaViewsTestCase(TestCase):
             response.data,
             {
                 "errors": {
-                    "tags": '{"name": ["This field may not be null."]} {"name": ["This field may not be null."]}'
+                    "tags": [
+                        {
+                            "name": [
+                                ErrorDetail(
+                                    string="This field may not be null.", code="null"
+                                )
+                            ]
+                        },
+                        {
+                            "name": [
+                                ErrorDetail(
+                                    string="This field may not be null.", code="null"
+                                )
+                            ]
+                        },
+                    ]
                 }
             },
         )
@@ -781,7 +797,22 @@ class AudomaViewsTestCase(TestCase):
             response.data,
             {
                 "errors": {
-                    "tags": '{"name": ["This field may not be null."]} {"name": ["This field may not be null."]}'
+                    "tags": [
+                        {
+                            "name": [
+                                ErrorDetail(
+                                    string="This field may not be null.", code="null"
+                                )
+                            ]
+                        },
+                        {
+                            "name": [
+                                ErrorDetail(
+                                    string="This field may not be null.", code="null"
+                                )
+                            ]
+                        },
+                    ]
                 }
             },
         )

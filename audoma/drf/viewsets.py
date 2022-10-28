@@ -76,7 +76,7 @@ class GenericViewSet(viewsets.ViewSetMixin, GenericAPIView):
         elif isinstance(item, list) or isinstance(item, dict):
             return self._parse_response_data(item)
         else:
-            raise Exception
+            raise ValueError
 
     def _parse_response_data(
         self, response_data: Union[List[Any], Dict[Any, Any]]
