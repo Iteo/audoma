@@ -29,7 +29,6 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
-from rest_framework.authtoken import views
 
 from django.contrib import admin
 from django.urls import re_path
@@ -84,5 +83,4 @@ urlpatterns += [
         name="swagger-ui",
     ),
     re_path(r"^redoc/$", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
-    re_path(r"^api-token-auth/", views.obtain_auth_token),
 ]

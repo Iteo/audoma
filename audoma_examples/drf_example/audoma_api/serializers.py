@@ -8,7 +8,6 @@ from audoma_api.models import (
     ExamplePerson,
     Manufacturer,
 )
-from rest_framework.authtoken.models import Token
 
 from audoma.choices import make_choices
 from audoma.drf import serializers
