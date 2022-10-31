@@ -34,6 +34,7 @@ services:
     tty: true
     ports:
       - 8000:8000
-    command: bash -c "cd audoma_examples/drf_example && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "cd audoma_examples/drf_example &&  python manage.py migrate &&
+            python manage.py runserver 0.0.0.0:8000"
     depends_on:
       - sqlite3

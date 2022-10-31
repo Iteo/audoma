@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from audoma_api.views import (
+    CarDetailViewset,
     CarViewSet,
     ExampleFileUploadViewSet,
     ExampleModelPermissionLessViewSet,
@@ -61,6 +62,7 @@ router.register(
     CarViewSet,
     basename="car_viewset",
 )
+router.register(r"edit_car_viewset", CarDetailViewset, basename="car_edit_viewset")
 router.register(
     r"mutually-exclusive", MutuallyExclusiveViewSet, basename="mutually-exclusive"
 )

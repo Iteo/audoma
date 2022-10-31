@@ -111,3 +111,8 @@ class Car(models.Model):
     manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE)
     engine_size = models.FloatField()
     engine_type = models.IntegerField(choices=ENGINE_TYPES.get_choices())
+
+
+class CarTag(models.Model):
+    name = models.CharField(max_length=255)
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name="tags")

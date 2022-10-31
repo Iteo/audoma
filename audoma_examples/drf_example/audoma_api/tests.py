@@ -4,9 +4,11 @@ from datetime import (
     date,
     timedelta,
 )
+from typing import OrderedDict
 
 import phonenumbers
 from audoma_api.models import (
+    Car,
     ExampleModel,
     Manufacturer,
 )
@@ -22,6 +24,7 @@ from audoma_api.views import (
 from drf_example.urls import router
 from drf_spectacular.generators import SchemaGenerator
 from phonenumber_field.phonenumber import to_python
+from rest_framework.exceptions import ErrorDetail
 from rest_framework.permissions import BasePermission
 from rest_framework.test import (
     APIClient,
@@ -33,6 +36,7 @@ from django.conf import settings
 from django.shortcuts import reverse
 from django.test import (
     SimpleTestCase,
+    TestCase,
     override_settings,
 )
 
@@ -362,16 +366,16 @@ class AudomaTests(SimpleTestCase):
         ]
         responses_docs = docs["get"]["responses"]
         self.assertEqual(
-            responses_docs["400"]["content"]["application/json"]["schema"]["example"][
-                "detail"
-            ],
-            "Custom Bad Request Exception",
-        )
-        self.assertEqual(
             responses_docs["409"]["content"]["application/json"]["schema"]["example"][
                 "detail"
             ],
             "Conflict has occured",
+        )
+        self.assertEqual(
+            responses_docs["400"]["content"]["application/json"]["schema"]["example"][
+                "detail"
+            ],
+            "Custom Bad Request Exception",
         )
 
 
@@ -529,7 +533,7 @@ class AudomaBulkOperationsTest(APITestCase):
     #     )
 
 
-class AudomaViewsTestCase(SimpleTestCase):
+class AudomaViewsTestCase(TestCase):
     def setUp(self):
         super().setUp()
         self.data = {
@@ -610,7 +614,7 @@ class AudomaViewsTestCase(SimpleTestCase):
         )
         content = json.loads(response.content)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(content["errors"]["rate"], "This field is required.")
+        self.assertEqual(content["errors"]["rate"], ["This field is required."])
 
     def test_specific_rate_get_success(self):
         response = self.client.get(
@@ -697,3 +701,155 @@ class AudomaViewsTestCase(SimpleTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 0)
+
+    def test_car_detail_create_no_tag_names_failure(self):
+        m = Manufacturer.objects.create(name="Volov", slug_name="volvo")
+        response = self.client.post(
+            reverse("car_edit_viewset-list"),
+            data={
+                "name": "SomeName",
+                "body_type": 1,
+                "engine_size": 1.9,
+                "engine_type": 2,
+                "manufacturer": m.id,
+                "tags": [{"name": None}, {"name": None}],
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertDictEqual(
+            response.data,
+            {
+                "errors": {
+                    "tags": [
+                        {
+                            "name": [
+                                ErrorDetail(
+                                    string="This field may not be null.", code="null"
+                                )
+                            ]
+                        },
+                        {
+                            "name": [
+                                ErrorDetail(
+                                    string="This field may not be null.", code="null"
+                                )
+                            ]
+                        },
+                    ]
+                }
+            },
+        )
+
+    def test_car_detail_create_success(self):
+        m = Manufacturer.objects.create(name="Volov", slug_name="volvo")
+        response = self.client.post(
+            reverse("car_edit_viewset-list"),
+            data={
+                "name": "SomeName",
+                "body_type": 1,
+                "engine_size": 1.9,
+                "engine_type": 2,
+                "manufacturer": m.id,
+                "tags": [{"name": "Tag"}],
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertDictEqual(
+            response.data,
+            {
+                "id": 1,
+                "name": "SomeName",
+                "body_type": 1,
+                "manufacturer": 1,
+                "engine_size": 1.9,
+                "engine_type": 2,
+                "tags": [OrderedDict([("name", "Tag")])],
+            },
+        )
+
+    def test_car_detail_update_no_tag_names_failure(self):
+        m = Manufacturer.objects.create(name="Volov", slug_name="volvo")
+        car = Car.objects.create(
+            **{
+                "name": "SomeName",
+                "body_type": 1,
+                "engine_size": 1.9,
+                "engine_type": 2,
+                "manufacturer": m,
+            }
+        )
+        response = self.client.put(
+            reverse("car_edit_viewset-detail", kwargs={"id": car.id}),
+            data={
+                "name": "SomeName",
+                "body_type": 1,
+                "engine_size": 1.9,
+                "engine_type": 2,
+                "manufacturer": m.id,
+                "tags": [{"name": None}, {"name": None}],
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertDictEqual(
+            response.data,
+            {
+                "errors": {
+                    "tags": [
+                        {
+                            "name": [
+                                ErrorDetail(
+                                    string="This field may not be null.", code="null"
+                                )
+                            ]
+                        },
+                        {
+                            "name": [
+                                ErrorDetail(
+                                    string="This field may not be null.", code="null"
+                                )
+                            ]
+                        },
+                    ]
+                }
+            },
+        )
+
+    def test_car_detail_update_success(self):
+        m = Manufacturer.objects.create(name="Volov", slug_name="volvo")
+        car = Car.objects.create(
+            **{
+                "name": "SomeName",
+                "body_type": 1,
+                "engine_size": 1.9,
+                "engine_type": 2,
+                "manufacturer": m,
+            }
+        )
+        response = self.client.put(
+            reverse("car_edit_viewset-detail", kwargs={"id": car.id}),
+            data={
+                "name": "SomeName",
+                "body_type": 1,
+                "engine_size": 1.9,
+                "engine_type": 2,
+                "manufacturer": m.id,
+                "tags": [{"name": "Tag"}],
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(
+            response.data,
+            {
+                "id": 1,
+                "name": "SomeName",
+                "body_type": 1,
+                "manufacturer": 1,
+                "engine_size": 1.9,
+                "engine_type": 2,
+                "tags": [OrderedDict([("name", "Tag")])],
+            },
+        )
