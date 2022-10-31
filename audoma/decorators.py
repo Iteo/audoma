@@ -365,6 +365,13 @@ class audoma_action:
                     method may not be None if result operation is not str message"
             )
 
+    def _retrieve_headers(self, view, response_serializer):
+        if hasattr(view, "get_success_headers"):
+            headers = view.get_success_headers(response_serializer.data)
+        else:
+            headers = {}
+        return headers
+
     def __call__(self, func: Callable) -> Callable:
         """ "
         Call of audoma_action decorator.
@@ -428,7 +435,7 @@ class audoma_action:
             return Response(
                 response_serializer.data,
                 status=code,
-                headers=view.get_success_headers(response_serializer.data),
+                headers=self._retrieve_headers(view, response_serializer),
             )
 
         return wrapper
