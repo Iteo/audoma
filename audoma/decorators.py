@@ -1,4 +1,5 @@
 import logging
+from copy import deepcopy
 from dataclasses import dataclass
 from functools import wraps
 from inspect import isclass
@@ -387,7 +388,7 @@ class audoma_action:
         @wraps(func)
         def wrapper(view: APIView, request: Request, *args, **kwargs) -> Response:
             # extend errors too allow default errors occurance
-            errors = func._audoma.errors
+            errors = deepcopy(func._audoma.errors)
             errors += audoma_settings.COMMON_API_ERRORS + getattr(
                 project_settings, "COMMON_API_ERRORS", []
             )

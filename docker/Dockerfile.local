@@ -7,3 +7,6 @@ COPY ./requirements_dev.txt /audoma/requirements_dev.txt
 RUN pip install --upgrade pip
 RUN pip install -r /audoma/requirements.txt
 RUN pip install -r /audoma/requirements_dev.txt
+
+ADD ./ /audoma
+RUN pip install .

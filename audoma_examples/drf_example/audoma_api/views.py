@@ -25,6 +25,7 @@ from audoma_api.permissions import (
     ViewPermission,
 )
 from audoma_api.serializers import (
+    CarDetailModelSerializer,
     CarModelSerializer,
     ExampleFileModelSerializer,
     ExampleModelCreateSerializer,
@@ -194,6 +195,14 @@ class CarViewSet(
 
     filterset_fields = ["engine_type"]
     search_fields = ["=manufacturer", "name"]
+
+
+class CarDetailViewset(
+    mixins.UpdateModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet
+):
+    queryset = Car.objects.all()
+    serializer_class = CarDetailModelSerializer
+    lookup_url_kwarg = "id"
 
 
 class MutuallyExclusiveViewSet(

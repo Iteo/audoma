@@ -2,6 +2,7 @@ from datetime import date
 
 from audoma_api.models import (
     Car,
+    CarTag,
     ExampleFileModel,
     ExampleModel,
     ExamplePerson,
@@ -107,7 +108,59 @@ class CarModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Car
-        fields = "__all__"
+        fields = ["name", "body_type", "manufacturer", "engine_size", "engine_type"]
+
+
+class CarTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CarTag
+        fields = ["name"]
+
+
+class CarDetailModelSerializer(serializers.ModelSerializer):
+    manufacturer_name = serializers.CharField(
+        read_only=True, source="manufacturer__name"
+    )
+
+    tags = CarTagSerializer(many=True, required=False)
+
+    class Meta:
+        model = Car
+        fields = [
+            "id",
+            "name",
+            "body_type",
+            "manufacturer",
+            "engine_size",
+            "engine_type",
+            "tags",
+            "manufacturer_name",
+        ]
+
+    def _handle_tags(self, tags, instance):
+        names = []
+        for tag in tags:
+            if instance.tags.filter(name=tag["name"]).exists():
+                continue
+            serializer = CarTagSerializer(data=tag)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(car_id=instance.id)
+            names.append(tag["name"])
+
+        if tags is not None:
+            CarTag.objects.exclude(name__in=names).delete()
+
+    def update(self, instance, validated_data):
+        tags = validated_data.pop("tags")
+        self._handle_tags(tags, instance)
+        return super().update(instance, validated_data)
+
+    def create(self, validated_data):
+        tags = validated_data.pop("tags")
+        instance = super().create(validated_data)
+        self._handle_tags(tags, instance)
+        instance.refresh_from_db()
+        return instance
 
 
 class MutuallyExclusiveExampleSerializer(serializers.Serializer):
