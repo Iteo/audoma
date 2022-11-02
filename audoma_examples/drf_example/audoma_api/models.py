@@ -1,6 +1,8 @@
 import random
+from decimal import Decimal
 from itertools import cycle
 
+from django.core.validators import MinValueValidator
 from django.utils.functional import lazy
 
 from audoma.choices import make_choices
@@ -32,7 +34,11 @@ class ExampleModel(models.Model):
     ip_address = models.GenericIPAddressField()
     integer = models.IntegerField()
     _float = models.FloatField()
-    decimal = models.DecimalField(decimal_places=2, max_digits=10)
+    decimal = models.DecimalField(
+        decimal_places=2,
+        max_digits=10,
+        validators=[MinValueValidator(Decimal("180.0"))],
+    )
     datetime = models.DateTimeField()
     date = models.DateField()
     time = models.TimeField()

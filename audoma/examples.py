@@ -46,8 +46,8 @@ class NumericExample(Example):
         Returns:
             Random value between min_value and max_value
         """
-        min_val = getattr(self.field, "min_value", 1) or 1
-        max_val = getattr(self.field, "max_value", 1000) or 1000
+        min_val = float(getattr(self.field, "min_value", 1) or 1)
+        max_val = float(getattr(self.field, "max_value", 1000) or 1000)
         return random.uniform(min_val, max_val)
 
 
