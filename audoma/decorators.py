@@ -25,6 +25,7 @@ from django.conf import settings as project_settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Model
 from django.http import Http404
+from django.views import View
 
 from audoma import settings as audoma_settings
 
@@ -365,12 +366,31 @@ class audoma_action:
                     method may not be None if result operation is not str message"
             )
 
-    def _retrieve_headers(self, view, response_serializer):
-        if hasattr(view, "get_success_headers"):
-            headers = view.get_success_headers(response_serializer.data)
-        else:
-            headers = {}
-        return headers
+    def _retrieve_headers(
+        self,
+        method: str,
+        status_code: int,
+        result_serializer: BaseSerializer,
+        view: View,
+    ):
+        method_names = [
+            f"_get_{view.action}_{view.request.method}_response_headers",
+            f"_get_{view.action}_response_headers",
+            f"_get_{view.request.method}_response_headers",
+            "_get_response_headers",
+        ]
+        result = None
+        for name in method_names:
+            method = getattr(view, name)
+            if not method or not isinstance(method, Callable):
+                continue
+            result = method()
+        if not result and status_code in [] and getattr(view, "get_success_headers"):
+            try:
+                result = getattr(view, "get_success_headers")(result_serializer)
+            except TypeError:
+                return {}
+        return result
 
     def __call__(self, func: Callable) -> Callable:
         """ "
@@ -380,7 +400,7 @@ class audoma_action:
         Args:
             func - decorated function
 
-        Returns:
+        Returns:wq
             wrapper callable.
         """
         func._audoma = AudomaArgs(
@@ -424,6 +444,7 @@ class audoma_action:
                     many=self.many,
                     status_code=code,
                 )
+                headers = self._retrieve_headers(request.method, code)
             except AudomaActionException as e:
                 if project_settings.DEBUG:
                     raise e
@@ -435,7 +456,7 @@ class audoma_action:
             return Response(
                 response_serializer.data,
                 status=code,
-                headers=self._retrieve_headers(view, response_serializer),
+                headers=headers,
             )
 
         return wrapper
