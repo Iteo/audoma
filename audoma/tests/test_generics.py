@@ -187,3 +187,80 @@ class GenericAPIViewTestCase(TestCase):
                 "'ExampleView' should either include a `serializer_class` "
                 + " attribute, or override the `get_serializer_class()` method.",
             )
+
+    def test_retrieve_response_headers_for_action_and_method_success(self):
+        viewset = testtools.create_view_with_custom_audoma_action(
+            action_kwargs={
+                "collectors": self.collect_serializer_class,
+                "results": {"post": {201: self.result_serializer_class}},
+                "detail": False,
+                "methods": ["post"],
+                "returnables": ({}, 201),
+            }
+        )
+        viewset.action = "custom_action"
+        viewset.format_kwarg = "json"
+        viewset.request = self.factory.post("/example/")
+        viewset._get_custom_action_post_response_headers = lambda x: {
+            "CustomHeader": "X"
+        }
+        headers = viewset._retrieve_response_headers(
+            201, self.result_serializer_class()
+        )
+        self.assertDictEqual(headers, {"CustomHeader": "X"})
+
+    def test_retrieve_response_headers_for_action_success(self):
+        viewset = testtools.create_view_with_custom_audoma_action(
+            action_kwargs={
+                "collectors": self.collect_serializer_class,
+                "results": {"post": {201: self.result_serializer_class}},
+                "detail": False,
+                "methods": ["post"],
+                "returnables": ({}, 201),
+            }
+        )
+        viewset.action = "custom_action"
+        viewset.format_kwarg = "json"
+        viewset.request = self.factory.post("/example/")
+        viewset._get_custom_action_response_headers = lambda x: {"CustomHeader": "X"}
+        headers = viewset._retrieve_response_headers(
+            201, self.result_serializer_class()
+        )
+        self.assertDictEqual(headers, {"CustomHeader": "X"})
+
+    def test_retrieve_common_response_headers_success(self):
+        viewset = testtools.create_view_with_custom_audoma_action(
+            action_kwargs={
+                "collectors": self.collect_serializer_class,
+                "results": {"post": {201: self.result_serializer_class}},
+                "detail": False,
+                "methods": ["post"],
+                "returnables": ({}, 201),
+            }
+        )
+        viewset.action = "custom_action"
+        viewset.format_kwarg = "json"
+        viewset.request = self.factory.post("/example/")
+        viewset._get_response_headers = lambda x: {"CustomHeader": "X"}
+        headers = viewset._retrieve_response_headers(
+            201, self.result_serializer_class()
+        )
+        self.assertDictEqual(headers, {"CustomHeader": "X"})
+
+    def test_retrieve_response_headers_fallback_success(self):
+        viewset = testtools.create_view_with_custom_audoma_action(
+            action_kwargs={
+                "collectors": self.collect_serializer_class,
+                "results": {"post": {201: self.result_serializer_class}},
+                "detail": False,
+                "methods": ["post"],
+                "returnables": ({}, 201),
+            }
+        )
+        viewset.action = "custom_action"
+        viewset.format_kwarg = "json"
+        viewset.request = self.factory.post("/example/")
+        headers = viewset._retrieve_response_headers(
+            201, self.result_serializer_class()
+        )
+        self.assertDictEqual(headers, {})

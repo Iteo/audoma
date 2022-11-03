@@ -25,7 +25,6 @@ from django.conf import settings as project_settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Model
 from django.http import Http404
-from django.views import View
 
 from audoma import settings as audoma_settings
 

@@ -220,6 +220,9 @@ class ExampleModelPermissionLessViewSet(
     serializer_class = ExampleModelSerializer
     queryset = ExampleModel.objects.all()
 
+    def _get_detail_action_response_headers(self, serializer):
+        return {"CustomHeader": "X"}
+
     @audoma_action(
         detail=True,
         methods=["post"],

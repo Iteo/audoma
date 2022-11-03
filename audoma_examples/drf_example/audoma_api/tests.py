@@ -576,6 +576,7 @@ class AudomaViewsTestCase(TestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 201)
+        self.assertTrue(response.has_header("CustomHeader"))
         response_content = json.loads(response.content)
         self.assertEqual(self.data["char_field"], response_content["char_field"])
         self.assertEqual(self.data["mac_adress"], response_content["mac_adress"])
@@ -588,6 +589,7 @@ class AudomaViewsTestCase(TestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 202)
+        self.assertTrue(response.has_header("CustomHeader"))
         response_content = json.loads(response.content)
         self.assertEqual(response_content["rate"], 0)
 

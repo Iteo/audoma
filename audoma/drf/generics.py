@@ -13,6 +13,9 @@ from audoma.drf.serializers import (
 from audoma.operations import OperationExtractor
 
 
+LOCATION_HEADER_STATUSES = [201] + list(range(300, 400))
+
+
 class GenericAPIView(generics.GenericAPIView):
 
     """
@@ -187,7 +190,7 @@ class GenericAPIView(generics.GenericAPIView):
         method = self.request.method.lower()
 
         method_names = [
-            f"_get_{self.action}_{self.request.method}_response_headers",
+            f"_get_{self.action}_{self.request.method.lower()}_response_headers",
             f"_get_{self.action}_response_headers",
             f"_get_{self.request.method}_response_headers",
             "_get_response_headers",
@@ -198,8 +201,16 @@ class GenericAPIView(generics.GenericAPIView):
             if not method or not isinstance(method, Callable):
                 continue
             result = method(result_serializer)
-        # TODO - make it more explicit and easier to understand
-        if not result and status_code in [] and getattr(self, "get_success_headers"):
+
+        # This is a fallback for default drf-s method, which allows to return Location header
+        # Such header is only valid for some status codes.
+        # For more information read:
+        # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Location
+        if (
+            not result
+            and status_code in LOCATION_HEADER_STATUSES
+            and getattr(self, "get_success_headers")
+        ):
             try:
                 result = getattr(self, "get_success_headers", None)(result_serializer)
             except TypeError:
