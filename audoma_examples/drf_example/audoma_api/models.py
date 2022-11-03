@@ -37,7 +37,7 @@ class ExampleModel(models.Model):
     decimal = models.DecimalField(
         decimal_places=2,
         max_digits=10,
-        validators=[MinValueValidator(Decimal("180.0"))],
+        validators=[MinValueValidator(Decimal("1.0"))],
     )
     datetime = models.DateTimeField()
     date = models.DateField()
