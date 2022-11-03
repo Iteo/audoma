@@ -11,6 +11,8 @@ from rest_framework.exceptions import ErrorDetail
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
+from django.conf import settings
+
 from audoma.drf.generics import GenericAPIView
 
 
@@ -82,6 +84,11 @@ class GenericViewSet(viewsets.ViewSetMixin, GenericAPIView):
         else:
             raise UnknownExceptionContentTypeError
 
+    def _simplify_validation_errors(self, parsed_data):
+        if isinstance(parsed_data, list) and len(parsed_data) == 1:
+            parsed_data = "".join(parsed_data)
+        return parsed_data
+
     def _parse_response_data(
         self, response_data: Union[List[Any], Dict[Any, Any]]
     ) -> Union[List[Any], Dict[Any, Any]]:
@@ -95,6 +102,8 @@ class GenericViewSet(viewsets.ViewSetMixin, GenericAPIView):
                 parsed_data.append((key, item))
             parsed_data = dict(parsed_data)
 
+        if getattr(settings, "SIMPLIFY_VALIDATION_ERRORS", False):
+            parsed_data = self._simplify_validation_errors(parsed_data)
         return parsed_data
 
     def handle_exception(self, exc: Exception) -> Response:
@@ -107,6 +116,11 @@ class GenericViewSet(viewsets.ViewSetMixin, GenericAPIView):
                             response.data[k] = self._parse_response_data(
                                 response.data[k]
                             )
+                        elif getattr(settings, "SIMPLIFY_VALIDATION_ERRORS", False):
+                            response.data[k] = self._simplify_validation_errors(
+                                response.data[k]
+                            )
+
                 response.data = {"errors": response.data}
         elif isinstance(response.data, list):
             response.data = {"errors": response.data}
