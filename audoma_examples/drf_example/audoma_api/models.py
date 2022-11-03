@@ -59,7 +59,7 @@ class Country(models.Model):
 
 
 class ExamplePerson(models.Model):
-    first_name = models.CharField(max_length=225, example="Adam")
+    first_name = models.CharField(max_length=225, default="Adam")
     last_name = models.CharField(max_length=255, example="Smith")
     age = models.IntegerField(example=get_random_age)
     email = models.EmailField(example="example_person@example.com")

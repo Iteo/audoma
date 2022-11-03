@@ -110,7 +110,10 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("first_name", audoma.django.db.fields.CharField(max_length=225)),
+                (
+                    "first_name",
+                    audoma.django.db.fields.CharField(max_length=225, default="Adam"),
+                ),
                 ("last_name", audoma.django.db.fields.CharField(max_length=255)),
                 ("age", audoma.django.db.fields.IntegerField()),
                 ("email", audoma.django.db.fields.EmailField(max_length=254)),

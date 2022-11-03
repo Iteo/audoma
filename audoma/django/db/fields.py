@@ -106,6 +106,8 @@ class PhoneNumberField(ModelExampleMixin, PhoneNumberField):
 
 class CharField(ModelExampleMixin, models.CharField):
     def __init__(self, *args, **kwargs) -> None:
+        if not kwargs.get("example") and kwargs.get("default"):
+            kwargs["example"] = str(kwargs["default"])
         super().__init__(*args, **kwargs)
         max_length = kwargs.get("max_length", 80)
         if not kwargs.get("example", None) and max_length:
