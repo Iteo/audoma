@@ -73,10 +73,10 @@ class GenericViewSet(viewsets.ViewSetMixin, GenericAPIView):
     pagination_class = AudomaPagination
 
     def _parse_single_response_data_item(self, item):
-        if isinstance(item, str):
-            return item
-        elif isinstance(item, ErrorDetail):
+        if isinstance(item, ErrorDetail):
             return str(item)
+        elif isinstance(item, str):
+            return item
         elif isinstance(item, list) or isinstance(item, dict):
             return self._parse_response_data(item)
         else:
