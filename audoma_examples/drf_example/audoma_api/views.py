@@ -225,7 +225,6 @@ class ExampleModelPermissionLessViewSet(
         methods=["post"],
         collectors={"post": ExampleModelCreateSerializer},
         results={"post": {201: ExampleModelSerializer, 202: ExampleOneFieldSerializer}},
-        response_headers={"post": {201: "get_success_headers"}},
     )
     def detail_action(self, request, collect_serializer, pk=None):
         if request.data.pop("usertype", None):

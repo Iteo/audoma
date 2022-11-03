@@ -366,32 +366,6 @@ class audoma_action:
                     method may not be None if result operation is not str message"
             )
 
-    def _retrieve_headers(
-        self,
-        method: str,
-        status_code: int,
-        result_serializer: BaseSerializer,
-        view: View,
-    ):
-        method_names = [
-            f"_get_{view.action}_{view.request.method}_response_headers",
-            f"_get_{view.action}_response_headers",
-            f"_get_{view.request.method}_response_headers",
-            "_get_response_headers",
-        ]
-        result = None
-        for name in method_names:
-            method = getattr(view, name)
-            if not method or not isinstance(method, Callable):
-                continue
-            result = method()
-        if not result and status_code in [] and getattr(view, "get_success_headers"):
-            try:
-                result = getattr(view, "get_success_headers")(result_serializer)
-            except TypeError:
-                return {}
-        return result
-
     def __call__(self, func: Callable) -> Callable:
         """ "
         Call of audoma_action decorator.
@@ -444,7 +418,6 @@ class audoma_action:
                     many=self.many,
                     status_code=code,
                 )
-                headers = self._retrieve_headers(request.method, code)
             except AudomaActionException as e:
                 if project_settings.DEBUG:
                     raise e
@@ -452,6 +425,10 @@ class audoma_action:
                     "Error has occured during audoma_action \
                         processing action function execution result"
                 )
+            if hasattr(view, "_retrieve_response_headers"):
+                headers = view._retrieve_response_headers(code, response_serializer)
+            else:
+                headers = {}
 
             return Response(
                 response_serializer.data,

@@ -1,4 +1,7 @@
-from typing import Type
+from typing import (
+    Callable,
+    Type,
+)
 
 from rest_framework import generics
 
@@ -175,3 +178,30 @@ class GenericAPIView(generics.GenericAPIView):
             serializer_class = serializer_class.get_result_serializer_class()
 
         return serializer_class
+
+    def _retrieve_response_headers(
+        self,
+        status_code: int,
+        result_serializer: BaseSerializer,
+    ):
+        method = self.request.method.lower()
+
+        method_names = [
+            f"_get_{self.action}_{self.request.method}_response_headers",
+            f"_get_{self.action}_response_headers",
+            f"_get_{self.request.method}_response_headers",
+            "_get_response_headers",
+        ]
+        result = None
+        for name in method_names:
+            method = getattr(self, name, None)
+            if not method or not isinstance(method, Callable):
+                continue
+            result = method(result_serializer)
+        # TODO - make it more explicit and easier to understand
+        if not result and status_code in [] and getattr(self, "get_success_headers"):
+            try:
+                result = getattr(self, "get_success_headers", None)(result_serializer)
+            except TypeError:
+                return {}
+        return result
