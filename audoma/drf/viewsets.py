@@ -11,8 +11,7 @@ from rest_framework.exceptions import ErrorDetail
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from django.conf import settings
-
+from audoma import settings
 from audoma.drf.generics import GenericAPIView
 
 
