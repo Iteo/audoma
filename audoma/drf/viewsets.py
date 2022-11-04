@@ -85,7 +85,11 @@ class GenericViewSet(viewsets.ViewSetMixin, GenericAPIView):
             raise UnknownExceptionContentTypeError
 
     def _simplify_validation_errors(self, parsed_data):
-        if isinstance(parsed_data, list) and len(parsed_data) == 1:
+        if (
+            isinstance(parsed_data, list)
+            and len(parsed_data) == 1
+            and all(isinstance(d, str) for d in parsed_data)
+        ):
             parsed_data = "".join(parsed_data)
         return parsed_data
 
