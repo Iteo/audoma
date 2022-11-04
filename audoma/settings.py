@@ -23,6 +23,3 @@ COMMON_API_ERRORS = [
 settings.SPECTACULAR_SETTINGS["POSTPROCESSING_HOOKS"] = [
     "audoma.hooks.postprocess_common_errors_section",
 ]
-SIMPLIFY_VALIDATION_ERRORS = getattr(
-    settings, "AUDOMA_SIMPLIFY_VALIDATION_ERRORS", False
-)

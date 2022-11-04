@@ -11,7 +11,8 @@ from rest_framework.exceptions import ErrorDetail
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from audoma import settings
+from django.conf import settings
+
 from audoma.drf.generics import GenericAPIView
 
 
@@ -101,7 +102,7 @@ class GenericViewSet(viewsets.ViewSetMixin, GenericAPIView):
                 parsed_data.append((key, item))
             parsed_data = dict(parsed_data)
 
-        if getattr(settings, "SIMPLIFY_VALIDATION_ERRORS", False):
+        if getattr(settings, "AUDOMA_SIMPLIFY_VALIDATION_ERRORS", False):
             parsed_data = self._simplify_validation_errors(parsed_data)
         return parsed_data
 
@@ -115,7 +116,9 @@ class GenericViewSet(viewsets.ViewSetMixin, GenericAPIView):
                             response.data[k] = self._parse_response_data(
                                 response.data[k]
                             )
-                        elif getattr(settings, "SIMPLIFY_VALIDATION_ERRORS", False):
+                        elif getattr(
+                            settings, "AUDOMA_SIMPLIFY_VALIDATION_ERRORS", False
+                        ):
                             response.data[k] = self._simplify_validation_errors(
                                 response.data[k]
                             )

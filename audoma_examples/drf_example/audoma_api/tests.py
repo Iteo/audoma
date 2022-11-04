@@ -616,7 +616,7 @@ class AudomaViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(content["errors"]["rate"], ["This field is required."])
 
-    @override_settings(SIMPLIFY_VALIDATION_ERRORS=True)
+    @override_settings(AUDOMA_SIMPLIFY_VALIDATION_ERRORS=True)
     def test_rate_create_action_post_failure_join_errors(self):
         response = self.client.post(
             reverse("permissionless-model-examples-rate-create-action")
