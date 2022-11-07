@@ -201,7 +201,7 @@ class GenericAPIViewTestCase(TestCase):
         viewset.action = "custom_action"
         viewset.format_kwarg = "json"
         viewset.request = self.factory.post("/example/")
-        viewset._get_custom_action_post_response_headers = lambda x: {
+        viewset.get_custom_action_post_response_headers = lambda x: {
             "CustomHeader": "X"
         }
         headers = viewset._retrieve_response_headers(
@@ -222,7 +222,7 @@ class GenericAPIViewTestCase(TestCase):
         viewset.action = "custom_action"
         viewset.format_kwarg = "json"
         viewset.request = self.factory.post("/example/")
-        viewset._get_custom_action_response_headers = lambda x: {"CustomHeader": "X"}
+        viewset.get_custom_action_response_headers = lambda x: {"CustomHeader": "X"}
         headers = viewset._retrieve_response_headers(
             201, self.result_serializer_class()
         )
@@ -241,7 +241,7 @@ class GenericAPIViewTestCase(TestCase):
         viewset.action = "custom_action"
         viewset.format_kwarg = "json"
         viewset.request = self.factory.post("/example/")
-        viewset._get_response_headers = lambda x: {"CustomHeader": "X"}
+        viewset.get_response_headers = lambda x: {"CustomHeader": "X"}
         headers = viewset._retrieve_response_headers(
             201, self.result_serializer_class()
         )

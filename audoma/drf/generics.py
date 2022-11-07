@@ -4,6 +4,7 @@ from typing import (
 )
 
 from rest_framework import generics
+from rest_framework.settings import api_settings
 
 from audoma.decorators import AudomaArgs
 from audoma.drf.serializers import (
@@ -190,10 +191,10 @@ class GenericAPIView(generics.GenericAPIView):
         method = self.request.method.lower()
 
         method_names = [
-            f"_get_{self.action}_{self.request.method.lower()}_response_headers",
-            f"_get_{self.action}_response_headers",
-            f"_get_{self.request.method}_response_headers",
-            "_get_response_headers",
+            f"get_{self.action}_{self.request.method.lower()}_response_headers",
+            f"get_{self.action}_response_headers",
+            f"get_{self.request.method}_response_headers",
+            "get_response_headers",
         ]
         result = None
         for name in method_names:
@@ -202,17 +203,15 @@ class GenericAPIView(generics.GenericAPIView):
                 continue
             result = method(result_serializer)
 
-        # This is a fallback for default drf-s method, which allows to return Location header
-        # Such header is only valid for some status codes.
-        # For more information read:
+        # Append Location header for status proper status codes automatically.
+        # For more info check:
         # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Location
-        if (
-            not result
-            and status_code in LOCATION_HEADER_STATUSES
-            and getattr(self, "get_success_headers")
-        ):
+        if status_code in LOCATION_HEADER_STATUSES:
+            result = result or {}
+            data = result_serializer.data
             try:
-                result = getattr(self, "get_success_headers", None)(result_serializer)
-            except TypeError:
-                return {}
+                if "Location" not in result:
+                    result["Location"] = str(data[api_settings.URL_FIELD_NAME])
+            except KeyError:
+                return result
         return result

@@ -373,7 +373,7 @@ class audoma_action:
         Args:
             func - decorated function
 
-        Returns:wq
+        Returns:
             wrapper callable.
         """
         func._audoma = AudomaArgs(
