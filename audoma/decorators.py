@@ -24,7 +24,6 @@ from rest_framework.views import APIView
 from django.conf import settings as project_settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Model
-from django.http import Http404
 
 from audoma import settings as audoma_settings
 
@@ -132,6 +131,7 @@ class audoma_action:
         errors: List[Union[Exception, Type[Exception]]] = None,
         many: bool = False,
         ignore_view_collectors: bool = False,
+        run_get_object: bool = None,
         **kwargs,
     ) -> None:
         self.many = many
@@ -145,6 +145,10 @@ class audoma_action:
             self.kwargs = self._sanitize_kwargs(kwargs) or {}
             self.methods = kwargs.get("methods")
             self.framework_decorator = action(**kwargs)
+            detail = kwargs.get("detail", False)
+            self.run_get_object = (
+                run_get_object if run_get_object is not None else detail
+            )
             if all(method in SAFE_METHODS for method in self.methods) and collectors:
                 raise ImproperlyConfigured(
                     "There should be no collectors defined if there are not create/update requests accepted."
@@ -317,10 +321,8 @@ class audoma_action:
         instance = None
 
         if request.method not in SAFE_METHODS:
-            try:
-                instance = view.get_object() or None
-            except (AssertionError, Http404):
-                instance = None
+            if self.run_get_object:
+                instance = view.get_object()
 
             partial = True if request.method.lower() == "patch" else False
 
