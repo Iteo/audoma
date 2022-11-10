@@ -196,22 +196,22 @@ class GenericAPIView(generics.GenericAPIView):
             f"get_{self.request.method}_response_headers",
             "get_response_headers",
         ]
-        result = None
+        headers = {}
         for name in method_names:
             method = getattr(self, name, None)
             if not method or not isinstance(method, Callable):
                 continue
-            result = method(result_serializer)
+            headers = method(result_serializer)
+            break
 
         # Append Location header for status proper status codes automatically.
         # For more info check:
         # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Location
         if status_code in LOCATION_HEADER_STATUSES:
-            result = result or {}
             data = result_serializer.data
             try:
-                if "Location" not in result:
-                    result["Location"] = str(data[api_settings.URL_FIELD_NAME])
+                if "Location" not in headers:
+                    headers["Location"] = str(data[api_settings.URL_FIELD_NAME])
             except KeyError:
-                return result
-        return result
+                pass
+        return headers
