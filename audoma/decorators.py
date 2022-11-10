@@ -426,11 +426,15 @@ class audoma_action:
                     "Error has occured during audoma_action \
                         processing action function execution result"
                 )
+            if hasattr(view, "_retrieve_response_headers"):
+                headers = view._retrieve_response_headers(code, response_serializer)
+            else:
+                headers = {}
 
             return Response(
                 response_serializer.data,
                 status=code,
-                headers=view.get_success_headers(response_serializer.data),
+                headers=headers,
             )
 
         return wrapper

@@ -1,6 +1,10 @@
-from typing import Type
+from typing import (
+    Callable,
+    Type,
+)
 
 from rest_framework import generics
+from rest_framework.settings import api_settings
 
 from audoma.decorators import AudomaArgs
 from audoma.drf.serializers import (
@@ -8,6 +12,9 @@ from audoma.drf.serializers import (
     DefaultMessageSerializer,
 )
 from audoma.operations import OperationExtractor
+
+
+LOCATION_HEADER_STATUSES = [201] + list(range(300, 400))
 
 
 class GenericAPIView(generics.GenericAPIView):
@@ -175,3 +182,36 @@ class GenericAPIView(generics.GenericAPIView):
             serializer_class = serializer_class.get_result_serializer_class()
 
         return serializer_class
+
+    def _retrieve_response_headers(
+        self,
+        status_code: int,
+        result_serializer: BaseSerializer,
+    ):
+        method = self.request.method.lower()
+
+        method_names = [
+            f"get_{self.action}_{self.request.method.lower()}_response_headers",
+            f"get_{self.action}_response_headers",
+            f"get_{self.request.method}_response_headers",
+            "get_response_headers",
+        ]
+        headers = {}
+        for name in method_names:
+            method = getattr(self, name, None)
+            if not method or not isinstance(method, Callable):
+                continue
+            headers = method(result_serializer)
+            break
+
+        # Append Location header for status proper status codes automatically.
+        # For more info check:
+        # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Location
+        if status_code in LOCATION_HEADER_STATUSES:
+            data = result_serializer.data
+            try:
+                if "Location" not in headers:
+                    headers["Location"] = str(data[api_settings.URL_FIELD_NAME])
+            except KeyError:
+                pass
+        return headers
