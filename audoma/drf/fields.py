@@ -150,7 +150,9 @@ class ChoiceField(ExampleMixin, fields.ChoiceField):
 
 class SerializerMethodField(ExampleMixin, fields.Field):
     def _parse_field(self, field):
-        if isclass(field) and issubclass(field, fields.Field):
+        if field is None:
+            return None
+        elif isclass(field) and issubclass(field, fields.Field):
             return force_instance(field)
         elif isinstance(field, fields.Field):
             return field
