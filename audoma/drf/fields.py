@@ -5,13 +5,12 @@ and also has defined schema type.
 """
 
 import sys
-from inspect import isclass
+from typing import Any
 
 import exrex
 import phonenumbers
 from djmoney.contrib.django_rest_framework import MoneyField
 from drf_spectacular.drainage import set_override
-from drf_spectacular.plumbing import force_instance
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from phonenumber_field import serializerfields
@@ -152,8 +151,6 @@ class SerializerMethodField(ExampleMixin, fields.Field):
     def _parse_field(self, field):
         if field is None:
             return None
-        elif isclass(field) and issubclass(field, fields.Field):
-            return force_instance(field)
         elif isinstance(field, fields.Field):
             return field
         else:
@@ -166,13 +163,29 @@ class SerializerMethodField(ExampleMixin, fields.Field):
     def __init__(self, *args, **kwargs) -> None:
         self.method_name = kwargs.pop("method_name", None)
         self.field = self._parse_field(kwargs.pop("field", None))
-        self.is_writable = kwargs.pop("is_writable", False)
-        if self.is_writable and self.field is None:
+        is_writable = kwargs.pop("is_writable", False)
+        if is_writable and self.field is None:
             raise ValueError("Writable SerializerMethodField must have field defined.")
 
         kwargs["source"] = "*"
-        kwargs["read_only"] = not self.is_writable
+        kwargs["read_only"] = not is_writable
         super().__init__(*args, **kwargs)
+
+    def __getattribute__(self, __name: str) -> Any:
+        value = super().__getattribute__(__name)
+        if __name not in [
+            "get_default",
+            "to_internal_value",
+            "run_validation",
+            "validators",
+            "get_validators",
+            "run_validators",
+            "validate_empty_values",
+        ]:
+            return value
+        if self.read_only or not self.field:
+            return value
+        return getattr(self.field, __name)
 
     def bind(self, field_name, parent):
         # The method name defaults to `get_{field_name}`.
@@ -189,17 +202,3 @@ class SerializerMethodField(ExampleMixin, fields.Field):
             return value
         else:
             return self.field.to_representation(value)
-
-    def get_default(self):
-        default = super().get_default()
-        return default
-
-    def to_internal_value(self, data):
-        if not self.is_writable:
-            raise fields.SkipField
-        return self.field.to_internal_value(data)
-
-    def run_validation(self, data):
-        if not self.is_writable:
-            raise fields.SkipField
-        return self.field.run_validation(data)

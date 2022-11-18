@@ -1287,17 +1287,17 @@ Define custom fields with auto-generated examples
 ----------------------------------------------------
 
 | If you want to define your field with auto example generation,
-| it is possible, that your field class should inherit from the base `ExampleMixin` class,
+| it is possible, that your field class should inherit from the base `AudomaFieldMixin` class,
 | set proper example class.
 
 .. code :: python
 
     from rest_framework import fields
-    from audoma.mixins import ExampleMixin
+    from audoma.mixins import AudomaFieldMixin
     from audoma.examples import NumericExample,
 
 
-    class SaleAmountField(ExampleMixin, fields.Field):
+    class SaleAmountField(AudomaFieldMixin, fields.Field):
         audoma_example_class = NumericExample
 
 

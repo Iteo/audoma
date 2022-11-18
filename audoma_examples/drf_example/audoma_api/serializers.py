@@ -61,7 +61,9 @@ class ExampleSerializer(serializers.Serializer):
 
 
 class ExampleModelSerializer(serializers.ModelSerializer):
-    phone_number = serializers.SerializerMethodField(field=serializers.PhoneNumberField)
+    phone_number = serializers.SerializerMethodField(
+        field=serializers.PhoneNumberField()
+    )
 
     class Meta:
 
