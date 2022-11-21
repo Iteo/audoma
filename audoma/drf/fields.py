@@ -173,17 +173,19 @@ class SerializerMethodField(ExampleMixin, fields.Field):
 
     def __getattribute__(self, __name: str) -> Any:
         value = super().__getattribute__(__name)
-        if __name not in [
-            "get_default",
-            "to_internal_value",
-            "run_validation",
-            "validators",
-            "get_validators",
-            "run_validators",
-            "validate_empty_values",
-        ]:
-            return value
-        if self.read_only or not self.field:
+        if (
+            __name
+            not in [
+                "get_default",
+                "to_internal_value",
+                "run_validation",
+                "validators",
+                "get_validators",
+                "run_validators",
+                "validate_empty_values",
+            ]
+            or not self.field
+        ):
             return value
         return getattr(self.field, __name)
 
