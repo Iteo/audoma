@@ -156,7 +156,7 @@ class SerializerMethodField(ExampleMixin, fields.Field):
         else:
             raise ValueError(
                 f"Incorrect type of field, field \
-                    must be an instance or a subclass of rest_framework.fields.Field.\
+                    must be an instance of rest_framework.fields.Field.\
                         Passed value: {field}"
             )
 
