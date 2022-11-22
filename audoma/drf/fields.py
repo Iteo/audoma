@@ -197,7 +197,7 @@ class SerializerMethodField(ExampleMixin, fields.Field):
     def to_representation(self, obj):
         method = getattr(self.parent, self.method_name)
         value = method(obj)
-        if not self.field:
+        if not self.field or value is None:
             return value
         else:
             return self.field.to_representation(value)
