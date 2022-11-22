@@ -24,9 +24,10 @@ class SerializerMethodFieldTestCase(APITestCase):
         field = AudomaSerializerMethodField(
             field=CharField(max_length=255), is_writable=True
         )
-        self.assertEqual(field.run_validation("TestValue"), "TestValue")
-        self.assertEqual(field.run_validation(12), "12")
-        self.assertEqual(field.run_validation(21.37), "21.37")
+        field.field_name = "test_field"
+        self.assertEqual(field.run_validation("TestValue"), {"test_field": "TestValue"})
+        self.assertEqual(field.run_validation(12), {"test_field": "12"})
+        self.assertEqual(field.run_validation(21.37), {"test_field": "21.37"})
 
     def test_run_validation_invalid_example(self):
         field = AudomaSerializerMethodField(
@@ -46,9 +47,12 @@ class SerializerMethodFieldTestCase(APITestCase):
         field = AudomaSerializerMethodField(
             field=CharField(max_length=255), is_writable=True
         )
-        self.assertEqual(field.to_internal_value("TestValue"), "TestValue")
-        self.assertEqual(field.to_internal_value(12), "12")
-        self.assertEqual(field.to_internal_value(21.37), "21.37")
+        field.field_name = "test_field"
+        self.assertEqual(
+            field.to_internal_value("TestValue"), {"test_field": "TestValue"}
+        )
+        self.assertEqual(field.to_internal_value(12), {"test_field": "12"})
+        self.assertEqual(field.to_internal_value(21.37), {"test_field": "21.37"})
 
     def test_to_internal_value_fail_validation(self):
         field = AudomaSerializerMethodField(

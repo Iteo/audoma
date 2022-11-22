@@ -171,14 +171,10 @@ class SerializerMethodField(ExampleMixin, fields.Field):
         kwargs["read_only"] = not is_writable
         super().__init__(*args, **kwargs)
 
-    def __getattribute__(self, __name: str) -> Any:
-        value = super().__getattribute__(__name)
+    def __getattribute__(self, name: str) -> Any:
         if (
-            __name
+            name
             not in [
-                "get_default",
-                "to_internal_value",
-                "run_validation",
                 "validators",
                 "get_validators",
                 "run_validators",
@@ -186,8 +182,9 @@ class SerializerMethodField(ExampleMixin, fields.Field):
             ]
             or not self.field
         ):
-            return value
-        return getattr(self.field, __name)
+            return super().__getattribute__(name)
+
+        return getattr(self.field, name)
 
     def bind(self, field_name, parent):
         # The method name defaults to `get_{field_name}`.
@@ -197,10 +194,19 @@ class SerializerMethodField(ExampleMixin, fields.Field):
         if self.field is not None:
             set_override(self, "field", self.field)
 
-    def to_representation(self, value):
+    def to_representation(self, obj):
         method = getattr(self.parent, self.method_name)
-        value = method(value)
+        value = method(obj)
         if not self.field:
             return value
         else:
             return self.field.to_representation(value)
+
+    def get_default(self):
+        return {self.field_name: self.field.get_default}
+
+    def to_internal_value(self, data):
+        return {self.field_name: self.field.to_internal_value(data)}
+
+    def run_validation(self, data):
+        return {self.field_name: self.field.run_validation(data)}
