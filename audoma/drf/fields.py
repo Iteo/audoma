@@ -149,21 +149,20 @@ class ChoiceField(ExampleMixin, fields.ChoiceField):
 
 class SerializerMethodField(ExampleMixin, fields.Field):
     def _parse_field(self, field):
-        if field is None:
-            return None
-        elif isinstance(field, fields.Field):
-            return field
-        else:
+        if field is not None and not isinstance(field, fields.Field):
             raise ValueError(
                 f"Incorrect type of field, field \
                     must be an instance of rest_framework.fields.Field.\
                         Passed value: {field}"
             )
+        return field
 
-    def __init__(self, *args, **kwargs) -> None:
-        self.method_name = kwargs.pop("method_name", None)
-        self.field = self._parse_field(kwargs.pop("field", None))
-        is_writable = kwargs.pop("is_writable", False)
+    def __init__(
+        self, *args, method_name=None, field=None, is_writable=False, **kwargs
+    ) -> None:
+        self.method_name = method_name
+        self.field = self._parse_field(field)
+        is_writable = is_writable
         if is_writable and self.field is None:
             raise ValueError("Writable SerializerMethodField must have field defined.")
 
