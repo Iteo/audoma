@@ -158,16 +158,16 @@ class SerializerMethodField(ExampleMixin, fields.Field):
         return field
 
     def __init__(
-        self, *args, method_name=None, field=None, is_writable=False, **kwargs
+        self, *args, method_name=None, field=None, writable=False, **kwargs
     ) -> None:
         self.method_name = method_name
         self.field = self._parse_field(field)
-        is_writable = is_writable
-        if is_writable and self.field is None:
+        writable = writable
+        if writable and self.field is None:
             raise ValueError("Writable SerializerMethodField must have field defined.")
 
         kwargs["source"] = "*"
-        kwargs["read_only"] = not is_writable
+        kwargs["read_only"] = not writable
         super().__init__(*args, **kwargs)
 
     def __getattribute__(self, name: str) -> Any:

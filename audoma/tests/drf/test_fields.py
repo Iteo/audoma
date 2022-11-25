@@ -14,7 +14,7 @@ class SerializerMethodFieldTestCase(APITestCase):
 
     def test_create_with_field(self):
         field = AudomaSerializerMethodField(
-            field=CharField(max_length=255), is_writable=True
+            field=CharField(max_length=255), writable=True
         )
         self.assertIsInstance(field, AudomaSerializerMethodField)
         self.assertIsNotNone(getattr(field, "field", None))
@@ -22,7 +22,7 @@ class SerializerMethodFieldTestCase(APITestCase):
 
     def test_run_validation_valid_example(self):
         field = AudomaSerializerMethodField(
-            field=CharField(max_length=255), is_writable=True
+            field=CharField(max_length=255), writable=True
         )
         field.field_name = "test_field"
         self.assertEqual(field.run_validation("TestValue"), {"test_field": "TestValue"})
@@ -31,7 +31,7 @@ class SerializerMethodFieldTestCase(APITestCase):
 
     def test_run_validation_invalid_example(self):
         field = AudomaSerializerMethodField(
-            field=CharField(max_length=255), is_writable=True
+            field=CharField(max_length=255), writable=True
         )
         try:
             field.run_validation("a" * 289)
@@ -45,7 +45,7 @@ class SerializerMethodFieldTestCase(APITestCase):
 
     def test_to_internal_value_success(self):
         field = AudomaSerializerMethodField(
-            field=CharField(max_length=255), is_writable=True
+            field=CharField(max_length=255), writable=True
         )
         field.field_name = "test_field"
         self.assertEqual(
@@ -56,7 +56,7 @@ class SerializerMethodFieldTestCase(APITestCase):
 
     def test_to_internal_value_fail_validation(self):
         field = AudomaSerializerMethodField(
-            field=CharField(max_length=255), is_writable=True
+            field=CharField(max_length=255), writable=True
         )
         try:
             field.to_internal_value("a" * 289)
@@ -70,7 +70,7 @@ class SerializerMethodFieldTestCase(APITestCase):
 
     def test_to_internal_value_fail_type(self):
         field = AudomaSerializerMethodField(
-            field=CharField(max_length=255), is_writable=True
+            field=CharField(max_length=255), writable=True
         )
         try:
             field.to_internal_value(object())
@@ -79,7 +79,7 @@ class SerializerMethodFieldTestCase(APITestCase):
 
     def test_to_internal_value_raise_skipfield(self):
         field = AudomaSerializerMethodField(
-            field=CharField(max_length=255), is_writable=True
+            field=CharField(max_length=255), writable=True
         )
         try:
             field.to_internal_value(object())
