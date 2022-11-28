@@ -20,13 +20,28 @@ class PatientReadSerializer(PersonBaseSerializer):
 
 
 class PatientWriteSerializer(serializers.BulkSerializerMixin, PersonBaseSerializer):
+
+    pk = serializers.IntegerField(write_only=True, required=False)
+
     class Meta:
         model = api_models.Patient
-        fields = ["name", "surname", "contact_data", "weight", "height"]
-        list_serializer = serializers.BulkListSerializer
+        fields = ["pk", "name", "surname", "contact_data", "weight", "height"]
+        list_serializer_class = serializers.BulkListSerializer
+        id_field = "pk"
 
-    def update(self, validated_data):
-        ...
+    def update(self, instance, validated_data):
+        contact_data = validated_data.pop("contact_data", {})
+        if not instance.contact_data:
+            instance.contact_data = api_models.ContactData.objects.create(
+                **contact_data
+            )
+        else:
+            api_models.ContactData.objects.filter(pk=instance.contact_data.pk).update(
+                **contact_data
+            )
+        instance = super().update(instance, validated_data)
+        instance.contact_data.refresh_from_db()
+        return instance
 
     def create(self, validated_data):
         contact_info = validated_data.pop("contact_data")

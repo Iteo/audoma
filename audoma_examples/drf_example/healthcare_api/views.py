@@ -10,6 +10,8 @@ from rest_framework.permissions import (
 )
 from rest_framework.response import Response
 
+from django.shortcuts import get_object_or_404
+
 # from audoma.decorators import audoma_action
 from audoma.drf import mixins
 from audoma.drf.viewsets import GenericViewSet
@@ -31,9 +33,18 @@ class PatientViewset(
     common_collect_serializer_class = serializers.PatientWriteSerializer
     get_files_serializer_class = serializers.PatientFilesDetailSerializer
     queryset = models.Patient.objects.all()
+    lookup_url_kwarg = "pk"
+
+    def filter_queryset(self, queryset):
+        if self.request.method in ["PUT", "PATCH"] and isinstance(
+            self.request.data, list
+        ):
+            ids = [d[self.lookup_url_kwarg] for d in self.request.data]
+            queryset = queryset.filter(id__in=ids)
+        return queryset
 
     @action(methods=["GET"], detail=True)
-    def get_files(self, request, id):
-        files = models.PatientFiles.objects.get(patient__id=id)
+    def get_files(self, request, pk):
+        files = get_object_or_404(models.PatientFiles, patient__id=pk)
         serializer = self.get_serializer(instance=files)
         return Response(serializer.data, status=status.HTTP_200_OK)
