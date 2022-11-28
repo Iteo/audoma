@@ -21,13 +21,22 @@ class SchemaTestCaseBase(APITestCase):
         self.redoc_schemas = self.schema["components"]["schemas"]
 
 
-class PatientViewsetTestCase(APITestCase):
+class BasicTestCase(APITestCase):
     def setUp(self):
         # create patients
         super().setUp()
         self.user = User.objects.create(
             username="admin", password="passwd", is_staff=True
         )
+        self.non_staff_user = User.objects.create(
+            username="anybody", password="passwd", is_staff=False
+        )
+
+
+class PatientViewsetTestCase(BasicTestCase):
+    def setUp(self):
+        # create patients
+        super().setUp()
         contact_data = health_models.ContactData.objects.create(
             **{
                 "phone_number": "+48 123 456 123",
@@ -63,8 +72,7 @@ class PatientViewsetTestCase(APITestCase):
 
     def test_get_list_fail_not_admin_user(self):
         url = reverse("patient-list")
-        user = User.objects.create(username="test", password="test", is_staff=False)
-        self.client.force_authenticate(user=user)
+        self.client.force_authenticate(user=self.non_staff_user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
@@ -140,8 +148,7 @@ class PatientViewsetTestCase(APITestCase):
 
     def test_create_single_fail_permission(self):
         url = reverse("patient-list")
-        user = User.objects.create(username="test", password="test", is_staff=False)
-        self.client.force_authenticate(user=user)
+        self.client.force_authenticate(user=self.non_staff_user)
         request_data = {
             "name": "TestPatient",
             "surname": "Testowy",
@@ -283,8 +290,7 @@ class PatientViewsetTestCase(APITestCase):
 
     def test_create_bulk_fail_permission(self):
         url = reverse("patient-list")
-        user = User.objects.create(username="test", password="test", is_staff=False)
-        self.client.force_authenticate(user=user)
+        self.client.force_authenticate(user=self.non_staff_user)
         request_data = [
             {
                 "name": "TestPatient",
@@ -363,8 +369,7 @@ class PatientViewsetTestCase(APITestCase):
         )
 
     def test_partial_update_single_fail_permission(self):
-        user = User.objects.create(username="test", password="test", is_staff=False)
-        self.client.force_authenticate(user=user)
+        self.client.force_authenticate(user=self.non_staff_user)
         instance = health_models.Patient.objects.get(surname="aa")
         url = reverse("patient-detail", kwargs={"pk": instance.id})
         response = self.client.patch(url, {"name": "CorrectName"})
@@ -575,8 +580,7 @@ class PatientViewsetTestCase(APITestCase):
 
     def test_bulk_update_fail_missing_permissions(self):
         url = reverse("patient-list")
-        user = User.objects.create(username="test", password="test", is_staff=False)
-        self.client.force_authenticate(user=user)
+        self.client.force_authenticate(user=self.non_staff_user)
         data = health_models.Patient.objects.all()[:2]
 
         request_data = [
@@ -678,8 +682,7 @@ class PatientViewsetTestCase(APITestCase):
 
     def test_bulk_partial_update_fail_permission(self):
         url = reverse("patient-list")
-        user = User.objects.create(username="test", password="test", is_staff=False)
-        self.client.force_authenticate(user=user)
+        self.client.force_authenticate(user=self.non_staff_user)
         data = health_models.Patient.objects.all()[:2]
         response = self.client.patch(
             url,
@@ -760,8 +763,7 @@ class PatientViewsetTestCase(APITestCase):
         patient = health_models.Patient.objects.get(id=1)
         health_models.PatientFiles.objects.create(patient=patient)
         url = reverse("patient-get-files", kwargs={"pk": 1})
-        user = User.objects.create(username="test", password="test", is_staff=False)
-        self.client.force_authenticate(user=user)
+        self.client.force_authenticate(user=self.non_staff_user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
@@ -771,8 +773,6 @@ class PatientViewsetTestCase(APITestCase):
 
     def test_get_files_fail_no_auth(self):
         url = reverse("patient-get-files", kwargs={"pk": 1})
-        user = User.objects.create(username="test", password="test", is_staff=False)
-        self.client.force_authenticate(user=user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 401)
         self.assertEqual(
@@ -827,3 +827,99 @@ class PatientViewsetSchemaTestCase(SchemaTestCaseBase):
         self.assertEqual(props["phone_number"]["format"], "tel")
         self.assertEqual(props["mobile"]["type"], "string")
         self.assertEqual(props["mobile"]["format"], "tel")
+
+
+class DoctorViesetTestCase(BasicTestCase):
+    def setUp(self):
+        super().setUp()
+        health_models.Specialization.objects.create(name="Pediatry")
+        health_models.Specialization.objects.create(name="Radiology")
+        health_models.Specialization.objects.create(name="Anesthesiology")
+        self.specializations = health_models.Specialization.objects.all()
+        contact_data = health_models.ContactData.objects.create(
+            **{
+                "phone_number": "+48 123 456 123",
+                "mobile": "+48 908 787 343",
+                "country": health_models.COUNTRY_CHOICES.PL,
+                "city": "Lasowice",
+            }
+        )
+        for i in range(3):
+            salary = 3000.0 * i + 1000.0 * i
+            doc = health_models.Doctor.objects.create(
+                name="z" + "z" * i,
+                surname="a" + "a" * i,
+                contact_data=contact_data,
+                salary=salary,
+            )
+            doc.specialization.add(self.specializations[i])
+            doc.save()
+        self.doctors = health_models.Doctor.objects.all()
+
+    def test_get_list_success(self):
+        url = reverse("doctor-list")
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 3)
+        results = response.data["results"]
+
+        self.assertDictEqual(
+            results[0]["specialization"][0], {"id": 1, "name": "Pediatry"}
+        )
+        self.assertDictEqual(
+            results[1]["specialization"][0], {"id": 2, "name": "Radiology"}
+        )
+        self.assertDictEqual(
+            results[2]["specialization"][0], {"id": 3, "name": "Anesthesiology"}
+        )
+
+    def test_get_list_no_auth(self):
+        url = reverse("doctor-list")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(
+            response.data["errors"]["detail"],
+            "Authentication credentials were not provided.",
+        )
+
+    def test_get_list_lack_permissions(self):
+        url = reverse("doctor-list")
+        self.client.force_authenticate(user=self.non_staff_user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            response.data["errors"]["detail"],
+            "You do not have permission to perform this action.",
+        )
+
+    def test_create_doctor_success(self):
+        url = reverse("doctor-list")
+        self.client.force_authenticate(user=self.user)
+        data = {
+            "name": "TeestDoctor",
+            "surname": "Creepy",
+            "contact_data": {
+                "phone_number": "+48 455 123 432",
+                "mobile": "+48 455 123 432",
+                "country": health_models.COUNTRY_CHOICES.PL,
+                "city": "Gliwice",
+            },
+            "salary": "5000.00",
+            "specialization": [1, 2],
+        }
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["results"]["specialization"], [1, 2])
+
+    def test_create_doctor_failure_missing_data(self):
+        ...
+
+    def test_create_doctor_failure_wrong_data(self):
+        ...
+
+    def test_create_doctor_failure_no_auth(self):
+        ...
+
+    def test_create_doctor_failure_missing_permissions(self):
+        ...

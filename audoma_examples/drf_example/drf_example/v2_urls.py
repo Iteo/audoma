@@ -13,6 +13,10 @@ from audoma.drf import routers
 router = routers.DefaultRouter()
 
 router.register(r"patient", views.PatientViewset, basename="patient")
+router.register(
+    r"specialization", views.SpecializatioNViewSet, basename="specialization"
+)
+router.register(r"doctor", views.DoctorViewset, basename="doctor")
 
 
 urlpatterns = [] + router.urls

@@ -12,23 +12,6 @@ class ContactDataSerializer(serializers.ModelSerializer):
 class PersonBaseSerializer(serializers.ModelSerializer):
     contact_data = ContactDataSerializer()
 
-
-class PatientReadSerializer(PersonBaseSerializer):
-    class Meta:
-        model = api_models.Patient
-        fields = ["name", "surname", "contact_data", "weight", "height"]
-
-
-class PatientWriteSerializer(serializers.BulkSerializerMixin, PersonBaseSerializer):
-
-    pk = serializers.IntegerField(write_only=True, required=False)
-
-    class Meta:
-        model = api_models.Patient
-        fields = ["pk", "name", "surname", "contact_data", "weight", "height"]
-        list_serializer_class = serializers.BulkListSerializer
-        id_field = "pk"
-
     def update(self, instance, validated_data):
         contact_data = validated_data.pop("contact_data", {})
         if not instance.contact_data:
@@ -48,7 +31,24 @@ class PatientWriteSerializer(serializers.BulkSerializerMixin, PersonBaseSerializ
         validated_data["contact_data"] = api_models.ContactData.objects.create(
             **contact_info
         )
-        return api_models.Patient.objects.create(**validated_data)
+        return self.Meta.model.objects.create(**validated_data)
+
+
+class PatientReadSerializer(PersonBaseSerializer):
+    class Meta:
+        model = api_models.Patient
+        fields = ["name", "surname", "contact_data", "weight", "height"]
+
+
+class PatientWriteSerializer(serializers.BulkSerializerMixin, PersonBaseSerializer):
+
+    pk = serializers.IntegerField(write_only=True, required=False)
+
+    class Meta:
+        model = api_models.Patient
+        fields = ["pk", "name", "surname", "contact_data", "weight", "height"]
+        list_serializer_class = serializers.BulkListSerializer
+        id_field = "pk"
 
 
 class PatientFilesEntrySerializer(serializers.ModelSerializer):
@@ -70,7 +70,7 @@ class PatientFilesDetailSerializer(serializers.ModelSerializer):
 class SpecializationSerializer(serializers.ModelSerializer):
     class Meta:
         model = api_models.Specialization
-        fields = ["name"]
+        fields = ["id", "name"]
 
 
 class DoctorReadSerializer(PersonBaseSerializer):
@@ -82,11 +82,32 @@ class DoctorReadSerializer(PersonBaseSerializer):
         fields = ["name", "surname", "contact_data", "specialization"]
 
 
-# TODO - finish this
 class DoctorWriteSerializer(PersonBaseSerializer):
 
-    specialization = serializers.CharField()
+    choices_options_links = {
+        "specialization": {
+            "viewname": "specialization-list",
+            "value_field": "id",
+            "display_field": "name",
+        }
+    }
+
+    # TODO - this should be modified
+    specialization = serializers.ListField(child=serializers.IntegerField())
+
+    def validate(self, attrs):
+        self.specialization_pks = attrs.pop("specialization", [])
+        return attrs
+
+    def save(self, **kwargs):
+        instance = super().save(**kwargs)
+        for s in api_models.Specialization.objects.filter(
+            pk__in=self.specialization_pks
+        ):
+            instance.specialization.add(s)
+        instance.save()
+        return instance
 
     class Meta:
         model = api_models.Doctor
-        fields = ["name", "surname", "contact_data", "specialization"]
+        fields = ["name", "surname", "contact_data", "specialization", "salary"]

@@ -12,7 +12,7 @@ from rest_framework.response import Response
 
 from django.shortcuts import get_object_or_404
 
-# from audoma.decorators import audoma_action
+from audoma.decorators import audoma_action
 from audoma.drf import mixins
 from audoma.drf.viewsets import GenericViewSet
 
@@ -48,3 +48,27 @@ class PatientViewset(
         files = get_object_or_404(models.PatientFiles, patient__id=pk)
         serializer = self.get_serializer(instance=files)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class SpecializatioNViewSet(mixins.ListModelMixin, GenericViewSet):
+    serializer_class = serializers.SpecializationSerializer
+    queryset = models.Specialization.objects.all()
+
+
+class DoctorViewset(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    GenericViewSet,
+):
+
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = models.Doctor.objects.all()
+
+    list_serializer_class = serializers.DoctorReadSerializer
+    create_serializer_class = serializers.DoctorWriteSerializer
+    update_serializer_class = serializers.DoctorWriteSerializer
+
+    # @audoma_action()
+    # def something(self, request, collect_serializer):
+    #    ...
