@@ -11,7 +11,6 @@ from audoma_api.models import (
 
 from audoma.choices import make_choices
 from audoma.drf import serializers
-from audoma.drf.decorators import document_and_format
 from audoma.drf.serializers import (
     BulkListSerializer,
     BulkSerializerMixin,
@@ -62,7 +61,9 @@ class ExampleSerializer(serializers.Serializer):
 
 
 class ExampleModelSerializer(serializers.ModelSerializer):
-    phone_number = serializers.SerializerMethodField()
+    phone_number = serializers.SerializerMethodField(
+        field=serializers.PhoneNumberField(), writable=True
+    )
 
     class Meta:
 
@@ -70,7 +71,6 @@ class ExampleModelSerializer(serializers.ModelSerializer):
         fields = "__all__"
         extra_kwargs = {"char_field": {"example": "lorem ipsum"}}
 
-    @document_and_format(serializers.PhoneNumberField)
     def get_phone_number(self, obj):
         return obj.phone_number
 

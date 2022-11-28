@@ -1,5 +1,6 @@
 import json
 import re
+from copy import deepcopy
 from datetime import (
     date,
     timedelta,
@@ -567,6 +568,15 @@ class AudomaViewsTestCase(TestCase):
             reverse("permissionless-model-examples-detail-action", kwargs={"pk": 0})
         )
         self.assertEqual(response.status_code, 405)
+
+    def test_create_action_with_writable_serializer_method_field(self):
+        data = deepcopy(self.data)
+        data["phone_number"] = "+48123909834"
+        response = self.client.post(
+            reverse("permissionless-model-examples-list"), data=data, format="json"
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["phone_number"], "+48 12 390 98 34")
 
     def test_detail_action_post_with_usertype(self):
         self.data["usertype"] = "admin"

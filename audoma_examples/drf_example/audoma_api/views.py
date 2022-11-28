@@ -215,7 +215,7 @@ class MutuallyExclusiveViewSet(
 
 
 class ExampleModelPermissionLessViewSet(
-    mixins.ActionModelMixin, viewsets.GenericViewSet
+    mixins.ActionModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet
 ):
     serializer_class = ExampleModelSerializer
     queryset = ExampleModel.objects.all()

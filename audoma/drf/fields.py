@@ -5,10 +5,12 @@ and also has defined schema type.
 """
 
 import sys
+from typing import Any
 
 import exrex
 import phonenumbers
 from djmoney.contrib.django_rest_framework import MoneyField
+from drf_spectacular.drainage import set_override
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from phonenumber_field import serializerfields
@@ -44,7 +46,6 @@ field_names = [
     "HStoreField",
     "JSONField",
     "ReadOnlyField",
-    "SerializerMethodField",
 ]
 
 
@@ -144,3 +145,67 @@ class ChoiceField(ExampleMixin, fields.ChoiceField):
         else:
             self.original_choices = choices
         super().__init__(choices, **kwargs)
+
+
+class SerializerMethodField(ExampleMixin, fields.Field):
+    def _parse_field(self, field):
+        if field is not None and not isinstance(field, fields.Field):
+            raise ValueError(
+                f"Incorrect type of field, field \
+                    must be an instance of rest_framework.fields.Field.\
+                        Passed value: {field}"
+            )
+        return field
+
+    def __init__(
+        self, *args, method_name=None, field=None, writable=False, **kwargs
+    ) -> None:
+        self.method_name = method_name
+        self.field = self._parse_field(field)
+        writable = writable
+        if writable and self.field is None:
+            raise ValueError("Writable SerializerMethodField must have field defined.")
+
+        kwargs["source"] = "*"
+        kwargs["read_only"] = not writable
+        super().__init__(*args, **kwargs)
+
+    def __getattribute__(self, name: str) -> Any:
+        if (
+            name
+            not in [
+                "validators",
+                "get_validators",
+                "run_validators",
+                "validate_empty_values",
+            ]
+            or not self.field
+        ):
+            return super().__getattribute__(name)
+
+        return getattr(self.field, name)
+
+    def bind(self, field_name, parent):
+        # The method name defaults to `get_{field_name}`.
+        if self.method_name is None:
+            self.method_name = "get_{field_name}".format(field_name=field_name)
+        super().bind(field_name, parent)
+        if self.field is not None:
+            set_override(self, "field", self.field)
+
+    def to_representation(self, obj):
+        method = getattr(self.parent, self.method_name)
+        value = method(obj)
+        if not self.field or value is None:
+            return value
+        else:
+            return self.field.to_representation(value)
+
+    def get_default(self):
+        return {self.field_name: self.field.get_default}
+
+    def to_internal_value(self, data):
+        return {self.field_name: self.field.to_internal_value(data)}
+
+    def run_validation(self, data):
+        return {self.field_name: self.field.run_validation(data)}
