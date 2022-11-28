@@ -24,6 +24,7 @@ from rest_framework.views import APIView
 from django.conf import settings as project_settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Model
+from django.http import Http404
 
 from audoma import settings as audoma_settings
 
@@ -405,27 +406,20 @@ class audoma_action:
                 instance, code = func(view, request, *args, **kwargs)
                 # TODO - add verification
 
-            except Exception as processed_error:
+            except (APIException, Http404) as processed_error:
                 self._process_error(processed_error, errors, view)
 
-            try:
-                response_serializer = view.get_result_serializer(
-                    instance=instance,
-                    context={
-                        "request": request,
-                        "format": view.format_kwarg,
-                        "view": view,
-                    },
-                    many=self.many,
-                    status_code=code,
-                )
-            except AudomaActionException as e:
-                if project_settings.DEBUG:
-                    raise e
-                logger.exception(
-                    "Error has occured during audoma_action \
-                        processing action function execution result"
-                )
+            response_serializer = view.get_result_serializer(
+                instance=instance,
+                context={
+                    "request": request,
+                    "format": view.format_kwarg,
+                    "view": view,
+                },
+                many=self.many,
+                status_code=code,
+            )
+
             if hasattr(view, "_retrieve_response_headers"):
                 headers = view._retrieve_response_headers(code, response_serializer)
             else:
