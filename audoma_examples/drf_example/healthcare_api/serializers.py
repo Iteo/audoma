@@ -92,8 +92,12 @@ class DoctorWriteSerializer(PersonBaseSerializer):
         }
     }
 
-    # TODO - this should be modified
-    specialization = serializers.ListField(child=serializers.IntegerField())
+    specialization = serializers.SerializerMethodField(
+        field=serializers.ListField(child=serializers.IntegerField()), writable=True
+    )
+
+    def get_specialization(self, doctor):
+        return doctor.specialization.values_list("id", flat=True)
 
     def validate(self, attrs):
         self.specialization_pks = attrs.pop("specialization", [])

@@ -62,7 +62,7 @@ class ExampleSerializer(serializers.Serializer):
 
 class ExampleModelSerializer(serializers.ModelSerializer):
     phone_number = serializers.SerializerMethodField(
-        field=serializers.PhoneNumberField(), is_writable=True
+        field=serializers.PhoneNumberField(), writable=True
     )
 
     class Meta:

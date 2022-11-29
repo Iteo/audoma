@@ -64,10 +64,12 @@ class DoctorViewset(
 
     permission_classes = [IsAuthenticated, IsAdminUser]
     queryset = models.Doctor.objects.all()
+    lookup_url_kwarg = "pk"
 
     list_serializer_class = serializers.DoctorReadSerializer
     create_serializer_class = serializers.DoctorWriteSerializer
     update_serializer_class = serializers.DoctorWriteSerializer
+    partial_update_serializer_class = serializers.DoctorWriteSerializer
 
     # @audoma_action()
     # def something(self, request, collect_serializer):

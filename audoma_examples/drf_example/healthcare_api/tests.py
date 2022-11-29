@@ -910,16 +910,222 @@ class DoctorViesetTestCase(BasicTestCase):
         }
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data["results"]["specialization"], [1, 2])
+        self.assertEqual(response.data["specialization"], [1, 2])
 
     def test_create_doctor_failure_missing_data(self):
-        ...
+        url = reverse("doctor-list")
+        self.client.force_authenticate(user=self.user)
+        data = {
+            "name": "TeestDoctor",
+            "surname": "Creepy",
+            "contact_data": {
+                "phone_number": "+48 455 123 432",
+                "mobile": "+48 455 123 432",
+                "country": health_models.COUNTRY_CHOICES.PL,
+                "city": "Gliwice",
+            },
+            "specialization": [1, 2],
+        }
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, 400)
+        self.assertDictEqual(
+            response.data, {"errors": {"salary": ["This field is required."]}}
+        )
 
     def test_create_doctor_failure_wrong_data(self):
-        ...
+        url = reverse("doctor-list")
+        self.client.force_authenticate(user=self.user)
+        data = {
+            "name": "TeestDoctor",
+            "surname": "Creepy",
+            "contact_data": {
+                "phone_number": "+48 455 123 432",
+                "mobile": "+48 455 123 432",
+                "country": health_models.COUNTRY_CHOICES.PL,
+                "city": "Gliwice",
+            },
+            "salary": "TEST",
+            "specialization": [1, 2],
+        }
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, 400)
+        self.assertDictEqual(
+            response.data, {"errors": {"salary": ["A valid number is required."]}}
+        )
 
     def test_create_doctor_failure_no_auth(self):
-        ...
+        url = reverse("doctor-list")
+        data = {
+            "name": "TeestDoctor",
+            "surname": "Creepy",
+            "contact_data": {
+                "phone_number": "+48 455 123 432",
+                "mobile": "+48 455 123 432",
+                "country": health_models.COUNTRY_CHOICES.PL,
+                "city": "Gliwice",
+            },
+            "specialization": [1, 2],
+            "salary": "5000.00",
+        }
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(
+            response.data["errors"]["detail"],
+            "Authentication credentials were not provided.",
+        )
 
     def test_create_doctor_failure_missing_permissions(self):
-        ...
+        url = reverse("doctor-list")
+        self.client.force_authenticate(user=self.non_staff_user)
+        data = {
+            "name": "TeestDoctor",
+            "surname": "Creepy",
+            "contact_data": {
+                "phone_number": "+48 455 123 432",
+                "mobile": "+48 455 123 432",
+                "country": health_models.COUNTRY_CHOICES.PL,
+                "city": "Gliwice",
+            },
+            "salary": "5000.00",
+            "specialization": [1, 2],
+        }
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            response.data["errors"]["detail"],
+            "You do not have permission to perform this action.",
+        )
+
+    def test_update_doctor_success(self):
+        url = reverse("doctor-detail", kwargs={"pk": 1})
+        self.client.force_authenticate(user=self.user)
+        data = {
+            "name": "TeestDoctor",
+            "surname": "Creepy",
+            "contact_data": {
+                "phone_number": "+48 455 123 432",
+                "mobile": "+48 455 123 432",
+                "country": health_models.COUNTRY_CHOICES.PL,
+                "city": "Gliwice",
+            },
+            "salary": "5000.00",
+            "specialization": [1, 2],
+        }
+        response = self.client.put(url, data, format="json")
+        self.assertEqual(response.status_code, 200)
+        data["contact_data"] = OrderedDict(data["contact_data"])
+        self.assertDictEqual(response.data, data)
+
+    def test_update_doctor_fail_missing_data(self):
+        url = reverse("doctor-detail", kwargs={"pk": 1})
+        self.client.force_authenticate(user=self.user)
+        data = {
+            "name": "TeestDoctor",
+            "surname": "Creepy",
+            "contact_data": {
+                "phone_number": "+48 455 123 432",
+                "mobile": "+48 455 123 432",
+                "country": health_models.COUNTRY_CHOICES.PL,
+                "city": "Gliwice",
+            },
+            "specialization": [1, 2],
+        }
+        response = self.client.put(url, data, format="json")
+        self.assertEqual(response.status_code, 400)
+        self.assertDictEqual(
+            response.data, {"errors": {"salary": ["This field is required."]}}
+        )
+
+    def test_update_doctor_fail_wrong_data(self):
+        url = reverse("doctor-detail", kwargs={"pk": 1})
+        self.client.force_authenticate(user=self.user)
+        data = {
+            "name": "TeestDoctor",
+            "surname": "Creepy",
+            "contact_data": {
+                "phone_number": "+48 455 123 432",
+                "mobile": "+48 455 123 432",
+                "country": health_models.COUNTRY_CHOICES.PL,
+                "city": "Gliwice",
+            },
+            "salary": "TEST",
+            "specialization": [1, 2],
+        }
+        response = self.client.put(url, data, format="json")
+        self.assertEqual(response.status_code, 400)
+        self.assertDictEqual(
+            response.data, {"errors": {"salary": ["A valid number is required."]}}
+        )
+
+    def test_partial_update_doctor_success(self):
+        url = reverse("doctor-detail", kwargs={"pk": 1})
+        self.client.force_authenticate(user=self.user)
+        data = {
+            "name": "TeestDoctor",
+            "surname": "Creepy",
+            "contact_data": {
+                "phone_number": "+48 12 345 61 23",
+                "mobile": "+48 908 787 343",
+                "country": health_models.COUNTRY_CHOICES.PL,
+                "city": "Lasowice",
+            },
+            "salary": "0.00",
+            "specialization": [1],
+        }
+        response = self.client.patch(
+            url,
+            {
+                "name": "TeestDoctor",
+                "surname": "Creepy",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        data["contact_data"] = OrderedDict(data["contact_data"])
+        self.assertDictEqual(response.data, data)
+
+    def test_partial_update_doctor_failure_wrong_data(self):
+        url = reverse("doctor-detail", kwargs={"pk": 1})
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(
+            url,
+            {
+                "salary": "Z@#!@FASD",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertDictEqual(
+            response.data, {"errors": {"salary": ["A valid number is required."]}}
+        )
+
+    def test_partial_update_fail_no_auth(self):
+        url = reverse("doctor-detail", kwargs={"pk": 1})
+        response = self.client.patch(
+            url,
+            {
+                "salary": "5000.0",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(
+            response.data["errors"]["detail"],
+            "Authentication credentials were not provided.",
+        )
+
+    def test_partial_update_fail_no_permissions(self):
+        url = reverse("doctor-detail", kwargs={"pk": 1})
+        self.client.force_authenticate(user=self.non_staff_user)
+        response = self.client.patch(
+            url,
+            {
+                "salary": "5000.0",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            response.data["errors"]["detail"],
+            "You do not have permission to perform this action.",
+        )
