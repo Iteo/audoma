@@ -2,10 +2,7 @@ from collections import OrderedDict
 
 from drf_example.v2_urls import router
 from drf_spectacular.generators import SchemaGenerator
-from healthcare_api import (
-    models as health_models,
-    serializers as health_serializers,
-)
+from healthcare_api import models as health_models
 from rest_framework.test import APITestCase
 
 from django.contrib.auth.models import User

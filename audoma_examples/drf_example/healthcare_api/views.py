@@ -12,7 +12,6 @@ from rest_framework.response import Response
 
 from django.shortcuts import get_object_or_404
 
-from audoma.decorators import audoma_action
 from audoma.drf import mixins
 from audoma.drf.viewsets import GenericViewSet
 

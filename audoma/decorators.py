@@ -8,7 +8,6 @@ from typing import (
     Dict,
     Iterable,
     List,
-    Tuple,
     Type,
     Union,
 )
@@ -158,26 +157,23 @@ class audoma_action:
                 raise e
             logger.exception("audoma_action has been improperly configured.")
 
-    def _get_error_instance_and_class(
+    def _get_error_class(
         self, error: Union[Exception, Type[Exception]]
-    ) -> Tuple[Exception, Type[Exception]]:
+    ) -> Type[Exception]:
         """
         This is an internal helper method.
         Beacuse we accept errors as instances and classes
         it helps to determine which one is passed.
 
         Args:
-            * error - error object or class
+            * error - error object or a class
 
-        Returns: instance and class of passed exception.
+        Returns: class of passed exception
         """
         if isclass(error):
-            error_class = error
-            error_instance = error()
+            return error
         else:
-            error_instance = error
-            error_class = type(error)
-        return error_instance, error_class
+            return type(error)
 
     def _get_type_matched_exceptions(
         self,
@@ -189,114 +185,80 @@ class audoma_action:
         of the same type as the processed error.
         It simply returns a list of those errors.
         Args:
-            errors - list of errors, allowed to be risen in decorated view
+            errors - list of errors, allowed to be raised in decorated view
             processed_error_class - an exception which has been raised in decorated view
 
         Returns a List of exceptions and exception classes, with matching exception type.
         """
         type_matched_exceptions = []
         for error in errors:
-            error_instance, error_class = self._get_error_instance_and_class(error)
+            error_class = self._get_error_class(error)
 
             if not processed_error_class == error_class:
                 continue
 
-            type_matched_exceptions.append((error, error_instance))
+            type_matched_exceptions.append(error)
 
-        if not type_matched_exceptions:
-            raise AudomaActionException(
-                f"There is no class or instance of {processed_error_class} \
-                    defined in audoma_action errors."
-            )
         return type_matched_exceptions
-
-    def _compare_errors_content(
-        self, raised_error: Exception, catched_error: Exception, view: APIView
-    ) -> bool:
-        """
-        This is a helper function which checks if both raised and catched error are the same.
-        To ensure that errors are the same it checks if both errors, have the same content.
-
-        Args:
-            raised_error - error which has been risen
-            catched_error - error catched in try/except block
-            view - APIView object
-
-        Returns:
-            True if both errors have the same content, False otherwise.
-        """
-        handler = view.get_exception_handler()
-        handler_context = view.get_exception_handler_context()
-        raised_error_result = handler(raised_error, handler_context)
-        catched_error_result = handler(catched_error, handler_context)
-
-        if not raised_error_result:
-            raise AudomaActionException(
-                f"Current exception handler is unable to \
-                handle raised exception: {type(raised_error)}.\
-                To handle this type of exception you should write custom exception handler."
-            )
-
-        return all(
-            getattr(raised_error_result, attr, None)
-            == getattr(catched_error_result, attr, None)
-            for attr in ["status_code", "data", "headers"]
-        )
 
     def _process_error(
         self,
-        processed_error: Union[Exception, Type[Exception]],
+        raised_error: Union[Exception, Type[Exception]],
         errors: List[Union[Exception, Type[Exception]]],
         view: APIView,
     ) -> None:
         """
-        This function processes the risen error.
-        It checks if such error should be risen.
+        This function processes the raised error.
+        It checks if such error should be raised.
         If such error has not been defined/handler is unable to handle it.
         There will be additioanla exception raised or logged, depends on the DEBUG setting.
 
         Args:
-            processed_error - the error which has been risen
+            processed_error - the error which has been raised
             errors - list of errors which may be raised in decorated method
             view - APIView object
 
         Returns:
             processed_error instance if such error has been defined.
         """
-        (
-            processed_error_instance,
-            processed_error_class,
-        ) = self._get_error_instance_and_class(processed_error)
+        raised_error_class = self._get_error_class(raised_error)
         error_match = False
 
-        try:
-            # get all errors with same class as raised exception
-            type_matched_exceptions = self._get_type_matched_exceptions(
-                errors, processed_error_class
-            )
-            for error, error_instance in type_matched_exceptions:
-                if isclass(error):
-                    error_match = True
-                    break
+        # get all errors with same class as raised exception
+        raised_error_response = view.handle_exception(raised_error)
+        # In case defined exception handling is not able to handle raised exception,
+        # than we simply raise this exception
+        if raised_error_response is None:
+            view.raise_uncaught_exception(raised_error)
 
-                elif self._compare_errors_content(
-                    processed_error_instance, error_instance, view
-                ):
-                    error_match = True
-                    break
-            if not error_match:
+        type_matched_exceptions = self._get_type_matched_exceptions(
+            errors, raised_error_class
+        )
+        for error in type_matched_exceptions:
+            if isclass(error):
+                error_match = True
+                break
+
+            elif all(
+                getattr(raised_error_response, attr, None)
+                == getattr(view.handle_exception(error), attr, None)
+                for attr in ["status_code", "data", "headers"]
+            ):
+                error_match = True
+                break
+
+        if not error_match:
+            if project_settings.DEBUG:
                 raise AudomaActionException(
-                    f"Raised error: {processed_error_instance} has not been \
+                    f"Raised error: {raised_error} has not been \
                         defined in audoma_action errors."
                 )
 
-        except AudomaActionException as e:
-            if project_settings.DEBUG:
-                raise e
             logger.exception(
                 "Error has occured during audoma_action exception processing."
             )
-        raise processed_error_instance
+
+        return raised_error_response
 
     def _get_collect_serializer_instance(
         self, request: Request, func: Callable, view: APIView
@@ -406,26 +368,19 @@ class audoma_action:
                 # TODO - add verification
 
             except Exception as processed_error:
-                self._process_error(processed_error, errors, view)
+                return self._process_error(processed_error, errors, view)
 
-            try:
-                response_serializer = view.get_result_serializer(
-                    instance=instance,
-                    context={
-                        "request": request,
-                        "format": view.format_kwarg,
-                        "view": view,
-                    },
-                    many=self.many,
-                    status_code=code,
-                )
-            except AudomaActionException as e:
-                if project_settings.DEBUG:
-                    raise e
-                logger.exception(
-                    "Error has occured during audoma_action \
-                        processing action function execution result"
-                )
+            response_serializer = view.get_result_serializer(
+                instance=instance,
+                context={
+                    "request": request,
+                    "format": view.format_kwarg,
+                    "view": view,
+                },
+                many=self.many,
+                status_code=code,
+            )
+
             if hasattr(view, "_retrieve_response_headers"):
                 headers = view._retrieve_response_headers(code, response_serializer)
             else:

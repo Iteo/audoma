@@ -198,12 +198,11 @@ class AudomaActionTestCase(TestCase):
         view.request = request
         view.format_kwarg = "json"
         view.action = "custom_action"
-        try:
-            view.custom_action(request)
-        except Exception as e:
-            self.assertEqual(type(e), PermissionDenied)
-            self.assertEqual(e.detail, "You are not allowed")
-            self.assertEqual(e.status_code, 403)
+        response = view.custom_action(request)
+        self.assertEqual(response.status_code, 403)
+        self.assertDictEqual(
+            response.data, {"errors": {"detail": "You are not allowed"}}
+        )
 
     @override_settings(DEBUG=True)
     def test_audoma_action_process_undefined_exception(self):
@@ -233,8 +232,8 @@ class AudomaActionTestCase(TestCase):
             self.assertEqual(type(e), AudomaActionException)
             self.assertEqual(
                 str(e),
-                f"There is no class or instance of {MethodNotAllowed} \
-                    defined in audoma_action errors.",
+                f"Raised error: {MethodNotAllowed('POST')} has not been \
+                        defined in audoma_action errors.",
             )
 
     @override_settings(DEBUG=True)

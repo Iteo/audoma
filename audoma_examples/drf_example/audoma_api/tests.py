@@ -8,6 +8,7 @@ from datetime import (
 from typing import OrderedDict
 
 import phonenumbers
+from audoma_api.exceptions import CustomBadRequestException
 from audoma_api.models import (
     Car,
     ExampleModel,
@@ -22,7 +23,7 @@ from audoma_api.views import (
     ExampleModelViewSet,
     ExampleViewSet,
 )
-from drf_example.urls import router
+from drf_example.v1_urls import router
 from drf_spectacular.generators import SchemaGenerator
 from phonenumber_field.phonenumber import to_python
 from rest_framework.exceptions import ErrorDetail
@@ -676,8 +677,10 @@ class AudomaViewsTestCase(TestCase):
 
         except Exception as e:
             self.assertEqual(type(e), AudomaActionException)
-            self.assertIn(
-                "<class 'audoma_api.exceptions.CustomBadRequestException'>", str(e)
+            self.assertEqual(
+                str(e),
+                f"Raised error: {CustomBadRequestException()} has not been \
+                        defined in audoma_action errors.",
             )
 
     def test_improperly_defined_exception_example_debug_false(self):
