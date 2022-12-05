@@ -1,3 +1,4 @@
+import datetime
 import random
 from typing import (
     Any,
@@ -69,3 +70,63 @@ class RegexExample(Example):
             regex_validator = regex_validators[0]
             return exrex.getone(regex_validator.regex.pattern)
         return None
+
+
+class _DateRelatedExampleMixin:
+    def generate_value(self) -> datetime.datetime:
+        return datetime.datetime.now() - datetime.timedelta(
+            days=random.randint(0, 20),
+            hours=random.randint(0, 10),
+            minutes=random.randint(0, 40),
+        )
+
+
+class DateExample(_DateRelatedExampleMixin, Example):
+    def generate_value(self) -> datetime.date:
+        return super().generate_value().date()
+
+
+class TimeExample(Example):
+    def generate_value(self) -> datetime.date:
+        return super().generate_value().time()
+
+
+class DateTimeExample(_DateRelatedExampleMixin, Example):
+    ...
+
+
+class Base64Example(Example):
+    def generate_value(self) -> float:
+        """
+        Extracts information from the field and generates a random value
+        based on min_value and max_value.
+
+        Returns:
+            Random value between min_value and max_value
+        """
+        max_length = float(getattr(self.field, "max_length", 1) or 1)
+        length = max_length
+        return "%030x" % random.randrange(16**length)
+
+
+class RangeExample(Example):
+    def generate_value(self) -> float:
+        """
+        Extracts information from the field and generates a random value
+        based on min_value and max_value.
+
+        Returns:
+            Random value between min_value and max_value
+        """
+        child_field = getattr(self.field, "child", None)
+        example_class = (
+            child_field.audoma_example_class
+            if child_field is not None
+            else NumericExample
+        )
+        lower, upper = (
+            example_class(field=child_field).generate_value(),
+            example_class(field=child_field).generate_value(),
+        )
+        lower, upper = (upper, lower) if lower > upper else (lower, upper)
+        return {"lower": lower, "upper": upper}

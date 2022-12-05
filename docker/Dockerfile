@@ -4,6 +4,8 @@ RUN mkdir audoma
 WORKDIR /audoma
 COPY ./requirements.txt /audoma/requirements.txt
 COPY ./requirements_dev.txt /audoma/requirements_dev.txt
+
+RUN sudo apt install python3-dev libpq-dev
 RUN pip install --upgrade pip
 RUN pip install -r /audoma/requirements_dev.txt
 

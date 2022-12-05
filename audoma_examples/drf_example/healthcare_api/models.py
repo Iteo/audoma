@@ -1,3 +1,5 @@
+from django.contrib.postgres import fields as psql_fields
+
 from audoma.choices import make_choices
 from audoma.django.db import models
 
@@ -55,3 +57,14 @@ class FileEntry(models.Model):
     title = models.CharField(max_length=200)
     content = models.TextField()
     files = models.ForeignKey(PatientFiles, on_delete=models.CASCADE)
+
+
+class Prescription(models.Model):
+
+    issued_by = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    issued_for = models.ForeignKey(Patient, on_delete=models.CASCADE)
+
+    drugs = psql_fields.ArrayField(psql_fields.HStoreField())
+
+    usable_in = psql_fields.DateRangeField()
+    issued_in = psql_fields.CICharField(max_length=255)

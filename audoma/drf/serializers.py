@@ -10,6 +10,7 @@ from uuid import UUID
 from rest_framework import serializers
 from rest_framework.serializers import *  # noqa: F403, F401
 
+from django.contrib.postgres import fields as psql_fields
 from django.db import models
 from django.db.models import QuerySet
 
@@ -62,6 +63,13 @@ from audoma.drf.fields import (  # NOQA # isort:skip
     MACAddressField,
     PhoneNumberField,
     MoneyField,
+    Base64ImageField,
+    RangeField,
+    IntegerRangeField,
+    FloatRangeField,
+    DecimalRangeField,
+    DateTimeRangeField,
+    DateRangeField,
 )
 
 
@@ -176,6 +184,14 @@ class ModelSerializer(ResultSerializerClassMixin, serializers.ModelSerializer):
         audoma_models.MoneyField: MoneyField,
         audoma_models.CurrencyField: CharField,
         ModelJSONField: JSONField,
+        # psql fields
+        psql_fields.ArrayField: ListField,
+        psql_fields.HStoreField: JSONField,
+        psql_fields.RangeField: RangeField,
+        psql_fields.IntegerRangeField: IntegerRangeField,
+        psql_fields.DecimalRangeField: DecimalRangeField,
+        psql_fields.DateTimeRangeField: DateTimeRangeField,
+        psql_fields.DateRangeField: DateRangeField,
     }
     serializer_choice_field = ChoiceField
 

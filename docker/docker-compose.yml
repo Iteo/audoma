@@ -23,6 +23,12 @@ services:
     environment:
       - SQLITE_DB=db/db.sqlite3
 
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=audoma_healthcare_example
+
   example_app:
     image: example_app
     build:
@@ -34,7 +40,15 @@ services:
     tty: true
     ports:
       - 8000:8000
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - PSQL_DB_NAME=${PSQL_DB_NAME}
+      - PSQL_USER=${PSQL_USER}
+      - PSQL_PASSWORD=${PSQL_PASSWORD}
+      - PSQL_HOST=${PSQL_HOST}
+      - PSQL_PORT=${PSQL_PORT}
     command: bash -c "cd audoma_examples/drf_example &&  python manage.py migrate &&
             python manage.py runserver 0.0.0.0:8000"
     depends_on:
       - sqlite3
+      - postgres

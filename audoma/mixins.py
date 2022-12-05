@@ -1,10 +1,16 @@
 from drf_spectacular.drainage import set_override
 
+# TODO - import examples, this will be better idea
 from audoma.examples import (
     DEFAULT,
+    Base64Example,
+    DateExample,
+    DateTimeExample,
     Example,
     NumericExample,
+    RangeExample,
     RegexExample,
+    TimeExample,
 )
 
 
@@ -58,6 +64,26 @@ class RegexExampleMixin(ExampleMixin):
     """
 
     audoma_example_class = RegexExample
+
+
+class Base64ExampleMixin(ExampleMixin):
+    audoma_example_class = Base64Example
+
+
+class DateExampleMixin(ExampleMixin):
+    audoma_example_class = DateExample
+
+
+class TimeExampleMixin(ExampleMixin):
+    audoma_example_class = TimeExample
+
+
+class DateTimeExampleMixin(ExampleMixin):
+    audoma_example_class = DateTimeExample
+
+
+class RangeExampleMixin(ExampleMixin):
+    audoma_example_class = RangeExample
 
 
 class ModelExampleMixin:

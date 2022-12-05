@@ -17,6 +17,7 @@ router.register(
     r"specialization", views.SpecializatioNViewSet, basename="specialization"
 )
 router.register(r"doctor", views.DoctorViewset, basename="doctor")
+router.register(r"prescritpion", views.PrescriptionViewSet, basename="prescription")
 
 
 urlpatterns = [] + router.urls

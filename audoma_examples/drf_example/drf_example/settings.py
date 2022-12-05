@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 
@@ -21,8 +21,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-+37#%@+#3j18rkpq-w9u&s5s5hl$vt#+4we2697_7aupm8n96p"
-
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY", "django-insecure-+37#%@+#3j18rkpq-w9u&s5s5hl$vt#+4we2697_7aupm8n96p"
+)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.postgres",
     "django_nose",
     "rest_framework.authtoken",
 ]
@@ -142,8 +144,26 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": "db.sqlite3",
         "TEST_NAME": "test_db.sqlite3",
-    }
+    },
+    "audoma_api": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "db.sqlite3",
+        "TEST_NAME": "test_db.sqlite3",
+    },
+    "healthcare_api": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("PSQL_DB_NAME", "audoma_healthcare_example"),
+        "USER": os.environ.get("PSQL_USER", "postgres"),
+        "PASSWORD": os.environ.get("PSQL_PASSWORD", "password"),
+        "HOST": os.environ.get("PSQL_HOST", "localhost"),
+        "PORT": os.environ.get("PSQL_PORT", 5432),
+    },
 }
+
+DATABASE_ROUTERS = [
+    "routers.db_routers.HealthCareApiRouter",
+    "routers.db_routers.AudomaApiRouter",
+]
 
 # Use it if you want to create schema only based on paths that starts with specific keyword
 # and then add "PREPROCESSING_HOOKS" to SPECTACULAR_SETTINGS as commented below

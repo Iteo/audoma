@@ -9,7 +9,11 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 
-class SchemaTestCaseBase(APITestCase):
+class HealthcareAPITestMixin:
+    databases = {"healthcare_api", "default"}
+
+
+class SchemaTestCaseBase(HealthcareAPITestMixin, APITestCase):
     def setUp(self) -> None:
         super().setUp()
         patterns = router.urls
@@ -18,7 +22,7 @@ class SchemaTestCaseBase(APITestCase):
         self.redoc_schemas = self.schema["components"]["schemas"]
 
 
-class BasicTestCase(APITestCase):
+class BasicTestCase(HealthcareAPITestMixin, APITestCase):
     def setUp(self):
         # create patients
         super().setUp()

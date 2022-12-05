@@ -120,6 +120,8 @@ class AudomaDjangoFilterExtensionTestCase(TestCase):
 
 
 class SearchFilterExtensionTestCase(TestCase):
+    databases = {"default", "healthcare_api"}
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.choices = make_choices(

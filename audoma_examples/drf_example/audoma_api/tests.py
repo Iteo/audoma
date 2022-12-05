@@ -49,7 +49,11 @@ from audoma.drf.viewsets import AudomaPagination
 from audoma.example_generators import generate_lorem_ipsum
 
 
-class AudomaTests(SimpleTestCase):
+class AudomaApiTestMixin:
+    databases = {"audoma_api", "default"}
+
+
+class AudomaTests(AudomaApiTestMixin, SimpleTestCase):
     def setUp(self):
         patterns = router.urls
         generator = SchemaGenerator(patterns=patterns)
@@ -381,7 +385,7 @@ class AudomaTests(SimpleTestCase):
         )
 
 
-class AudomaBulkOperationsTest(APITestCase):
+class AudomaBulkOperationsTest(AudomaApiTestMixin, APITestCase):
     def setUp(self):
         self.list_url = reverse("bulk-example-list")
         Manufacturer.objects.bulk_create(
@@ -535,7 +539,7 @@ class AudomaBulkOperationsTest(APITestCase):
     #     )
 
 
-class AudomaViewsTestCase(TestCase):
+class AudomaViewsTestCase(AudomaApiTestMixin, TestCase):
     def setUp(self):
         super().setUp()
         self.data = {

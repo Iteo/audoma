@@ -23,6 +23,10 @@ def get_reqiuired_packages():
         django_version = None
     if django_version and django_version < "3.1":
         required.append("django-jsonfield")
+    if django_version and django_version < "3.1":
+        required.append("drf-extra-fields==v3.3.0")
+    else:
+        required.append("drf-extra-fields==v3.4.1")
     return required
 
 

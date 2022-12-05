@@ -73,3 +73,8 @@ class DoctorViewset(
     # @audoma_action()
     # def something(self, request, collect_serializer):
     #    ...
+
+
+class PrescriptionViewSet(mixins.ListModelMixin, GenericViewSet):
+    list_serializer_class = serializers.PerscriptionReadSerializer
+    queryset = models.Prescription.objects.all()
