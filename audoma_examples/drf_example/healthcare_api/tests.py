@@ -1,9 +1,11 @@
+import datetime
 from collections import OrderedDict
 
 from drf_example.v2_urls import router
 from drf_spectacular.generators import SchemaGenerator
 from healthcare_api import models as health_models
-from rest_framework.test import APITestCase
+from psycopg2._range import DateRange
+from rest_framework.test import APITransactionTestCase
 
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -13,7 +15,7 @@ class HealthcareAPITestMixin:
     databases = {"healthcare_api", "default"}
 
 
-class SchemaTestCaseBase(HealthcareAPITestMixin, APITestCase):
+class SchemaTestCaseBase(HealthcareAPITestMixin, APITransactionTestCase):
     def setUp(self) -> None:
         super().setUp()
         patterns = router.urls
@@ -22,7 +24,7 @@ class SchemaTestCaseBase(HealthcareAPITestMixin, APITestCase):
         self.redoc_schemas = self.schema["components"]["schemas"]
 
 
-class BasicTestCase(HealthcareAPITestMixin, APITestCase):
+class BasicTestCase(HealthcareAPITestMixin, APITransactionTestCase):
     def setUp(self):
         # create patients
         super().setUp()
@@ -761,7 +763,7 @@ class PatientViewsetTestCase(BasicTestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_get_files_fail_permission(self):
-        patient = health_models.Patient.objects.get(id=1)
+        patient = health_models.Patient.objects.filter(name="z").first()
         health_models.PatientFiles.objects.create(patient=patient)
         url = reverse("patient-get-files", kwargs={"pk": 1})
         self.client.force_authenticate(user=self.non_staff_user)
@@ -866,13 +868,16 @@ class DoctorViesetTestCase(BasicTestCase):
         results = response.data["results"]
 
         self.assertDictEqual(
-            results[0]["specialization"][0], {"id": 1, "name": "Pediatry"}
+            results[0]["specialization"][0],
+            OrderedDict({"id": self.specializations[0].id, "name": "Pediatry"}),
         )
         self.assertDictEqual(
-            results[1]["specialization"][0], {"id": 2, "name": "Radiology"}
+            results[1]["specialization"][0],
+            OrderedDict({"id": self.specializations[1].id, "name": "Radiology"}),
         )
         self.assertDictEqual(
-            results[2]["specialization"][0], {"id": 3, "name": "Anesthesiology"}
+            results[2]["specialization"][0],
+            OrderedDict({"id": self.specializations[2].id, "name": "Anesthesiology"}),
         )
 
     def test_get_list_no_auth(self):
@@ -907,11 +912,13 @@ class DoctorViesetTestCase(BasicTestCase):
                 "city": "Gliwice",
             },
             "salary": "5000.00",
-            "specialization": [1, 2],
+            "specialization": [s.id for s in self.specializations],
         }
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.data["specialization"], [1, 2])
+        self.assertEqual(
+            response.data["specialization"], [s.id for s in self.specializations]
+        )
 
     def test_create_doctor_failure_missing_data(self):
         url = reverse("doctor-list")
@@ -998,7 +1005,7 @@ class DoctorViesetTestCase(BasicTestCase):
         )
 
     def test_update_doctor_success(self):
-        url = reverse("doctor-detail", kwargs={"pk": 1})
+        url = reverse("doctor-detail", kwargs={"pk": self.doctors[0].id})
         self.client.force_authenticate(user=self.user)
         data = {
             "name": "TeestDoctor",
@@ -1010,7 +1017,7 @@ class DoctorViesetTestCase(BasicTestCase):
                 "city": "Gliwice",
             },
             "salary": "5000.00",
-            "specialization": [1, 2],
+            "specialization": [s.id for s in self.doctors[0].specialization.all()],
         }
         response = self.client.put(url, data, format="json")
         self.assertEqual(response.status_code, 200)
@@ -1018,7 +1025,7 @@ class DoctorViesetTestCase(BasicTestCase):
         self.assertDictEqual(response.data, data)
 
     def test_update_doctor_fail_missing_data(self):
-        url = reverse("doctor-detail", kwargs={"pk": 1})
+        url = reverse("doctor-detail", kwargs={"pk": self.doctors[0].id})
         self.client.force_authenticate(user=self.user)
         data = {
             "name": "TeestDoctor",
@@ -1029,7 +1036,7 @@ class DoctorViesetTestCase(BasicTestCase):
                 "country": health_models.COUNTRY_CHOICES.PL,
                 "city": "Gliwice",
             },
-            "specialization": [1, 2],
+            "specialization": [s.id for s in self.doctors[0].specialization.all()],
         }
         response = self.client.put(url, data, format="json")
         self.assertEqual(response.status_code, 400)
@@ -1038,7 +1045,7 @@ class DoctorViesetTestCase(BasicTestCase):
         )
 
     def test_update_doctor_fail_wrong_data(self):
-        url = reverse("doctor-detail", kwargs={"pk": 1})
+        url = reverse("doctor-detail", kwargs={"pk": self.doctors[0].id})
         self.client.force_authenticate(user=self.user)
         data = {
             "name": "TeestDoctor",
@@ -1050,7 +1057,7 @@ class DoctorViesetTestCase(BasicTestCase):
                 "city": "Gliwice",
             },
             "salary": "TEST",
-            "specialization": [1, 2],
+            "specialization": [s.id for s in self.doctors[0].specialization.all()],
         }
         response = self.client.put(url, data, format="json")
         self.assertEqual(response.status_code, 400)
@@ -1059,7 +1066,7 @@ class DoctorViesetTestCase(BasicTestCase):
         )
 
     def test_partial_update_doctor_success(self):
-        url = reverse("doctor-detail", kwargs={"pk": 1})
+        url = reverse("doctor-detail", kwargs={"pk": self.doctors[0].pk})
         self.client.force_authenticate(user=self.user)
         data = {
             "name": "TeestDoctor",
@@ -1071,7 +1078,7 @@ class DoctorViesetTestCase(BasicTestCase):
                 "city": "Lasowice",
             },
             "salary": "0.00",
-            "specialization": [1],
+            "specialization": [s.id for s in self.doctors[0].specialization.all()],
         }
         response = self.client.patch(
             url,
@@ -1086,7 +1093,7 @@ class DoctorViesetTestCase(BasicTestCase):
         self.assertDictEqual(response.data, data)
 
     def test_partial_update_doctor_failure_wrong_data(self):
-        url = reverse("doctor-detail", kwargs={"pk": 1})
+        url = reverse("doctor-detail", kwargs={"pk": self.doctors[0].pk})
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(
             url,
@@ -1129,4 +1136,205 @@ class DoctorViesetTestCase(BasicTestCase):
         self.assertEqual(
             response.data["errors"]["detail"],
             "You do not have permission to perform this action.",
+        )
+
+
+# TODO - Doctor SchemaViewSetTestCase
+
+
+class PrescriptionViewsetTestCase(BasicTestCase):
+    def setUp(self):
+        super().setUp()
+        # create_doctor
+        self.doctor_data = {
+            "name": "John",
+            "surname": "Kowalski",
+            "contact_data": health_models.ContactData.objects.create(
+                **{
+                    "phone_number": "+48 455 123 432",
+                    "mobile": "+48 455 123 432",
+                    "country": health_models.COUNTRY_CHOICES.PL,
+                    "city": "Gliwice",
+                }
+            ),
+            "salary": "5000.0",
+        }
+        self.patient_data = {
+            "name": "John",
+            "surname": "Kowalski",
+            "contact_data": health_models.ContactData.objects.create(
+                **{
+                    "phone_number": "+48 123 456 123",
+                    "mobile": "+48 908 787 343",
+                    "country": health_models.COUNTRY_CHOICES.PL,
+                    "city": "Lasowice",
+                }
+            ),
+            "weight": 80.0,
+            "height": "189.00",
+        }
+        self.doctor = health_models.Doctor.objects.create(**self.doctor_data)
+        self.doctor.specialization.add(
+            health_models.Specialization.objects.create(name="pediatry")
+        )
+        self.patient = health_models.Patient.objects.create(**self.patient_data)
+        self.prescription = health_models.Prescription.objects.create(
+            issued_by=self.doctor,
+            issued_for=self.patient,
+            drugs=[{"testDrug1": 2}, {"TestDrug2": 3}],
+            usable_in=DateRange(
+                lower=datetime.date.today(),
+                upper=datetime.date.today() + datetime.timedelta(days=3),
+            ),
+            issued_in="Some Test Hospital Somewhere",
+        )
+
+    def test_get_list_success(self):
+        self.client.force_authenticate(self.user)
+        url = reverse("prescription-list")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        data = response.data["results"]
+        self.assertEqual(response.data["count"], 1)
+        self.assertDictEqual(
+            data[0],
+            OrderedDict(
+                {
+                    "issued_by": self.doctor.id,
+                    "issued_for": self.patient.id,
+                    "drugs": [{"testDrug1": "2"}, {"TestDrug2": "3"}],
+                    "usable_in": {
+                        "lower": str(self.prescription.usable_in.lower),
+                        "upper": str(self.prescription.usable_in.upper),
+                        "bounds": "[)",
+                    },
+                    "issued_in": "Some Test Hospital Somewhere",
+                    "is_valid": True,
+                }
+            ),
+        )
+
+    def test_get_list_no_auth(self):
+        url = reverse("prescription-list")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(
+            response.data["errors"]["detail"],
+            "Authentication credentials were not provided.",
+        )
+
+    def test_get_list_permission_denied(self):
+        self.client.force_authenticate(self.non_staff_user)
+        url = reverse("prescription-list")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            response.data["errors"]["detail"],
+            "You do not have permission to perform this action.",
+        )
+
+    def test_create_prescription_success(self):
+        self.client.force_authenticate(self.user)
+        url = reverse("prescription-list")
+        response = self.client.post(
+            url,
+            data={
+                "issued_by": self.doctor.id,
+                "issued_for": self.patient.id,
+                "drugs": [{"GreatDrug": "12"}],
+                "usable_in": {
+                    "lower": str(self.prescription.usable_in.lower),
+                    "upper": str(self.prescription.usable_in.upper),
+                    "bounds": "[)",
+                },
+                "issued_in": "Some Test Hospital Somewhere",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertDictEqual(
+            response.data,
+            {
+                "issued_by": self.doctor.id,
+                "issued_for": self.patient.id,
+                "drugs": [{"GreatDrug": "12"}],
+                "usable_in": {
+                    "lower": str(self.prescription.usable_in.lower),
+                    "upper": str(self.prescription.usable_in.upper),
+                    "bounds": "[)",
+                },
+                "issued_in": "Some Test Hospital Somewhere",
+                "is_valid": True,
+            },
+        )
+
+    def test_create_prescription_fail_no_auth(self):
+        url = reverse("prescription-list")
+        response = self.client.post(
+            url,
+            data={
+                "issued_by": self.doctor.id,
+                "issued_for": self.patient.id,
+                "drugs": [{"GreatDrug": "12"}],
+                "usable_in": {
+                    "lower": str(self.prescription.usable_in.lower),
+                    "upper": str(self.prescription.usable_in.upper),
+                    "bounds": "[)",
+                },
+                "issued_in": "Some Test Hospital Somewhere",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(
+            response.data["errors"]["detail"],
+            "Authentication credentials were not provided.",
+        )
+
+    def test_create_prescription_fail_no_permissions(self):
+        self.client.force_authenticate(self.non_staff_user)
+        url = reverse("prescription-list")
+        response = self.client.post(
+            url,
+            data={
+                "issued_by": self.doctor.id,
+                "issued_for": self.patient.id,
+                "drugs": [{"GreatDrug": "12"}],
+                "usable_in": {
+                    "lower": str(self.prescription.usable_in.lower),
+                    "upper": str(self.prescription.usable_in.upper),
+                    "bounds": "[)",
+                },
+                "issued_in": "Some Test Hospital Somewhere",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            response.data["errors"]["detail"],
+            "You do not have permission to perform this action.",
+        )
+
+    def test_make_prescription_invalid_success(self):
+        self.client.force_authenticate(self.user)
+        url = reverse(
+            "prescription-make-prescription-invalid",
+            kwargs={"pk": self.prescription.id},
+        )
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(
+            response.data,
+            {
+                "issued_by": self.doctor.id,
+                "issued_for": self.patient.id,
+                "drugs": [{"testDrug1": "2"}, {"TestDrug2": "3"}],
+                "usable_in": {
+                    "lower": str(self.prescription.usable_in.lower),
+                    "upper": str(self.prescription.usable_in.upper),
+                    "bounds": "[)",
+                },
+                "issued_in": "Some Test Hospital Somewhere",
+                "is_valid": False,
+            },
         )

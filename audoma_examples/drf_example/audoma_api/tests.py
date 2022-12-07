@@ -50,7 +50,7 @@ from audoma.example_generators import generate_lorem_ipsum
 
 
 class AudomaApiTestMixin:
-    databases = {"audoma_api", "default"}
+    databases = "__all__"
 
 
 class AudomaTests(AudomaApiTestMixin, SimpleTestCase):

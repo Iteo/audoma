@@ -42,12 +42,20 @@ class GenericAPIView(generics.GenericAPIView):
 
         serializer_type = kwargs.pop("serializer_type", "collect")
         status_code = kwargs.pop("status_code", None)
+        audoma_action_serializer_only = kwargs.pop("ignore_view_collectors", False)
         serializer_class = kwargs.pop(
             "serializer_class",
             self.get_serializer_class(
-                serializer_type=serializer_type, many=many, status_code=status_code
+                serializer_type=serializer_type,
+                many=many,
+                status_code=status_code,
+                audoma_action_serializer_only=audoma_action_serializer_only,
             ),
         )
+        # this is possible for audoma_action
+        if not serializer_class:
+            return None
+
         kwargs["context"] = self.get_serializer_context()
 
         if (
@@ -121,6 +129,7 @@ class GenericAPIView(generics.GenericAPIView):
         serializer_type: str = "collect",
         many: bool = False,
         status_code: int = None,
+        audoma_action_serializer_only: bool = False,
     ) -> Type[BaseSerializer]:
         """
         Extends defuault `get_serializer_class` method.
@@ -145,6 +154,9 @@ class GenericAPIView(generics.GenericAPIView):
         serializer_class = self.get_audoma_action_serializer_class(
             serializer_type, status_code
         )
+        if audoma_action_serializer_only:
+            return serializer_class
+
         if not serializer_class:
             method = self.request.method.lower()
             if self.action == "metadata":

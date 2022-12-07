@@ -86,7 +86,7 @@ class DateExample(_DateRelatedExampleMixin, Example):
         return super().generate_value().date()
 
 
-class TimeExample(Example):
+class TimeExample(_DateRelatedExampleMixin, Example):
     def generate_value(self) -> datetime.date:
         return super().generate_value().time()
 

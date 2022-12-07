@@ -12,6 +12,7 @@ from rest_framework.response import Response
 
 from django.shortcuts import get_object_or_404
 
+from audoma.decorators import audoma_action
 from audoma.drf import mixins
 from audoma.drf.viewsets import GenericViewSet
 
@@ -70,11 +71,28 @@ class DoctorViewset(
     update_serializer_class = serializers.DoctorWriteSerializer
     partial_update_serializer_class = serializers.DoctorWriteSerializer
 
-    # @audoma_action()
-    # def something(self, request, collect_serializer):
-    #    ...
 
+class PrescriptionViewSet(
+    mixins.ListModelMixin, mixins.CreateModelMixin, GenericViewSet
+):
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
-class PrescriptionViewSet(mixins.ListModelMixin, GenericViewSet):
     list_serializer_class = serializers.PerscriptionReadSerializer
+    common_result_serializer_class = serializers.PerscriptionReadSerializer
+    common_collect_serializer_class = serializers.PrescrtiptionWriteSerializer
     queryset = models.Prescription.objects.all()
+    lookup_url_kwarg = "pk"
+    lookup_field = "id"
+
+    @audoma_action(
+        detail=True,
+        methods=["post"],
+        results=serializers.PerscriptionReadSerializer,
+        errors=[models.Prescription.DoesNotExist],
+        ignore_view_collectors=True,
+    )
+    def make_prescription_invalid(self, request, pk=None):
+        instance = self.get_object()
+        instance.is_valid = False
+        instance.save()
+        return instance, 200

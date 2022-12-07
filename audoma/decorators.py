@@ -295,6 +295,7 @@ class audoma_action:
                 partial=partial,
                 context={"request": request, "format": view.format_kwarg, "view": view},
                 many=self.many,
+                ignore_view_collectors=self.ignore_view_collectors,
             )
 
         return collect_serializer

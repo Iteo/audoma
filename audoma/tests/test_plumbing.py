@@ -21,6 +21,8 @@ from audoma.plumbing import (
 
 
 class PlumbingTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         super().setUp()
 

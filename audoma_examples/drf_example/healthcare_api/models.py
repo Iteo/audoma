@@ -68,3 +68,4 @@ class Prescription(models.Model):
 
     usable_in = psql_fields.DateRangeField()
     issued_in = psql_fields.CICharField(max_length=255)
+    is_valid = models.BooleanField(default=True)

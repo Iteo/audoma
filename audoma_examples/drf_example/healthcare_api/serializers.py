@@ -120,4 +120,17 @@ class DoctorWriteSerializer(PersonBaseSerializer):
 class PerscriptionReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = api_models.Prescription
+        fields = [
+            "issued_by",
+            "issued_for",
+            "drugs",
+            "usable_in",
+            "issued_in",
+            "is_valid",
+        ]
+
+
+class PrescrtiptionWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = api_models.Prescription
         fields = ["issued_by", "issued_for", "drugs", "usable_in", "issued_in"]
