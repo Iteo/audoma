@@ -246,7 +246,6 @@ class RangeField(RangeExampleMixin, extra_fields.RangeField):
     ...
 
 
-# TODO - work with examples for those fields
 @extend_schema_field(IntegerField())
 class IntegerRangeField(RangeField):
     child_class = IntegerField

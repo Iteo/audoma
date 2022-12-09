@@ -10,6 +10,5 @@ jobs:
     - name: Install audoma
       run: |
         python3 --version
-        echo "hello world"
         pip install -r requirements_dev.txt
         pip install ./

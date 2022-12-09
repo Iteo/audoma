@@ -11,11 +11,32 @@ jobs:
         run: |
           echo "---> Building test image and running tests"
           cd docker && docker-compose run --rm tests
+        with:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          PSQL_DB_NAME: ${{ secrets.PSQL_DB_NAME }}
+          PSQL_USER: ${{ secrets.PSQL_USER }}
+          PSQL_PASSWORD: ${{ secrets.PSQL_PASSWORD }}
+          PSQL_HOST: ${{ secrets.PSQL_HOST }}
+          PSQL_PORT: ${{ secrets.PSQL_PORT }}
       - name: Run test coverage report
         run: |
             echo "---> Building test image and running tests"
             cd docker && docker-compose run --rm coverage
+        with:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          PSQL_DB_NAME: ${{ secrets.PSQL_DB_NAME }}
+          PSQL_USER: ${{ secrets.PSQL_USER }}
+          PSQL_PASSWORD: ${{ secrets.PSQL_PASSWORD }}
+          PSQL_HOST: ${{ secrets.PSQL_HOST }}
+          PSQL_PORT: ${{ secrets.PSQL_PORT }}
       - name: Install dependencies
         run: pip install -r requirements_dev.txt
       - name: Run static analysis
         run: ./static_analysis.sh
+        with:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          PSQL_DB_NAME: ${{ secrets.PSQL_DB_NAME }}
+          PSQL_USER: ${{ secrets.PSQL_USER }}
+          PSQL_PASSWORD: ${{ secrets.PSQL_PASSWORD }}
+          PSQL_HOST: ${{ secrets.PSQL_HOST }}
+          PSQL_PORT: ${{ secrets.PSQL_PORT }}

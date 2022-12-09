@@ -56,6 +56,7 @@ class PatientViewsetTestCase(BasicTestCase):
                 height="189.00",
                 weight=89.02,
             )
+        self.patients = health_models.Patient.objects.all()
 
     def test_get_list_success(self):
         url = reverse("patient-list")
@@ -718,43 +719,50 @@ class PatientViewsetTestCase(BasicTestCase):
             "Authentication credentials were not provided.",
         )
 
-    # TODO - fix this befor launch
-    # def test_get_files_success(self):
-    #    patient = health_models.Patient.objects.get(id=1)
-    #    files = health_models.PatientFiles.objects.create(patient=patient)
-    #    entry = health_models.FileEntry.objects.create(
-    #        title="SecretInformation",
-    #        content="SecretContent",
-    #        files=files
-    #    )
-    #    url = reverse("patient-get-files", kwargs={"pk": 1})
-    #    self.client.force_authenticate(user=self.user)
-    #    response = self.client.get(url)
-    #    self.assertEqual(response.status_code, 200)
-    #    self.maxDiff = None
-    #    expected_response = {
-    #        "patient": OrderedDict({
-    #            "name": "z",
-    #            "surname": "a",
-    #            "contact_data": OrderedDict({
-    #                "phone_number": "+48 123 456 123",
-    #                "mobile": "+48 908 787 343",
-    #                "country": health_models.COUNTRY_CHOICES.PL,
-    #                "city": "Lasowice",
-    #            }),
-    #            "height": "189.00",
-    #            "weight": 89.02
-    #        }),
-    #        "entries": OrderedDict({
-    #            "created_at": entry.created_at,
-    #            "modified_at": entry.modifed_at,
-    #            "title": "SecretInformation",
-    #            "content": "SecretContent"
-    #        })
-    #    }
-    #    self.assertDictEqual(
-    #        response.data, expected_response
-    #    )
+    def test_get_files_success(self):
+        patient = health_models.Patient.objects.get(id=self.patients[0].id)
+        files = health_models.PatientFiles.objects.create(patient=patient)
+        entry = health_models.FileEntry.objects.create(
+            title="SecretInformation", content="SecretContent", files=files
+        )
+        url = reverse("patient-get-files", kwargs={"pk": patient.id})
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.maxDiff = None
+        expected_response = {
+            "patient": OrderedDict(
+                {
+                    "name": "z",
+                    "surname": "a",
+                    "contact_data": OrderedDict(
+                        {
+                            "phone_number": "+48 12 345 61 23",
+                            "mobile": "+48 908 787 343",
+                            "country": health_models.COUNTRY_CHOICES.PL,
+                            "city": "Lasowice",
+                        }
+                    ),
+                    "weight": 89.02,
+                    "height": "189.00",
+                }
+            ),
+            "entries": [
+                OrderedDict(
+                    {
+                        "created_at": entry.created_at.strftime(
+                            "%Y-%m-%dT%H:%M:%S.%fZ"
+                        ),
+                        "modifed_at": entry.modifed_at.strftime(
+                            "%Y-%m-%dT%H:%M:%S.%fZ"
+                        ),
+                        "title": "SecretInformation",
+                        "content": "SecretContent",
+                    }
+                )
+            ],
+        }
+        self.assertDictEqual(response.data, expected_response)
 
     def test_get_files_fail_not_existing_patient(self):
         url = reverse("patient-get-files", kwargs={"pk": 2137})
@@ -1139,7 +1147,38 @@ class DoctorViesetTestCase(BasicTestCase):
         )
 
 
-# TODO - Doctor SchemaViewSetTestCase
+class DoctorSchemaTestCase(SchemaTestCaseBase):
+    def test_x_choices_link_generated_properly(self):
+        enpoint_schema = self.redoc_schemas["DoctorWrite"]
+        x_choices_link = enpoint_schema["properties"]["specialization"]["x-choices"]
+        self.assertDictEqual(
+            x_choices_link,
+            {
+                "operationRef": "#/paths/~1specialization~1",
+                "value": "$response.body#results/*/id",
+                "display": "$response.body#results/*/name",
+            },
+        )
+
+    def test_responses_for_dictor_viewset_created_success(self):
+        path_schema = self.schema["paths"]["/doctor/"]
+        get_method_schema = path_schema["get"]
+        self.assertEqual(get_method_schema["operationId"], "doctor_list")
+        self.assertDictEqual(
+            get_method_schema["responses"],
+            {
+                "200": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PaginatedDoctorReadList"
+                            }
+                        }
+                    },
+                    "description": "",
+                }
+            },
+        )
 
 
 class PrescriptionViewsetTestCase(BasicTestCase):
