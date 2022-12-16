@@ -23,6 +23,8 @@ These distributions will be installed automatically when installing audoma (if y
     * `django-filter`_ - django package that allows to filter down a queryset based on a model's fields
     * `django-money`_ - django package that allows to store money and currency values in the database
     * `lorem`_ - generator for random text that looks like Latin.
+    * `drf-extra-fields` - this package provides additional serializer fields, those fields are equivalent of django Postgres specific fields
+
 
 .. _Django: https://www.djangoproject.com/
 .. _django-rest-framework: https://www.django-rest-framework.org/
@@ -53,7 +55,7 @@ for your Django Rest Framework project:
 
     REST_FRAMEWORK = {
         # YOUR SETTINGS
-        'DEFAULT_SCHEMA_CLASS': 'audoma.drf.openapi.AudomaAutoSchema',
+        'DEFAULT_SCHEMA_CLASS': 'audoma.openapi.AudomaAutoSchema',
     }
 
 

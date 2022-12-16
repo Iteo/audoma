@@ -93,7 +93,6 @@ class GenericAPIView(generics.GenericAPIView):
         )
         operation_category = "response" if serializer_type == "result" else "collect"
 
-        # TODO - consider this idea
         if not status_code and operation_category == "response":
             return None
 
