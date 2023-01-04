@@ -66,6 +66,8 @@ def postprocess_common_errors_section(result: dict, request, **kwargs) -> dict:
     for error in common_exceptions:
         if isclass(error):
             error = error()
+        if not hasattr(error, "status_code"):
+            continue
         description += generate_exception_desc(error)
 
     result["info"]["description"] = (

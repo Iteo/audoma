@@ -27,6 +27,8 @@ from audoma.tests.testtools import (
 
 
 class AudomaDjangoFilterExtensionTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.choices = make_choices(
@@ -120,6 +122,8 @@ class AudomaDjangoFilterExtensionTestCase(TestCase):
 
 
 class SearchFilterExtensionTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.choices = make_choices(

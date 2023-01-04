@@ -24,6 +24,8 @@ from audoma.tests.testtools import (
 
 
 class AudomaActionTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         super().setUp()
         self.factory = APIRequestFactory()
@@ -198,12 +200,11 @@ class AudomaActionTestCase(TestCase):
         view.request = request
         view.format_kwarg = "json"
         view.action = "custom_action"
-        try:
-            view.custom_action(request)
-        except Exception as e:
-            self.assertEqual(type(e), PermissionDenied)
-            self.assertEqual(e.detail, "You are not allowed")
-            self.assertEqual(e.status_code, 403)
+        response = view.custom_action(request)
+        self.assertEqual(response.status_code, 403)
+        self.assertDictEqual(
+            response.data, {"errors": {"detail": "You are not allowed"}}
+        )
 
     @override_settings(DEBUG=True)
     def test_audoma_action_process_undefined_exception(self):
@@ -233,8 +234,8 @@ class AudomaActionTestCase(TestCase):
             self.assertEqual(type(e), AudomaActionException)
             self.assertEqual(
                 str(e),
-                f"There is no class or instance of {MethodNotAllowed} \
-                    defined in audoma_action errors.",
+                f"Raised error: {MethodNotAllowed('POST')} has not been \
+                        defined in audoma_action errors.",
             )
 
     @override_settings(DEBUG=True)
@@ -299,3 +300,29 @@ class AudomaActionTestCase(TestCase):
         view.action = "custom_action"
         response = view.custom_action(request)
         self.assertIsInstance(response.data, list)
+
+    def test_audoma_action_ingore_view_collectors(self):
+        request = self.factory.post("/custom_action/")
+        request.data = [self.request_data]
+
+        view = create_view_with_custom_audoma_action(
+            request=request,
+            action_kwargs={
+                "results": {200: self.example_result_serializer},
+                "methods": ["POST"],
+                "detail": False,
+                "ignore_view_collectors": True,
+            },
+            returnables=(
+                self.request_data,
+                200,
+            ),
+            view_properties={"serializer_class": self.example_collect_serializer},
+        )
+        view.method = "post"
+        view.request = request
+        view.format_kwarg = "json"
+        view.action = "custom_action"
+        response = view.custom_action(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, self.request_data)

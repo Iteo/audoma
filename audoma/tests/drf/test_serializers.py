@@ -10,6 +10,8 @@ from audoma.tests import testtools
 
 
 class ResultTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         fields_config = {
             "name": fields.CharField(max_length=255),
@@ -42,6 +44,8 @@ class ResultTestCase(TestCase):
 
 
 class ResultSerializerClassMixinTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         super().setUp()
         self.fields_config = {
@@ -91,6 +95,8 @@ class ResultSerializerClassMixinTestCase(TestCase):
 
 
 class ModelSerializerTestCase(TestCase):
+    databases = "__all__"
+
     def test_build_standard_field_with_example(self):
         model_fields_config = {
             "name": db_fields.CharField(max_length=255, example="Thomas"),
@@ -139,6 +145,8 @@ class ModelSerializerTestCase(TestCase):
 
 
 class DisplayNamedWritableFieldTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         self.choices = make_choices("COLOR", ((0, "RED", "Red"), (1, "BLUE", "Blue")))
         self.field = serializers.DisplayNameWritableField(

@@ -8,6 +8,7 @@ from datetime import (
 from typing import OrderedDict
 
 import phonenumbers
+from audoma_api.exceptions import CustomBadRequestException
 from audoma_api.models import (
     Car,
     ExampleModel,
@@ -22,7 +23,7 @@ from audoma_api.views import (
     ExampleModelViewSet,
     ExampleViewSet,
 )
-from drf_example.urls import router
+from drf_example.v1_urls import router
 from drf_spectacular.generators import SchemaGenerator
 from phonenumber_field.phonenumber import to_python
 from rest_framework.exceptions import ErrorDetail
@@ -48,7 +49,11 @@ from audoma.drf.viewsets import AudomaPagination
 from audoma.example_generators import generate_lorem_ipsum
 
 
-class AudomaTests(SimpleTestCase):
+class AudomaApiTestMixin:
+    databases = "__all__"
+
+
+class AudomaTests(AudomaApiTestMixin, SimpleTestCase):
     def setUp(self):
         patterns = router.urls
         generator = SchemaGenerator(patterns=patterns)
@@ -380,7 +385,7 @@ class AudomaTests(SimpleTestCase):
         )
 
 
-class AudomaBulkOperationsTest(APITestCase):
+class AudomaBulkOperationsTest(AudomaApiTestMixin, APITestCase):
     def setUp(self):
         self.list_url = reverse("bulk-example-list")
         Manufacturer.objects.bulk_create(
@@ -534,7 +539,7 @@ class AudomaBulkOperationsTest(APITestCase):
     #     )
 
 
-class AudomaViewsTestCase(TestCase):
+class AudomaViewsTestCase(AudomaApiTestMixin, TestCase):
     def setUp(self):
         super().setUp()
         self.data = {
@@ -676,8 +681,10 @@ class AudomaViewsTestCase(TestCase):
 
         except Exception as e:
             self.assertEqual(type(e), AudomaActionException)
-            self.assertIn(
-                "<class 'audoma_api.exceptions.CustomBadRequestException'>", str(e)
+            self.assertEqual(
+                str(e),
+                f"Raised error: {CustomBadRequestException()} has not been \
+                        defined in audoma_action errors.",
             )
 
     def test_improperly_defined_exception_example_debug_false(self):

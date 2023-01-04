@@ -6,6 +6,8 @@ from audoma.drf.validators import ExclusiveFieldsValidator
 
 
 class ExclusiveFieldsValidatorTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         self.validator = ExclusiveFieldsValidator(
             fields=["name", "company_name"],

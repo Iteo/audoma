@@ -7,6 +7,8 @@ from audoma.drf.fields import SerializerMethodField as AudomaSerializerMethodFie
 
 
 class SerializerMethodFieldTestCase(APITestCase):
+    databases = "__all__"
+
     def test_create_without_field(self):
         field = AudomaSerializerMethodField()
         self.assertIsInstance(field, AudomaSerializerMethodField)

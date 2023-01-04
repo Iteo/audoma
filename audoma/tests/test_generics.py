@@ -7,6 +7,8 @@ from audoma.tests import testtools
 
 
 class GenericAPIViewTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         serializer_base_classes = (serializers.Serializer,)
         self.result_serializer_class = testtools.create_serializer_class(

@@ -35,6 +35,7 @@ from audoma.tests.testtools import (
 
 class CommonMixinTestCase(TestCase):
     view_baseclasses = None
+    databases = "__all__"
 
     def setUp(self):
         fields_config = {

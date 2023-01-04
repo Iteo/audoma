@@ -1,20 +1,6 @@
 version: '3'
 
 services:
-  tests:
-    image: audoma-tests
-    build:
-      context: ../
-      dockerfile: ./docker/Dockerfile
-    command: tox
-
-  coverage:
-    image: audoma-tests
-    build:
-      context: ../
-      dockerfile: ./docker/Dockerfile
-    working_dir: /audoma/audoma_examples/drf_example/
-    command: bash -c "coverage run manage.py test audoma audoma_api && coverage report"
 
   sqlite3:
     image: nouchka/sqlite3:latest
@@ -22,6 +8,12 @@ services:
       - ../sqlite/db:/var/lib/sqlite/db
     environment:
       - SQLITE_DB=db/db.sqlite3
+
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=audoma_healthcare_example
 
   example_app:
     image: example_app
@@ -34,7 +26,40 @@ services:
     tty: true
     ports:
       - 8000:8000
+    environment:
+      - SECRET_KEY=unsafe_secret_key
+      - PSQL_DB_NAME=audoma_healthcare_example
+      - PSQL_USER=postgres
+      - PSQL_PASSWORD=password
+      - PSQL_HOST=postgres
+      - PSQL_PORT=5432
     command: bash -c "cd audoma_examples/drf_example &&  python manage.py migrate &&
             python manage.py runserver 0.0.0.0:8000"
     depends_on:
       - sqlite3
+      - postgres
+
+  tests:
+    image: audoma-tests
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile
+    command: tox
+    environment:
+      - SECRET_KEY=unsafe_secret_key
+      - PSQL_DB_NAME=audoma_healthcare_example
+      - PSQL_USER=postgres
+      - PSQL_PASSWORD=password
+      - PSQL_HOST=postgres
+      - PSQL_PORT=5432
+    depends_on:
+      - postgres
+      - sqlite3
+
+  coverage:
+    image: audoma-tests
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile
+    working_dir: /audoma/audoma_examples/drf_example/
+    command: bash -c "coverage run manage.py test audoma audoma_api && coverage report"

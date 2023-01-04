@@ -7,6 +7,8 @@ from audoma.tests.testtools import create_model_class
 
 
 class CurrencyFieldTestCase(TestCase):
+    databases = "__all__"
+
     def create_currency_field_with_default_currency(self):
         field = django_fields.CurrencyField(default="PLN")
         self.assertEqual(field.example, "PLN")
@@ -23,6 +25,8 @@ class CurrencyFieldTestCase(TestCase):
 
 
 class MoneyFieldTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         self.field = django_fields.MoneyField(
             verbose_name="Product's price",

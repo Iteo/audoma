@@ -25,6 +25,8 @@ from audoma.tests.testtools import (
 
 
 class AudomaAutoSchemaTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self) -> None:
         super().setUp()
         self.factory = APIRequestFactory()

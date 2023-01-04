@@ -377,6 +377,51 @@ Serializer classes name traverse order
 
 | For all serializers defined this way, there is also support for proper documentation in api schema.
 
+
+
+Viewset defined headers
+=========================
+| Since audoma 0.6.0 there is an easy way of returning custom headers for each action.
+| This allows easy adding custom header. This mechanism is quite simillar to what you probably know about serializer_class definition.
+
+| This works perfectly with audoma action.
+| Let's say we have an action:
+
+.. code-block :: python
+   :linenos:
+
+    ...
+    @audoma_action(
+        detail=True,
+        methods=["post"],
+        results=serializers.PerscriptionReadSerializer,
+        errors=[models.Prescription.DoesNotExist],
+        ignore_view_collectors=True,
+    )
+    def make_prescription_invalid(self, request, pk=None):
+        instance = self.get_object()
+        instance.is_valid = False
+        instance.save()
+        return instance, 200
+
+| While we are using `audoma_action` we are not simply able to pass headers to response,
+| because this decorator handles creating `Response` automatically.
+| To allow you to define your custom header we introduced get methods for headers.
+| Those methods names should follow this patterns:
+
+* get_{action}_{request_method}_response_headers - return headers for given action and HTTP method
+* get_{action}_response_headers - return headers for all of given action methods
+* get_{request_method}_response_headers - return headers for all HTTP request with given method
+* get_response_headers - return headers for all viewset actions
+
+| Those methods are being traversed in order defined above, the first one wich exist will
+| be used to retrieve headers for `audoma_action` response.
+
+| What's more now `audoma_action` automatically adds `Location` header to the response with proper status code.
+| To make your `Location` header work properly you have to define `URL_FIELD_NAME` in your project settings.
+| If you want to learn more about `Location` header visit: `Link <https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Location>`_
+
+
 Permissions
 ===========
 
@@ -704,8 +749,8 @@ Decorators
 | using `audoma_action` action function should not return a `Response` object, it should return
 | tuple of instance and status code, `audoma_action` will take care of creating response out of it.
 
-Usage
-^^^^^^
+How to use this?
+^^^^^^^^^^^^^^^^^
 
 | Let's take an example viewset:
 
@@ -1258,12 +1303,20 @@ many
 | Currently it can only be set to the concrete action, it is impossible to return a instance and
 | multiple instances from one action method using `audoma_action`.
 
+run_get_object
+""""""""""""""""
+Boolean variable which defines if `get_object` should be run to retrieve instance.
+If this has not been passed it's being set depending on detail param for default action decorator.
+
+Setting this to `True` for non detail view allows to force run `get_object`.
+This will be done in `audoma_action`, retrieved instance will be passed to `collect_serializer`
+
 
 Examples
-========
+=========
 
 Define an example for the field
---------------------------
+---------------------------------
 
 | Above we described :ref:`@extend_schema_field` decorator which allows defining example for the field.
 | For all fields defined in audoma, there are examples generated automatically,
@@ -1309,8 +1362,14 @@ Define custom example classes
 
 * `NumericExample`
 * `RegexExample`
+* `DateExample`
+* `TimeExample`
+* `DateTimeExample`
+* `Base64Example`
+* `RangeExample`
 
 | And one base class:
+
 * `Example`
 
 | To define your example class, you should inherit from the `Example` class
@@ -1404,6 +1463,52 @@ PhoneNumberField
         }
 
 
+SerializerMethodField
+-----------------------
+
+| This field is a common drf field, but in audoma its functionalities has been extended.
+| The most important feture is that now you are able to pass `field` param to `SerializerMethodField` constructor.
+
+.. code :: python
+
+    class DoctorWriteSerializer(PersonBaseSerializer):
+
+    specialization = serializers.SerializerMethodField(
+        field=serializers.ListField(child=serializers.IntegerField()), writable=True
+    )
+
+    def get_specialization(self, doctor):
+        return doctor.specialization.values_list("id", flat=True)
+
+    class Meta:
+        model = api_models.Doctor
+        fields = ["name", "surname", "contact_data", "specialization", "salary"]
+
+| Field param defines the structure, of returned value.
+| Now the value return by your method will be parsed by passed field `to_representation` method.
+| This also provides proper documenting such fields, there is no more necessity using `@document_and_format`
+| on each serializer method, to be sure that proper type will be display in docs, now it'll be done automatically.
+
+| The next great thing about our custom `SerializerMethodField` is that it accepts `writable` param.
+| As you may suspect this param is a boolean value which may make this field writable.
+| During writting to this field it'll behave as field passed to it with `field` param, so the validation,
+| and parsing to internal value depends on the passed field.
+
+.. note::
+    It is not possible to define writable `SerializerMethodField` with no child field passed.
+    Such behaviour will cause an exception.
+
+
+Postgres fields
+----------------
+Django has defined in itself postgres specific `fields <https://docs.djangoproject.com/en/4.1/ref/contrib/postgres/fields/>`_.
+Since 0.6.0 audoma fully support those fields, it supports documentation and automatic behaviours for those fields.
+
+To support those fields audoma uses external package: `drf-extra-fields <https://github.com/Hipo/drf-extra-fields>`_
+Audoma extends those package basic functionalities by adding automatic field mapping for `ModelSerializer`.
+And providing specific examples generated for each fields, which makes docs more readable.
+
+
 Serializer Field links
 ========================
 
@@ -1417,6 +1522,7 @@ Serializer Field links
 | Link definition:
 
 .. code :: python
+
     from audoma.drf import serializers
 
     from app.models import Car
@@ -1442,6 +1548,8 @@ Serializer Field links
 * value_field - field name from which value should be retrieved
 * display_field - field name from which display value should be retrieved
 
+| Currently there is no way of passing any params to related view.
+| This will be introduced in the near future.
 
 
 Schema Extensions
