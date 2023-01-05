@@ -207,9 +207,9 @@ class SerializerMethodField(ExampleMixin, fields.Field):
         super().bind(field_name, parent)
         if self.field is not None:
             set_override(self, "field", self.field)
-        # set params for child field
-        self.field.parent = self.parent
-        self.field.field_name = self.field_name
+            # set params for child field
+            self.field.parent = self.parent
+            self.field.field_name = self.field_name
 
     def to_representation(self, obj):
         method = getattr(self.parent, self.method_name)
