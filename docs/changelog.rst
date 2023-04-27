@@ -2,6 +2,11 @@
 Changelog
 ==========
 
+0.6.1
+=====
+* Fixed dependencies issues
+
+
 0.6.0
 ======
 
