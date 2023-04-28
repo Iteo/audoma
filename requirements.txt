@@ -6,6 +6,6 @@ django-macaddress>=1.6.0,<=1.8.0
 phonenumbers<=8.13.10
 django-extensions<=3.2.1
 django-filter<=22.2
-drf-spectacular~=0.21 #
+drf-spectacular<=0.21.2 #
 django-money<=2.1 # 2.1 drops Django 3.0 support
 lorem<=0.1.1 # latest current version
