@@ -220,13 +220,15 @@ class AudomaAutoSchema(AutoSchema):
         _audoma = view.get_audoma_action_config()
         if _audoma is None:
             return None
-        many = _audoma.many
+
+        _audoma.collectors_many
+        many_results = _audoma.results_many
 
         if serializer_type == "collect":
             action_serializers = getattr(_audoma, "collectors", None)
         else:
             results = self._parse_action_result_serializers(
-                getattr(_audoma, "results", None), many
+                getattr(_audoma, "results", None), many_results
             )
             errors = self._parse_action_errors(getattr(_audoma, "errors", {}))
             if results:
@@ -369,7 +371,6 @@ class AudomaAutoSchema(AutoSchema):
         return result
 
     def _get_request_for_media_type(self, serializer):
-
         schema, request_body_required = super()._get_request_for_media_type(serializer)
         if self.is_bulk:
             schema = build_array_type(schema)
@@ -378,7 +379,6 @@ class AudomaAutoSchema(AutoSchema):
         return schema, request_body_required
 
     def _get_response_for_code(self, serializer, status_code, media_types=None):
-
         schema_resp = super()._get_response_for_code(
             serializer, status_code, media_types
         )
