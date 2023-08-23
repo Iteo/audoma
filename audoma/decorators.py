@@ -43,7 +43,8 @@ class AudomaArgs:
     results: SerializersConfig
     collectors: SerializersConfig
     errors: List[Union[Exception, Type[Exception]]]
-    many: bool
+    results_many: bool
+    collectors_many: bool
 
 
 class AudomaActionException(Exception):
@@ -128,12 +129,16 @@ class audoma_action:
         collectors: SerializersConfig = None,
         results: SerializersConfig = None,
         errors: List[Union[Exception, Type[Exception]]] = None,
+        # NOTE - many is deprecated parameter, it will be removed in future versions
         many: bool = False,
+        results_many: bool = False,
+        collectors_many: bool = False,
         ignore_view_collectors: bool = False,
         run_get_object: bool = None,
         **kwargs,
     ) -> None:
-        self.many = many
+        self.results_many = results_many or many
+        self.collectors_many = collectors_many or many
 
         self.collectors = collectors or {}
         self.results = results
@@ -294,7 +299,7 @@ class audoma_action:
                 data=request.data,
                 partial=partial,
                 context={"request": request, "format": view.format_kwarg, "view": view},
-                many=self.many,
+                many=self.collectors_many,
                 ignore_view_collectors=self.ignore_view_collectors,
             )
 
@@ -345,7 +350,8 @@ class audoma_action:
             collectors=self.collectors,
             results=self.results,
             errors=self.errors,
-            many=self.many,
+            results_many=self.results_many,
+            collectors_many=self.collectors_many,
         )
         # apply action decorator
         func = self.framework_decorator(func)
@@ -378,7 +384,7 @@ class audoma_action:
                     "format": view.format_kwarg,
                     "view": view,
                 },
-                many=self.many,
+                many=self.results_many,
                 status_code=code,
             )
 
