@@ -12,6 +12,11 @@ Added Features
 * `many` param in `audoma_action` has been marked as deprecated
 
 
+0.6.1
+=====
+* Fixed dependencies issues
+
+
 0.6.0
 ======
 
