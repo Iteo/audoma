@@ -2,6 +2,16 @@
 Changelog
 ==========
 
+0.6.2
+======
+
+Added Features
+---------------
+* It is now possible to use `collectors_many`, `results_many` in `audoma_action`
+* `ChoiceField` is now accepting choices as flat iterable
+* `many` param in `audoma_action` has been marked as deprecated
+
+
 0.6.1
 =====
 * Fixed dependencies issues
@@ -24,4 +34,3 @@ Bugfixes
 --------
 * Fixed `audoma_action` not using `ignore_view_collectors` argument
 * Fixed not working partial update in `audoma_action`
-* Now

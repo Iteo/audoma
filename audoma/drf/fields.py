@@ -64,7 +64,6 @@ this = sys.modules[__name__]
 
 
 for field_name in field_names:
-
     setattr(
         this,
         field_name,
@@ -155,10 +154,7 @@ class MoneyField(NumericExampleMixin, MoneyField):
 
 class ChoiceField(ExampleMixin, fields.ChoiceField):
     def __init__(self, choices, **kwargs):
-        if isinstance(choices, dict):
-            self.original_choices = list(choices.items())
-        else:
-            self.original_choices = choices
+        self.original_choices = fields.to_choices_dict(choices)
         super().__init__(choices, **kwargs)
 
 
