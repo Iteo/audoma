@@ -135,10 +135,12 @@ class audoma_action:
         collectors_many: bool = False,
         ignore_view_collectors: bool = False,
         run_get_object: bool = None,
+        paginate_response: bool = False,
         **kwargs,
     ) -> None:
         self.results_many = results_many or many
         self.collectors_many = collectors_many or many
+        self.paginate_response = paginate_response
 
         self.collectors = collectors or {}
         self.results = results
@@ -393,8 +395,19 @@ class audoma_action:
             else:
                 headers = {}
 
+            if self.paginate_response:
+                paginated_data = view.paginate_queryset(response_serializer.data)
+                response_data = {
+                    "results": paginated_data,
+                    "count": view.paginator.page.paginator.count,
+                    "next": view.paginator.page.has_next(),
+                    "previous": view.paginator.page.has_previous(),
+                }
+            else:
+                response_data = response_serializer.data
+
             return Response(
-                response_serializer.data,
+                response_data,
                 status=code,
                 headers=headers,
             )
