@@ -17,7 +17,7 @@ class DocumentedTypedChoiceFilter(df_filters.TypedChoiceFilter):
     ) -> None:
         self.parsed_choices = (
             full_choices.get_api_choices()
-            if hasattr(full_choices, "get_choices")
+            if hasattr(full_choices, "get_api_choices")
             else full_choices
         )
         super().__init__(
