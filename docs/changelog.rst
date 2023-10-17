@@ -2,6 +2,14 @@
 Changelog
 ==========
 
+0.6.3
+======
+
+Added Features
+---------------
+* `DocumentedTypedChoiceField` now supports default Django choices
+
+
 0.6.2
 ======
 
