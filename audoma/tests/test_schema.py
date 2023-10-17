@@ -89,6 +89,32 @@ class AudomaDjangoFilterExtensionTestCase(TestCase):
             ],
         )
 
+    def test_get_audoma_documented_typed_choice_filter_x_default_tuple_choices(self):
+        field = DocumentedTypedChoiceFilter(
+            full_choices=self.choices.get_api_choices(), parameter_name="company_rate"
+        )
+        result = self.extension.resolve_filter_field(
+            self.view.schema, self.view.model, None, "company_rate", field
+        )
+        self.assertIsInstance(result, list)
+        self.assertEqual(
+            result,
+            [
+                {
+                    "in": "query",
+                    "name": "company_rate",
+                    "schema": {
+                        "type": "string",
+                        "enum": ["DISLIKIE", "LIKE"],
+                        "x-choices": {
+                            "choices": {"LIKE": "Like", "DISLIKIE": "Dislike"}
+                        },
+                    },
+                    "description": "Filter by None \n * `LIKE` - Like\n * `DISLIKIE` - Dislike\n",
+                }
+            ],
+        )
+
     def test_get_typed_choice_filter_x_choices(self):
         field = TypedChoiceFilter(
             choices=self.choices.get_api_choices(), parameter_name="company_rate"
