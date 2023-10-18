@@ -21,9 +21,15 @@ class DocumentedTypedChoiceFilter(df_filters.TypedChoiceFilter):
             else full_choices
         )
         if hasattr(full_choices, "get_value_by_name"):
-            coerce = lambda value: full_choices.get_value_by_name(value)
+
+            def coerce(value):
+                return full_choices.get_value_by_name(value)
+
         else:
-            coerce = lambda value: dict(full_choices).get(value)
+
+            def coerce(value):
+                return dict(full_choices).get(value)
+
         super().__init__(
             coerce=coerce,
             choices=self.parsed_choices,
