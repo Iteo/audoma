@@ -357,7 +357,11 @@ class AudomaAutoSchemaTestCase(TestCase):
         )
 
     def test_decimal_examples_are_generated_correctly(self):
-        fields_config = {"order_value": audoma_fields.DecimalField(max_digits=5, decimal_places=2, min_value=999.98, max_value=999.99)}
+        fields_config = {
+            "order_value": audoma_fields.DecimalField(
+                max_digits=5, decimal_places=2, min_value=999.98, max_value=999.99
+            )
+        }
         serializer = create_serializer(
             fields_config=fields_config, serializer_base_classes=[Serializer]
         )
@@ -371,7 +375,7 @@ class AudomaAutoSchemaTestCase(TestCase):
         mapped_field = view.schema._map_serializer_field(
             serializer_fields["order_value"], direction="response"
         )
-        self.assertEqual(mapped_field['example'], '999.99')
+        self.assertEqual(mapped_field["example"], "999.99")
 
     def test_map_serializer_field_audoma_choicefield_xchoices_success(self):
         fields_config = {
