@@ -1,5 +1,6 @@
 import datetime
 import random
+from decimal import Decimal
 from typing import (
     Any,
     Type,
@@ -49,7 +50,13 @@ class NumericExample(Example):
         """
         min_val = float(getattr(self.field, "min_value", 1) or 1)
         max_val = float(getattr(self.field, "max_value", 1000) or 1000)
-        return random.uniform(min_val, max_val)
+        max_digits = getattr(self.field, "max_digits", None)
+        decimal_places = getattr(self.field, "decimal_places", None)
+        if max_digits and decimal_places:
+            fmt = f".{decimal_places}f"
+            return Decimal(f"{(max_val):{fmt}}")
+        ret = random.uniform(min_val, max_val)
+        return ret
 
 
 class RegexExample(Example):
