@@ -37,6 +37,8 @@ class AudomaDjangoFilterExtension(DjangoFilterExtension):
             if choices and "x-choices" not in schema:
                 schema["schema"]["x-choices"] = self._get_x_choices(choices)
                 parsed_schemas.append(schema)
+            if not choices:
+                parsed_schemas.append(schema)
 
         return parsed_schemas
 

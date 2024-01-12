@@ -144,7 +144,10 @@ class AudomaDjangoFilterExtensionTestCase(TestCase):
         result = self.extension.resolve_filter_field(
             self.view.schema, self.view.model, None, "company_rate", field
         )
-        self.assertEqual(result, [])
+        self.assertEqual(
+            result,
+            [{"in": "query", "name": "company_rate", "schema": {"type": "string"}}],
+        )
 
 
 class SearchFilterExtensionTestCase(TestCase):
