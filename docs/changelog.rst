@@ -1,12 +1,12 @@
 ==========
 Changelog
 
-0.6.4
+0.6.6
 ======
 
 Added Features
 ---------------
-* Fixed documentng native `django_filters` fields
+* Fixed documenting native `django_filters` fields
 ==========
 
 0.6.4
