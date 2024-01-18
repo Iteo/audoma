@@ -12,14 +12,22 @@ from audoma.plumbing import create_choices_enum_description
 class DocumentedTypedChoiceFilter(df_filters.TypedChoiceFilter):
     """Extended TypedChoiceFilter to generate documentation automatically"""
 
+    def _parse_choices(self, choices):
+        if hasattr(choices, "get_api_choices"):
+            return choices.get_api_choices()
+        if isinstance(choices, dict):
+            return choices
+        if isinstance(choices, (list, tuple)):
+            if isinstance(choices[0], (list, tuple)):
+                return choices
+            else:
+                return tuple([(c, c) for c in choices])
+        raise ValueError(f"Choices must be a dict, list or tuple, not {type(choices)}")
+
     def __init__(
         self, full_choices: Union[NamedTuple, Tuple], parameter_name: str, **kwargs
     ) -> None:
-        self.parsed_choices = (
-            full_choices.get_api_choices()
-            if hasattr(full_choices, "get_api_choices")
-            else full_choices
-        )
+        self.parsed_choices = self._parse_choices(full_choices)
         if hasattr(full_choices, "get_value_by_name"):
 
             def coerce(value):
