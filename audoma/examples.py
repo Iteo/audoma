@@ -49,8 +49,13 @@ class NumericExample(Example):
             Random value between min_value and max_value
         """
         min_val = float(getattr(self.field, "min_value", 1) or 1)
-        max_val = float(getattr(self.field, "max_value", 1000) or 1000)
-        decimal_places = getattr(self.field, "decimal_places", None)
+        decimal_places = getattr(self.field, "decimal_places", 0) or 0
+        max_digits = getattr(self.field, "max_digits", 4) or 4
+        max_val_fallback = 10 * (max_digits - decimal_places) - 1
+        max_val = float(
+            getattr(self.field, "max_value", max_val_fallback) or max_val_fallback
+        )
+
         if decimal_places:
             fmt = f".{decimal_places}f"
             return Decimal(f"{(max_val):{fmt}}")
