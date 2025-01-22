@@ -44,6 +44,12 @@ from audoma.plumbing import create_choices_enum_description
 class AudomaAutoSchema(AutoSchema):
     choice_link_schema_generator = ChoicesOptionsLinkSchemaGenerator()
 
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     import ipdb
+
+    #     ipdb.set_trace()
+
     def _handle_permission(
         self,
         permission_class: typing.Union[
@@ -247,6 +253,7 @@ class AudomaAutoSchema(AutoSchema):
         self, serializer_type: str = "collect"
     ) -> typing.Union[BaseSerializer, typing.Type[BaseSerializer]]:
         view = self.view
+        print("ELOOO")
         try:
             if isinstance(view, AudomaGenericAPIView):
                 action_serializers = self._extract_audoma_action_operations(
@@ -416,7 +423,6 @@ class AudomaAutoSchema(AutoSchema):
     ) -> dict:
         serializer = force_instance(serializer)
         serializer_extension = OpenApiSerializerExtension.get_match(serializer)
-
         if serializer_extension and not bypass_extensions:
             schema = serializer_extension.map_serializer(self, direction)
         else:

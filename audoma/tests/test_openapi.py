@@ -2,11 +2,18 @@ from unittest import TestCase
 
 from drf_spectacular.plumbing import ComponentRegistry
 from rest_framework import fields
+from rest_framework.mixins import (
+    CreateModelMixin,
+    ListModelMixin,
+)
 from rest_framework.permissions import (
     BasePermission,
     IsAuthenticated,
 )
-from rest_framework.serializers import Serializer
+from rest_framework.serializers import (
+    ModelSerializer,
+    Serializer,
+)
 from rest_framework.test import APIRequestFactory
 
 from audoma.drf import (
@@ -17,6 +24,8 @@ from audoma.drf.validators import ExclusiveFieldsValidator
 from audoma.openapi import AudomaAutoSchema
 from audoma.tests.testtools import (
     create_basic_view,
+    create_model_class,
+    create_model_serializer_class,
     create_serializer,
     create_serializer_class,
     create_view_with_custom_action,
@@ -499,6 +508,56 @@ class AudomaAutoSchemaTestCase(TestCase):
         self.assertEqual(type(schema), dict)
         self.assertIn("company_name", schema["properties"])
         self.assertIn("company_size", schema["properties"])
+
+    def test_view_with_paginated_action_results(self):
+        fields_config = {
+            "firstname": audoma_fields.CharField(max_length=255),
+            "lastname": audoma_fields.CharField(max_length=255),
+            "age": audoma_fields.IntegerField(),
+        }
+        model = create_model_class(fields_config=fields_config)
+
+        request = self.factory.get("/custom_action/")
+        request.data = {"firstname": "John", "lastname": "DOG", "age": 45}
+        data = [
+            {"firstname": "John", "lastname": "DOG", "age": i} for i in range(1, 101)
+        ]
+        serializer_class = create_model_serializer_class(
+            meta_model=model, meta_fields=["firstname", "lastname", "age"]
+        )
+        serializer_base_classes = [ModelSerializer]
+        example_result_serializer = create_serializer_class(
+            fields_config=fields_config, serializer_base_classes=serializer_base_classes
+        )
+        view = create_view_with_custom_audoma_action(
+            request=request,
+            view_properties={"serializer_class": serializer_class},
+            action_kwargs={
+                "results": {200: example_result_serializer},
+                "methods": ["GET"],
+                "detail": False,
+                "paginate": True,
+                "many": True,
+            },
+            returnables=(data, 200),
+        )
+        view.method = "get"
+        view.format_kwarg = "json"
+        view.request = request
+        view.action = "custom_action"
+        view.schema = AudomaAutoSchema()
+        view.schema.registry = ComponentRegistry()
+        view.schema.method = "GET"
+        view.schema.is_bulk = False
+        schema = view.schema._map_serializer(serializer_class(), direction="response")
+        print("-----------------------")
+        print(schema)
+        import ipdb
+
+        ipdb.set_trace()
+        self.assertEqual(type(schema), dict)
+        self.assertIn("firstname", schema["properties"])
+        self.assertIn("lastname", schema["properties"])
 
     def test_map_serializer_with_exclusive_fields(self):
         fields_config = {

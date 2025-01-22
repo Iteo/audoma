@@ -3,10 +3,13 @@ from rest_framework.exceptions import (
     MethodNotAllowed,
     PermissionDenied,
 )
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.serializers import Serializer
+from rest_framework.settings import api_settings
 from rest_framework.test import APIRequestFactory
 
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import fields
 from django.test import (
     TestCase,
     override_settings,
@@ -18,9 +21,14 @@ from audoma.decorators import (
 )
 from audoma.drf import fields as audoma_fields
 from audoma.tests.testtools import (
+    create_model_class,
+    create_model_serializer_class,
     create_serializer_class,
     create_view_with_custom_audoma_action,
 )
+
+
+default_paginator_class = api_settings.DEFAULT_PAGINATION_CLASS
 
 
 class AudomaActionTestCase(TestCase):
@@ -115,6 +123,7 @@ class AudomaActionTestCase(TestCase):
                 "collectors": {"post": self.example_collect_serializer},
                 "results": {201: self.example_result_serializer},
                 "methods": ["POST"],
+                "paginate": False,
                 "detail": False,
             },
             returnables=(self.request_data, 201),
@@ -127,6 +136,56 @@ class AudomaActionTestCase(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(
             response.data, {"firstname": "John", "lastname": "DOG", "age": 45}
+        )
+
+    def test_audoma_action_return_defined_response_with_pagination(self):
+        fields_config = {
+            "firstname": audoma_fields.CharField(max_length=255),
+            "lastname": audoma_fields.CharField(max_length=255),
+            "age": audoma_fields.IntegerField(),
+        }
+        model = create_model_class(fields_config=fields_config)
+
+        request = self.factory.get("/custom_action/")
+        request.data = self.request_data
+        data = [
+            {"firstname": "John", "lastname": "DOG", "age": i} for i in range(1, 101)
+        ]
+        serializer_class = create_model_serializer_class(
+            meta_model=model, meta_fields=["name", "age"]
+        )
+        view = create_view_with_custom_audoma_action(
+            request=request,
+            view_properties={"serializer_class": serializer_class},
+            action_kwargs={
+                "results": {200: self.example_result_serializer},
+                "methods": ["GET"],
+                "detail": False,
+                "paginate": True,
+                "many": True,
+            },
+            returnables=(data, 200),
+        )
+        view.method = "get"
+        view.format_kwarg = "json"
+        view.request = request
+        view.action = "custom_action"
+
+        request.query_params = {"page": 3}
+
+        response = view.custom_action(request)
+        import json
+
+        print(json.dumps(response.data, indent=3))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("results", response.data)
+        self.assertIn("count", response.data)
+        self.assertIn("next", response.data)
+        self.assertIn("previous", response.data)
+        self.assertEqual(len(response.data["results"]), 25)
+        self.assertEqual(
+            response.data["results"],
+            [{"firstname": "John", "lastname": "DOG", "age": i} for i in range(51, 76)],
         )
 
     def test_audoma_action_return_undefined_response(self):
@@ -145,6 +204,7 @@ class AudomaActionTestCase(TestCase):
                     "POST",
                 ],
                 "detail": False,
+                "paginate": False,
             },
             returnables=({"company_name": "Lenovo"}, 200),
             view_properties={"serializer_class": serializer_class},
@@ -165,6 +225,7 @@ class AudomaActionTestCase(TestCase):
             action_kwargs={
                 "results": {201: self.example_result_serializer},
                 "methods": ["POST"],
+                "paginate": False,
                 "detail": False,
             },
             returnables=(self.request_data, 201),
@@ -285,6 +346,7 @@ class AudomaActionTestCase(TestCase):
                 "methods": ["GET"],
                 "detail": False,
                 "many": True,
+                "paginate": False,
             },
             returnables=(
                 [
@@ -311,6 +373,7 @@ class AudomaActionTestCase(TestCase):
                 "results": {200: self.example_result_serializer},
                 "methods": ["POST"],
                 "detail": False,
+                "paginate": False,
                 "ignore_view_collectors": True,
             },
             returnables=(

@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
+
 import os
 from pathlib import Path
 
@@ -182,4 +183,6 @@ SPECTACULAR_SETTINGS = {
 CURRENCIES = ("USD", "EUR", "GBP", "JPY", "CNY", "INR", "AUD", "NZD", "CHF")
 PHONENUMBER_DEFAULT_FORMAT = "INTERNATIONAL"
 
-TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
+# TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
+
+print("SETTINGZ")

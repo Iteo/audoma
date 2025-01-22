@@ -27,13 +27,18 @@ class PatientViewset(
     GenericViewSet,
 ):
 
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
 
     serializer_class = serializers.PatientReadSerializer
     common_collect_serializer_class = serializers.PatientWriteSerializer
     get_files_serializer_class = serializers.PatientFilesDetailSerializer
     queryset = models.Patient.objects.all()
     lookup_url_kwarg = "pk"
+    paginate = None
+
+    def __init__(self, **kwargs):
+        kwargs.pop("paginate")
+        super().__init__(**kwargs)
 
     def filter_queryset(self, queryset):
         if self.request.method in ["PUT", "PATCH"] and isinstance(
@@ -47,6 +52,21 @@ class PatientViewset(
     def get_files(self, request, pk):
         files = get_object_or_404(models.PatientFiles, patient__id=pk)
         serializer = self.get_serializer(instance=files)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @audoma_action(
+        methods=["GET"],
+        detail=False,
+        results=serializers.PerscriptionReadSerializer,
+        paginate=True,
+    )
+    def prescriptions(self, request):
+        from rest_framework import viewsets
+
+        serializer = serializers.PerscriptionReadSerializer(
+            data=models.Prescription.objects.all(), many=True
+        )
+        serializer.is_valid()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

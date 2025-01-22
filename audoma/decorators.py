@@ -14,6 +14,7 @@ from typing import (
 
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
+from rest_framework.pagination import BasePagination
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -28,7 +29,10 @@ from audoma import settings as audoma_settings
 
 
 logger = logging.getLogger(__name__)
-
+default_pagination_class = project_settings.REST_FRAMEWORK.get(
+    "DEFAULT_PAGINATION_CLASS"
+)
+default_page_size = project_settings.REST_FRAMEWORK.get("PAGE_SIZE")
 
 SerializersConfig = Union[
     Dict[str, Dict[int, Union[str, Type[BaseSerializer]]]],
@@ -135,6 +139,7 @@ class audoma_action:
         collectors_many: bool = False,
         ignore_view_collectors: bool = False,
         run_get_object: bool = None,
+        paginate: bool = True,
         **kwargs,
     ) -> None:
         self.results_many = results_many or many
@@ -143,7 +148,7 @@ class audoma_action:
         self.collectors = collectors or {}
         self.results = results
         self.ignore_view_collectors = ignore_view_collectors
-
+        self.paginate = paginate
         try:
             self.errors = self._sanitize_error(errors) or []
             self.kwargs = self._sanitize_kwargs(kwargs) or {}
@@ -377,26 +382,44 @@ class audoma_action:
             except Exception as processed_error:
                 return self._process_error(processed_error, errors, view)
 
-            response_serializer = view.get_result_serializer(
-                instance=instance,
-                context={
-                    "request": request,
-                    "format": view.format_kwarg,
-                    "view": view,
-                },
-                many=self.results_many,
-                status_code=code,
-            )
-
-            if hasattr(view, "_retrieve_response_headers"):
-                headers = view._retrieve_response_headers(code, response_serializer)
+            if self.paginate:
+                queryset = view.paginate_queryset(view.get_queryset())
+                response_serializer = view.get_result_serializer(
+                    instance=queryset,
+                    context={
+                        "request": request,
+                        "format": view.format_kwarg,
+                        "view": view,
+                    },
+                    many=self.results_many,
+                    status_code=code,
+                )
+                if hasattr(view, "_retrieve_response_headers"):
+                    headers = view._retrieve_response_headers(code, response_serializer)
+                else:
+                    headers = {}
+                return view.get_paginated_response(response_serializer.data)
             else:
-                headers = {}
+                response_serializer = view.get_result_serializer(
+                    instance=instance,
+                    context={
+                        "request": request,
+                        "format": view.format_kwarg,
+                        "view": view,
+                    },
+                    many=self.results_many,
+                    status_code=code,
+                )
 
-            return Response(
-                response_serializer.data,
-                status=code,
-                headers=headers,
-            )
+                if hasattr(view, "_retrieve_response_headers"):
+                    headers = view._retrieve_response_headers(code, response_serializer)
+                else:
+                    headers = {}
+
+                return Response(
+                    response_serializer.data,
+                    status=code,
+                    headers=headers,
+                )
 
         return wrapper

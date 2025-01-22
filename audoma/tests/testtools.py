@@ -15,6 +15,7 @@ from rest_framework.fields import (
     Field,
     SerializerMethodField,
 )
+from rest_framework.pagination import BasePagination
 from rest_framework.request import Request
 from rest_framework.serializers import (
     BaseSerializer,
@@ -216,6 +217,9 @@ def create_view_with_custom_audoma_action(
     Request or _factory.get("/test-request/")
 
     class ExampleView(*view_baseclasses):
+        def get_queryset(self):
+            return returnables[0]
+
         @audoma_action(name=action_name, *action_args, **action_kwargs)
         def fun(self, request, *args, **kwargs):
             if raise_exception:
