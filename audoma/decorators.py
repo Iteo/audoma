@@ -384,6 +384,7 @@ class audoma_action:
 
             if self.paginate:
                 queryset = view.paginate_queryset(view.get_queryset())
+                print("X11111111", flush=True)
                 response_serializer = view.get_result_serializer(
                     instance=queryset,
                     context={

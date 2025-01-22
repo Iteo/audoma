@@ -253,7 +253,6 @@ class AudomaAutoSchema(AutoSchema):
         self, serializer_type: str = "collect"
     ) -> typing.Union[BaseSerializer, typing.Type[BaseSerializer]]:
         view = self.view
-        print("ELOOO")
         try:
             if isinstance(view, AudomaGenericAPIView):
                 action_serializers = self._extract_audoma_action_operations(

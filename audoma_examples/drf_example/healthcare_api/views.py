@@ -54,6 +54,9 @@ class PatientViewset(
         serializer = self.get_serializer(instance=files)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def get_prescriptions_queryset(self):
+        return models.Prescription.objects.all()
+
     @audoma_action(
         methods=["GET"],
         detail=False,
@@ -61,8 +64,6 @@ class PatientViewset(
         paginate=True,
     )
     def prescriptions(self, request):
-        from rest_framework import viewsets
-
         serializer = serializers.PerscriptionReadSerializer(
             data=models.Prescription.objects.all(), many=True
         )
