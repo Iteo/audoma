@@ -174,9 +174,6 @@ class AudomaActionTestCase(TestCase):
         request.query_params = {"page": 3}
 
         response = view.custom_action(request)
-        import json
-
-        print(json.dumps(response.data, indent=3))
         self.assertEqual(response.status_code, 200)
         self.assertIn("results", response.data)
         self.assertIn("count", response.data)

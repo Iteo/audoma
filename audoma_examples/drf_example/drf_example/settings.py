@@ -153,10 +153,10 @@ DATABASES = {
     },
     "healthcare_api": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("PSQL_DB_NAME", "audoma_healthcare_example"),
-        "USER": os.environ.get("PSQL_USER", "postgres"),
-        "PASSWORD": os.environ.get("PSQL_PASSWORD", "password"),
-        "HOST": os.environ.get("PSQL_HOST", "postgres"),
+        "NAME": os.environ.get("PSQL_DB_NAME", "audoma"),
+        "USER": os.environ.get("PSQL_USER", "audoma"),
+        "PASSWORD": os.environ.get("PSQL_PASSWORD", "kutacz123"),
+        "HOST": os.environ.get("PSQL_HOST", "localhost"),
         "PORT": os.environ.get("PSQL_PORT", 5432),
         "TEST_NAME": "audoma_healthcare_example_tests",
     },
@@ -183,6 +183,4 @@ SPECTACULAR_SETTINGS = {
 CURRENCIES = ("USD", "EUR", "GBP", "JPY", "CNY", "INR", "AUD", "NZD", "CHF")
 PHONENUMBER_DEFAULT_FORMAT = "INTERNATIONAL"
 
-# TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
-
-print("SETTINGZ")
+TEST_RUNNER = "django_nose.NoseTestSuiteRunner"

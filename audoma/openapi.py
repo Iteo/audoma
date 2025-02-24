@@ -3,20 +3,39 @@ import typing
 from copy import deepcopy
 from inspect import isclass
 
+import uritemplate
 from drf_spectacular.drainage import get_override
-from drf_spectacular.extensions import OpenApiSerializerExtension
+from drf_spectacular.extensions import (
+    OpenApiFilterExtension,
+    OpenApiSerializerExtension,
+    OpenApiSerializerFieldExtension,
+)
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import (
     ComponentRegistry,
+    ResolvedComponent,
+    UnableToProceedError,
     build_array_type,
     error,
     force_instance,
+    is_basic_serializer,
+    is_basic_type,
+    is_field,
+    is_list_serializer,
+    is_patched_serializer,
+    is_serializer,
+    is_trivial_string_variation,
     sanitize_specification_extensions,
 )
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse
 from rest_framework.fields import Field
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import (
+    CreateAPIView,
+    GenericAPIView,
+    ListCreateAPIView,
+)
+from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import (
     AND,
     OR,
@@ -43,12 +62,6 @@ from audoma.plumbing import create_choices_enum_description
 
 class AudomaAutoSchema(AutoSchema):
     choice_link_schema_generator = ChoicesOptionsLinkSchemaGenerator()
-
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     import ipdb
-
-    #     ipdb.set_trace()
 
     def _handle_permission(
         self,
@@ -253,6 +266,7 @@ class AudomaAutoSchema(AutoSchema):
         self, serializer_type: str = "collect"
     ) -> typing.Union[BaseSerializer, typing.Type[BaseSerializer]]:
         view = self.view
+
         try:
             if isinstance(view, AudomaGenericAPIView):
                 action_serializers = self._extract_audoma_action_operations(
@@ -422,6 +436,7 @@ class AudomaAutoSchema(AutoSchema):
     ) -> dict:
         serializer = force_instance(serializer)
         serializer_extension = OpenApiSerializerExtension.get_match(serializer)
+
         if serializer_extension and not bypass_extensions:
             schema = serializer_extension.map_serializer(self, direction)
         else:
@@ -467,11 +482,30 @@ class AudomaAutoSchema(AutoSchema):
 
         return "_".join(tokenized_path + [action])
 
+    def _get_paginator(self):
+        view = self.view
+
+        if not hasattr(view, "action"):
+            return getattr(view, "pagination_class", None)()
+
+        action_name = view.action
+        actions = {method.__name__: method for method in view.get_extra_actions()}
+
+        if action_name in actions:
+            action_method = actions[action_name]
+            if (
+                hasattr(action_method, "_audoma")
+                and hasattr(action_method._audoma, "pagination_class")
+                and action_method._audoma.pagination_class is not None
+            ):
+                return action_method._audoma.pagination_class()
+
+        return getattr(view, "pagination_class", None)()
+
     def get_operation(
         self, path, path_regex, path_prefix, method, registry: ComponentRegistry
     ):
         self.is_bulk = False
-
         if "bulk" in getattr(self.view, "action", "") and method in [
             "POST",
             "PUT",
@@ -479,4 +513,54 @@ class AudomaAutoSchema(AutoSchema):
         ]:
             self.is_bulk = True
 
-        return super().get_operation(path, path_regex, path_prefix, method, registry)
+        ret = super().get_operation(path, path_regex, path_prefix, method, registry)
+
+        return ret
+
+    def _is_list_view(self, serializer=None):
+        """
+        partially heuristic approach to determine if a view yields an object or a
+        list of objects. used for operationId naming, array building and pagination.
+        defaults to False if all introspection fail.
+        """
+
+        if serializer is None:
+            serializer = self.get_response_serializers()
+
+        if isinstance(serializer, dict) and serializer:
+            # extract likely main serializer from @extend_schema override
+            serializer = {str(code): s for code, s in serializer.items()}
+            serializer = serializer[min(serializer)]
+
+        if is_list_serializer(serializer):
+            return True
+        if is_basic_type(serializer):
+            return False
+        if hasattr(self.view, "action"):
+            return self.view.action == "list"
+        # list responses are "usually" only returned by GET
+        if self.method != "GET":
+            return False
+        if isinstance(self.view, ListModelMixin):
+            return True
+        # primary key/lookup variable in path is a strong indicator for retrieve
+        if isinstance(self.view, GenericAPIView):
+            lookup_url_kwarg = self.view.lookup_url_kwarg or self.view.lookup_field
+            if lookup_url_kwarg in uritemplate.variables(self.path):
+                return False
+
+        return False
+
+    def _get_pagination_parameters(self):
+        if not self._is_list_view():
+            return []
+
+        paginator = self._get_paginator()
+        if not paginator:
+            return []
+
+        filter_extension = OpenApiFilterExtension.get_match(paginator)
+        if filter_extension:
+            return filter_extension.get_schema_operation_parameters(self)
+        else:
+            return paginator.get_schema_operation_parameters(self.view)

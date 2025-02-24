@@ -14,7 +14,14 @@ from django.shortcuts import get_object_or_404
 
 from audoma.decorators import audoma_action
 from audoma.drf import mixins
-from audoma.drf.viewsets import GenericViewSet
+from audoma.drf.viewsets import (
+    AudomaPagination,
+    GenericViewSet,
+)
+
+
+class CustomAudomaPagination(AudomaPagination):
+    page_query_param = "pg"
 
 
 # This viewset shows how audoma works for standard drf's action and custom audoma mixins
@@ -27,7 +34,7 @@ class PatientViewset(
     GenericViewSet,
 ):
 
-    # permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     serializer_class = serializers.PatientReadSerializer
     common_collect_serializer_class = serializers.PatientWriteSerializer
@@ -35,10 +42,6 @@ class PatientViewset(
     queryset = models.Patient.objects.all()
     lookup_url_kwarg = "pk"
     paginate = None
-
-    def __init__(self, **kwargs):
-        kwargs.pop("paginate")
-        super().__init__(**kwargs)
 
     def filter_queryset(self, queryset):
         if self.request.method in ["PUT", "PATCH"] and isinstance(
@@ -54,21 +57,16 @@ class PatientViewset(
         serializer = self.get_serializer(instance=files)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def get_prescriptions_queryset(self):
-        return models.Prescription.objects.all()
-
     @audoma_action(
         methods=["GET"],
-        detail=False,
-        results=serializers.PerscriptionReadSerializer,
+        detail=True,
+        results={200: serializers.PerscriptionReadSerializer},
         paginate=True,
+        many=True,
+        pagination_class=CustomAudomaPagination,
     )
-    def prescriptions(self, request):
-        serializer = serializers.PerscriptionReadSerializer(
-            data=models.Prescription.objects.all(), many=True
-        )
-        serializer.is_valid()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def prescriptions(self, request, pk):
+        return models.Prescription.objects.filter(issued_for=pk), 200
 
 
 class SpecializatioNViewSet(mixins.ListModelMixin, GenericViewSet):

@@ -49,6 +49,7 @@ class AudomaArgs:
     errors: List[Union[Exception, Type[Exception]]]
     results_many: bool
     collectors_many: bool
+    pagination_class: Type[BasePagination]
 
 
 class AudomaActionException(Exception):
@@ -140,23 +141,24 @@ class audoma_action:
         ignore_view_collectors: bool = False,
         run_get_object: bool = None,
         paginate: bool = True,
+        pagination_class: Type[BasePagination] = None,
         **kwargs,
     ) -> None:
         self.results_many = results_many or many
         self.collectors_many = collectors_many or many
-
         self.collectors = collectors or {}
         self.results = results
         self.ignore_view_collectors = ignore_view_collectors
         self.paginate = paginate
+        self.pagination_class = pagination_class or default_pagination_class
         try:
             self.errors = self._sanitize_error(errors) or []
             self.kwargs = self._sanitize_kwargs(kwargs) or {}
             self.methods = kwargs.get("methods")
             self.framework_decorator = action(**kwargs)
-            detail = kwargs.get("detail", False)
+            self.detail = kwargs.get("detail", False)
             self.run_get_object = (
-                run_get_object if run_get_object is not None else detail
+                run_get_object if run_get_object is not None else self.detail
             )
             if all(method in SAFE_METHODS for method in self.methods) and collectors:
                 raise ImproperlyConfigured(
@@ -357,6 +359,7 @@ class audoma_action:
             errors=self.errors,
             results_many=self.results_many,
             collectors_many=self.collectors_many,
+            pagination_class=self.pagination_class,
         )
         # apply action decorator
         func = self.framework_decorator(func)
@@ -375,24 +378,21 @@ class audoma_action:
                 if collect_serializer:
                     collect_serializer.is_valid(raise_exception=True)
                     kwargs["collect_serializer"] = collect_serializer
-
                 instance, code = func(view, request, *args, **kwargs)
                 # TODO - add verification
 
             except Exception as processed_error:
                 return self._process_error(processed_error, errors, view)
 
-            if self.paginate:
-                queryset = view.paginate_queryset(view.get_queryset())
-                print("X11111111", flush=True)
+            if instance is not None and self.results_many and self.paginate:
                 response_serializer = view.get_result_serializer(
-                    instance=queryset,
+                    instance=view.paginate_queryset(instance),
                     context={
                         "request": request,
                         "format": view.format_kwarg,
                         "view": view,
                     },
-                    many=self.results_many,
+                    many=True,
                     status_code=code,
                 )
                 if hasattr(view, "_retrieve_response_headers"):

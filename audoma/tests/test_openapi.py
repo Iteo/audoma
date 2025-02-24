@@ -550,11 +550,6 @@ class AudomaAutoSchemaTestCase(TestCase):
         view.schema.method = "GET"
         view.schema.is_bulk = False
         schema = view.schema._map_serializer(serializer_class(), direction="response")
-        print("-----------------------")
-        print(schema)
-        import ipdb
-
-        ipdb.set_trace()
         self.assertEqual(type(schema), dict)
         self.assertIn("firstname", schema["properties"])
         self.assertIn("lastname", schema["properties"])

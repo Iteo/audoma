@@ -1253,6 +1253,42 @@ class PrescriptionViewsetTestCase(BasicTestCase):
             ),
         )
 
+    def test_get_paginated_list_action_success(self):
+        for _ in range(0, 101):
+            health_models.Prescription.objects.create(
+                issued_by=self.doctor,
+                issued_for=self.patient,
+                drugs=[{"testDrug1": 2}, {"TestDrug2": 3}],
+                usable_in=DateRange(
+                    lower=datetime.date.today(),
+                    upper=datetime.date.today() + datetime.timedelta(days=3),
+                ),
+                issued_in="Some Test Hospital Somewhere",
+            )
+        self.client.force_authenticate(self.user)
+        url = reverse("patient-prescriptions", args=[self.patient.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        data = response.data["results"]
+        self.assertEqual(response.data["count"], 102)
+        self.assertDictEqual(
+            data[0],
+            OrderedDict(
+                {
+                    "issued_by": self.doctor.id,
+                    "issued_for": self.patient.id,
+                    "drugs": [{"testDrug1": "2"}, {"TestDrug2": "3"}],
+                    "usable_in": {
+                        "lower": str(self.prescription.usable_in.lower),
+                        "upper": str(self.prescription.usable_in.upper),
+                        "bounds": "[)",
+                    },
+                    "issued_in": "Some Test Hospital Somewhere",
+                    "is_valid": True,
+                }
+            ),
+        )
+
     def test_get_list_no_auth(self):
         url = reverse("prescription-list")
         response = self.client.get(url)
