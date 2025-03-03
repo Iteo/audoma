@@ -7,18 +7,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Build docker image
+      - name: Build Docker image
         run: |
-          echo "---> Building test image and running tests"
-          docker-compose -f docker/docker-compose.yml build
+          echo "---> Building test image"
+          docker compose -f docker/docker-compose.yml build
       - name: Run tests
         run: |
-          echo "---> Building test image and running tests"
-          docker-compose -f docker/docker-compose.yml run --rm tests
+          echo "---> Running tests"
+          docker compose -f docker/docker-compose.yml run --rm tests
       - name: Run test coverage report
         run: |
-            echo "---> Building test image and running tests"
-            docker-compose -f docker/docker-compose.yml run --rm coverage
+          echo "---> Running test coverage report"
+          docker compose -f docker/docker-compose.yml run --rm coverage
       - name: Install dependencies
         run: pip install -r requirements_dev.txt
       - name: Run static analysis
