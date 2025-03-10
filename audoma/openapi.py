@@ -8,33 +8,21 @@ from drf_spectacular.drainage import get_override
 from drf_spectacular.extensions import (
     OpenApiFilterExtension,
     OpenApiSerializerExtension,
-    OpenApiSerializerFieldExtension,
 )
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import (
     ComponentRegistry,
-    ResolvedComponent,
-    UnableToProceedError,
     build_array_type,
     error,
     force_instance,
-    is_basic_serializer,
     is_basic_type,
-    is_field,
     is_list_serializer,
-    is_patched_serializer,
-    is_serializer,
-    is_trivial_string_variation,
     sanitize_specification_extensions,
 )
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse
 from rest_framework.fields import Field
-from rest_framework.generics import (
-    CreateAPIView,
-    GenericAPIView,
-    ListCreateAPIView,
-)
+from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import (
     AND,

@@ -15,7 +15,6 @@ from rest_framework.fields import (
     Field,
     SerializerMethodField,
 )
-from rest_framework.pagination import BasePagination
 from rest_framework.request import Request
 from rest_framework.serializers import (
     BaseSerializer,

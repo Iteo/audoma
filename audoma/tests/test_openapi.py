@@ -2,10 +2,6 @@ from unittest import TestCase
 
 from drf_spectacular.plumbing import ComponentRegistry
 from rest_framework import fields
-from rest_framework.mixins import (
-    CreateModelMixin,
-    ListModelMixin,
-)
 from rest_framework.permissions import (
     BasePermission,
     IsAuthenticated,

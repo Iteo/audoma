@@ -3,13 +3,11 @@ from rest_framework.exceptions import (
     MethodNotAllowed,
     PermissionDenied,
 )
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.serializers import Serializer
 from rest_framework.settings import api_settings
 from rest_framework.test import APIRequestFactory
 
 from django.core.exceptions import ImproperlyConfigured
-from django.db.models import fields
 from django.test import (
     TestCase,
     override_settings,
