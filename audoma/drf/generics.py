@@ -18,12 +18,36 @@ LOCATION_HEADER_STATUSES = [201] + list(range(300, 400))
 
 
 class GenericAPIView(generics.GenericAPIView):
-
     """
     Extended GenericAPIView known from rest_framework.
     This class extends `get_serializer` and `get_serializer_class` methods.
     Also provides `get_result_serializer`, which is a shourtcut for `get_serializer` with proper param.
     """
+
+    @property
+    def paginator(self):
+        """
+        Instantiates and returns the paginator instance, considering custom pagination
+        defined in @action (if any).
+        """
+        if not hasattr(self, "_paginator"):
+            pagination_class = getattr(self, "pagination_class", None)
+
+            if hasattr(self, "action") and self.action:
+                action_method = getattr(self, self.action, None)
+                if (
+                    action_method
+                    and hasattr(action_method, "_audoma")
+                    and action_method._audoma.pagination_class
+                ):
+                    pagination_class = action_method._audoma.pagination_class
+
+            if pagination_class is None:
+                self._paginator = None
+            else:
+                self._paginator = pagination_class()
+
+        return self._paginator
 
     def get_serializer(self, *args, **kwargs) -> BaseSerializer:
         """

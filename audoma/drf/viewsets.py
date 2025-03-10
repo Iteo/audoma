@@ -33,6 +33,9 @@ class AudomaPagination(PageNumberPagination):
     page_size = 25
     max_page_size = 2000
 
+    def get_schema_operation_parameters(self, view=None):
+        return super().get_schema_operation_parameters(view)
+
     def get_paginated_response_schema(self, schema: List[dict]) -> dict:
         """
         Simple method to add pagination information to the schema.

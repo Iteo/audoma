@@ -13,7 +13,10 @@ if __name__ == "__main__":
     django.setup()
     call_command("migrate")
     TestRunner = get_runner(settings)
-    test_runner = TestRunner()
+    failfast = "--failfast" in sys.argv
+    if failfast:
+        sys.argv.remove("--failfast")
+    test_runner = TestRunner(failfast=failfast)
     tests_to_run = ["healthcare_api", "audoma_api", "audoma.tests", "audoma.tests.drf"]
     try:
         tests_to_run = [sys.argv[1]]

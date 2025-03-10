@@ -14,6 +14,7 @@ from typing import (
 
 from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
+from rest_framework.pagination import BasePagination
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -28,7 +29,10 @@ from audoma import settings as audoma_settings
 
 
 logger = logging.getLogger(__name__)
-
+default_pagination_class = project_settings.REST_FRAMEWORK.get(
+    "DEFAULT_PAGINATION_CLASS"
+)
+default_page_size = project_settings.REST_FRAMEWORK.get("PAGE_SIZE")
 
 SerializersConfig = Union[
     Dict[str, Dict[int, Union[str, Type[BaseSerializer]]]],
@@ -45,6 +49,7 @@ class AudomaArgs:
     errors: List[Union[Exception, Type[Exception]]]
     results_many: bool
     collectors_many: bool
+    pagination_class: Type[BasePagination]
 
 
 class AudomaActionException(Exception):
@@ -135,23 +140,25 @@ class audoma_action:
         collectors_many: bool = False,
         ignore_view_collectors: bool = False,
         run_get_object: bool = None,
+        paginate: bool = True,
+        pagination_class: Type[BasePagination] = None,
         **kwargs,
     ) -> None:
         self.results_many = results_many or many
         self.collectors_many = collectors_many or many
-
         self.collectors = collectors or {}
         self.results = results
         self.ignore_view_collectors = ignore_view_collectors
-
+        self.paginate = paginate
+        self.pagination_class = pagination_class or default_pagination_class
         try:
             self.errors = self._sanitize_error(errors) or []
             self.kwargs = self._sanitize_kwargs(kwargs) or {}
             self.methods = kwargs.get("methods")
             self.framework_decorator = action(**kwargs)
-            detail = kwargs.get("detail", False)
+            self.detail = kwargs.get("detail", False)
             self.run_get_object = (
-                run_get_object if run_get_object is not None else detail
+                run_get_object if run_get_object is not None else self.detail
             )
             if all(method in SAFE_METHODS for method in self.methods) and collectors:
                 raise ImproperlyConfigured(
@@ -352,6 +359,7 @@ class audoma_action:
             errors=self.errors,
             results_many=self.results_many,
             collectors_many=self.collectors_many,
+            pagination_class=self.pagination_class,
         )
         # apply action decorator
         func = self.framework_decorator(func)
@@ -370,33 +378,49 @@ class audoma_action:
                 if collect_serializer:
                     collect_serializer.is_valid(raise_exception=True)
                     kwargs["collect_serializer"] = collect_serializer
-
                 instance, code = func(view, request, *args, **kwargs)
                 # TODO - add verification
 
             except Exception as processed_error:
                 return self._process_error(processed_error, errors, view)
 
-            response_serializer = view.get_result_serializer(
-                instance=instance,
-                context={
-                    "request": request,
-                    "format": view.format_kwarg,
-                    "view": view,
-                },
-                many=self.results_many,
-                status_code=code,
-            )
-
-            if hasattr(view, "_retrieve_response_headers"):
-                headers = view._retrieve_response_headers(code, response_serializer)
+            if instance is not None and self.results_many and self.paginate:
+                response_serializer = view.get_result_serializer(
+                    instance=view.paginate_queryset(instance),
+                    context={
+                        "request": request,
+                        "format": view.format_kwarg,
+                        "view": view,
+                    },
+                    many=True,
+                    status_code=code,
+                )
+                if hasattr(view, "_retrieve_response_headers"):
+                    headers = view._retrieve_response_headers(code, response_serializer)
+                else:
+                    headers = {}
+                return view.get_paginated_response(response_serializer.data)
             else:
-                headers = {}
+                response_serializer = view.get_result_serializer(
+                    instance=instance,
+                    context={
+                        "request": request,
+                        "format": view.format_kwarg,
+                        "view": view,
+                    },
+                    many=self.results_many,
+                    status_code=code,
+                )
 
-            return Response(
-                response_serializer.data,
-                status=code,
-                headers=headers,
-            )
+                if hasattr(view, "_retrieve_response_headers"):
+                    headers = view._retrieve_response_headers(code, response_serializer)
+                else:
+                    headers = {}
+
+                return Response(
+                    response_serializer.data,
+                    status=code,
+                    headers=headers,
+                )
 
         return wrapper

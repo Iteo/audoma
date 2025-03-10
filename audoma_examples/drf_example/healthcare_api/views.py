@@ -14,7 +14,14 @@ from django.shortcuts import get_object_or_404
 
 from audoma.decorators import audoma_action
 from audoma.drf import mixins
-from audoma.drf.viewsets import GenericViewSet
+from audoma.drf.viewsets import (
+    AudomaPagination,
+    GenericViewSet,
+)
+
+
+class CustomAudomaPagination(AudomaPagination):
+    page_query_param = "pg"
 
 
 # This viewset shows how audoma works for standard drf's action and custom audoma mixins
@@ -34,6 +41,7 @@ class PatientViewset(
     get_files_serializer_class = serializers.PatientFilesDetailSerializer
     queryset = models.Patient.objects.all()
     lookup_url_kwarg = "pk"
+    paginate = None
 
     def filter_queryset(self, queryset):
         if self.request.method in ["PUT", "PATCH"] and isinstance(
@@ -48,6 +56,17 @@ class PatientViewset(
         files = get_object_or_404(models.PatientFiles, patient__id=pk)
         serializer = self.get_serializer(instance=files)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @audoma_action(
+        methods=["GET"],
+        detail=True,
+        results={200: serializers.PerscriptionReadSerializer},
+        paginate=True,
+        many=True,
+        pagination_class=CustomAudomaPagination,
+    )
+    def prescriptions(self, request, pk):
+        return models.Prescription.objects.filter(issued_for=pk), 200
 
 
 class SpecializatioNViewSet(mixins.ListModelMixin, GenericViewSet):

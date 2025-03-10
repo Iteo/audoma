@@ -728,7 +728,7 @@ class AudomaViewsTestCase(AudomaApiTestMixin, TestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 0)
+        self.assertEqual(len(response.data), 4)
 
     def test_car_detail_create_no_tag_names_failure(self):
         m = Manufacturer.objects.create(name="Volov", slug_name="volvo")

@@ -216,6 +216,9 @@ def create_view_with_custom_audoma_action(
     Request or _factory.get("/test-request/")
 
     class ExampleView(*view_baseclasses):
+        def get_queryset(self):
+            return returnables[0]
+
         @audoma_action(name=action_name, *action_args, **action_kwargs)
         def fun(self, request, *args, **kwargs):
             if raise_exception:
