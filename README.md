@@ -34,13 +34,13 @@ Features
 Running example application
 ----------------------------
 You can easily test audoma functionalities with our example application.
-This can be done easily by using `docker` and `docker-compose`.
+This can be done easily by using `docker` and `docker compose`.
 
 You simply have to:
 * clone the repository
 * enter cloned project root folder
 * got to `docker/`
-* run `docker-compose up example_app`
+* run `docker compose up example_app`
 
 Now the example application should be running under `http://localhost:8000`.
 If you want to visit example documentation you should visit `/redoc` or `/swagger-ui`.

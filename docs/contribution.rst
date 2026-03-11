@@ -35,7 +35,7 @@ Running unit tests
 ======================
 | To test audoma we are using tox with multiple Django/DRF/python configurations.
 | To run tests enter audoma root dir and simply use:
-| `docker-compose -f docker/docker-compose.yml up tests`
+| `docker compose -f docker/docker-compose.yml up tests`
 | This will run the whole testing process.
 
 Example application
@@ -44,7 +44,7 @@ Example application
 | Every supported feature should have its representation in an example application
 
 | To star an example application, from the root folder,
-| simply run `docker-compose -f docker/docker-compose.yml up example_app`.
+| simply run `docker compose -f docker/docker-compose.yml up example_app`.
 
 | As mentioned above the example application should illustrate every feature of audoma.
 | If you are going to introduce a new feature it would be nice of you
