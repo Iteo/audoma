@@ -9,6 +9,7 @@ from typing import (
 import exrex
 
 from django.core import validators
+from django.utils import timezone
 
 
 class DEFAULT:
@@ -85,7 +86,7 @@ class RegexExample(Example):
 
 class _DateRelatedExampleMixin:
     def generate_value(self) -> datetime.datetime:
-        return datetime.datetime.now() - datetime.timedelta(
+        return timezone.now() - datetime.timedelta(
             days=random.randint(0, 20),
             hours=random.randint(0, 10),
             minutes=random.randint(0, 40),
