@@ -1,3 +1,4 @@
+from collections import namedtuple
 from typing import (
     Any,
     List,
@@ -9,9 +10,7 @@ from typing import (
 _T = TypeVar("_T")
 
 
-def make_choices(name: str, choices_tuple: Tuple[Any, str, str]) -> _T:
-    from collections import namedtuple
-
+def make_choices(name: str, choices_tuple: Tuple[Tuple[Any, str, str], ...]) -> _T:
     """Factory function for quickly making a namedtuple suitable for use in a
     Django model as a choices attribute on a field. It will preserve order.
 
